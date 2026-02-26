@@ -184,11 +184,11 @@ const Navbar = () => {
                         <ul className="nav-links" onClick={(e) => e.stopPropagation()}>
                             <li><Link to="/" className={location.pathname === '/' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.home')}</Link></li>
                             <li><Link to="/menu" className={location.pathname === '/menu' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.menu')}</Link></li>
-                            <li><Link to="/#booking" onClick={() => setIsMobileMenuOpen(false)}>RESERVATION</Link></li>
-                            <li><Link to="/blog" className={location.pathname === '/blog' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>BLOG</Link></li>
-                            <li><Link to="/about" className={location.pathname === '/about' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>ABOUT</Link></li>
+                            <li><Link to="/#booking" onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.reservation')}</Link></li>
+                            <li><Link to="/blog" className={location.pathname === '/blog' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.blog')}</Link></li>
+                            <li><Link to="/about" className={location.pathname === '/about' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.about')}</Link></li>
                             <li><Link to="/gallery" className={location.pathname === '/gallery' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.gallery')}</Link></li>
-                            <li><Link to="/build-burger" className={location.pathname === '/build-burger' ? 'active' : ''} style={{ fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>🍔 CONSTRUCTOR</Link></li>
+                            <li><Link to="/build-burger" className={location.pathname === '/build-burger' ? 'active' : ''} style={{ fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>🍔 {t('navbar.constructor')}</Link></li>
                         </ul>
                     </div>
 
@@ -220,7 +220,7 @@ const Navbar = () => {
                             <div className="language-selector">
                                 <button className="lang-btn">
                                     <FaGlobe />
-                                    <span>{i18n.language.toUpperCase()}</span>
+                                    <span>{(i18n.language || 'uz').slice(0, 2).toUpperCase()}</span>
                                 </button>
                                 <div className="lang-dropdown">
                                     <button onClick={() => i18n.changeLanguage('uz')}>UZ</button>

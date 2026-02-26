@@ -8,6 +8,10 @@ import json
 import os
 import threading
 import random
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI()
 
@@ -21,9 +25,13 @@ app.add_middleware(
 
 @app.get("/")
 def home():
-    return {"status": "ok", "message": "Fast Food SMS & Order Service is running!"}
+    return {
+        "status": "ok", 
+        "message": "Fast Food SMS & Order Service is running!",
+        "heartbeat": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
 
-DEFAULT_BOT_TOKEN = "" # Telegram bot token removed for security (use environment variables)
+DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 
 # Eskiz sozlamalarini saqlash
 ESKIZ_FILE = os.path.join(os.path.dirname(__file__), "eskiz_settings.json")
@@ -491,10 +499,25 @@ def start_bot():
     if DEFAULT_BOT_TOKEN:
         threading.Thread(target=bot_polling, args=(DEFAULT_BOT_TOKEN,), daemon=True).start()
 
+def keep_alive():
+    """Server o'chib qolmasligi uchun o'z-o'zini ping qilib turadi"""
+    print("[SYSTEM] Keep-Alive tizimi yoqildi.")
+    while True:
+        try:
+            # Render/Vercel URL'ingizni bu yerga avtomatik aniqlaydigan qilsak ham bo'ladi
+            # Lekin eng yaxshisi tashqi pinger (cron-job.org) ishlatish
+            requests.get("http://127.0.0.1:8000/", timeout=10)
+            print("[KEEP-ALIVE] Ping yuborildi.")
+        except:
+            pass
+        time.sleep(600) # Har 10 daqiqada
+
 @app.on_event("startup")
 def startup_event():
     print("[SYSTEM] FastAPI server ishga tushdi.")
     start_bot()
+    # Self-ping threadini faqat productionda ishlatsa ham bo'ladi
+    threading.Thread(target=keep_alive, daemon=True).start()
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

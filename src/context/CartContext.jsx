@@ -301,8 +301,8 @@ export const CartProvider = ({ children }) => {
     const [telegramSettings, setTelegramSettings] = useState(() => {
         const saved = localStorage.getItem('bsb_tg_settings');
         const defaults = {
-            botToken: '', // Telegram bot token removed for security (use environment variables)
-            chatId: '',
+            botToken: import.meta.env.VITE_TELEGRAM_BOT_TOKEN || '',
+            chatId: import.meta.env.VITE_TELEGRAM_CHAT_ID || '',
             botUsername: 'blackstar_burger_bot'
         };
         return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
@@ -343,7 +343,8 @@ export const CartProvider = ({ children }) => {
         };
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/send-verification', {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+            const response = await fetch(`${apiUrl}/send-verification`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

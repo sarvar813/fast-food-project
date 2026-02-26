@@ -15,7 +15,9 @@ i18n
                         "about": "BIZ HAQIMIZDA",
                         "gallery": "GALEREYA",
                         "menu": "MENYU",
-                        "shopping": "+ XARID QILISH"
+                        "shopping": "+ XARID QILISH",
+                        "reservation": "BAND QILISH",
+                        "constructor": "KONSTRUKTOR"
                     },
                     "hero": {
                         "order_now": "BUYURTMA BERISH",
@@ -118,7 +120,9 @@ i18n
                         "about": "О НАС",
                         "gallery": "ГАЛЕРЕЯ",
                         "menu": "МЕНЮ",
-                        "shopping": "+ К ПОКУПКАМ"
+                        "shopping": "+ К ПОКУПКАМ",
+                        "reservation": "БРОНИРОВАНИЕ",
+                        "constructor": "КОНСТРУКТОР"
                     },
                     "hero": {
                         "order_now": "ЗАКАЗАТЬ",
@@ -221,7 +225,9 @@ i18n
                         "about": "ABOUT US",
                         "gallery": "GALLERY",
                         "menu": "MENU",
-                        "shopping": "+ SHOPPING"
+                        "shopping": "+ SHOPPING",
+                        "reservation": "RESERVATION",
+                        "constructor": "CONSTRUCTOR"
                     },
                     "hero": {
                         "order_now": "ORDER NOW",
@@ -318,7 +324,11 @@ i18n
             }
         },
         fallbackLng: 'uz',
-        debug: false,
+        debug: true, // Turn on debug to help user see issues in console
+        detection: {
+            order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
+            caches: ['localStorage', 'cookie']
+        },
         interpolation: {
             escapeValue: false,
         }

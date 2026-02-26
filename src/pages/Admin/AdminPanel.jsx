@@ -15,7 +15,6 @@ const AdminPanel = () => {
     const [currentRole, setCurrentRole] = useState(null);
     const [isPinRequired, setIsPinRequired] = useState(false);
     const [securityVerified, setSecurityVerified] = useState(false);
-    const [isLockdown, setIsLockdown] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
     const [securityScore, setSecurityScore] = useState(99.8);
     const [violationCount, setViolationCount] = useState(0);
@@ -47,7 +46,6 @@ const AdminPanel = () => {
 
     const atomicPurge = () => {
         setIsPermanentLock(true);
-        setIsLockdown(true);
 
         // OMEGA: Memory Wiping
         const sensitiveDataKeys = ['bsb_admin_token', 'bsb_pin_verified', 'bsb_inventory', 'bsb_audit_logs'];
@@ -62,9 +60,7 @@ const AdminPanel = () => {
             document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
         });
 
-        // DOM Obfuscation: Hide everything instantly
-        document.body.innerHTML = '<div style="background:#000;color:#f00;height:100vh;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:24px;">[TERMINAL_CRITICAL_VOID] SESSION_PURGED_BY_IDS</div>';
-
+        // OMEGA: Session Purged logic completed.
         logAction('OMEGA', 'Purge', 'Atomic Session Destruction executed.');
         setTimeout(() => window.location.reload(), 2000);
     };
@@ -83,20 +79,44 @@ const AdminPanel = () => {
         };
 
         const getAdvancedHWID = () => {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            let webglInfo = '';
-            if (gl) {
-                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                webglInfo = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+            try {
+                // Separate canvas for WebGL to avoid context conflict
+                const canvasGL = document.createElement('canvas');
+                const gl = canvasGL.getContext('webgl') || canvasGL.getContext('experimental-webgl');
+                let webglInfo = '';
+                if (gl) {
+                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                    if (debugInfo) {
+                        webglInfo = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                    }
+                    // Lose context to free resources
+                    const loseContext = gl.getExtension('WEBGL_lose_context');
+                    if (loseContext) loseContext.loseContext();
+                }
+
+                // Separate canvas for 2D fingerprinting
+                const canvas2D = document.createElement('canvas');
+                const screenInfo = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}`;
+                const canvas_ctx = canvas2D.getContext('2d');
+                let canvas_data = '';
+                if (canvas_ctx) {
+                    canvas_ctx.textBaseline = "top";
+                    canvas_ctx.font = "14px 'Arial'";
+                    canvas_ctx.textBaseline = "alphabetic";
+                    canvas_ctx.fillStyle = "#f60";
+                    canvas_ctx.fillRect(125, 1, 62, 20);
+                    canvas_ctx.fillStyle = "#069";
+                    canvas_ctx.fillText("ABS_VOID_INTEGRITY", 2, 15);
+                    canvas_ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+                    canvas_ctx.fillText("ABS_VOID_INTEGRITY", 4, 17);
+                    canvas_data = canvas2D.toDataURL();
+                }
+
+                return btoa(`${webglInfo}-${screenInfo}-${canvas_data.slice(-50)}`);
+            } catch (e) {
+                console.warn("HWID generation failed, using fallback", e);
+                return btoa(navigator.userAgent + window.screen.width);
             }
-
-            const screenInfo = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}`;
-            const canvas_ctx = canvas.getContext('2d');
-            canvas_ctx.fillText("ABS_VOID_INTEGRITY", 10, 10);
-            const canvas_data = canvas.toDataURL();
-
-            return btoa(`${webglInfo}-${screenInfo}-${canvas_data.slice(-50)}`);
         };
 
         const verifyToken = () => {
@@ -132,19 +152,8 @@ const AdminPanel = () => {
         };
 
         const blockHostileActions = (e) => {
-            if (e.type === 'contextmenu') e.preventDefault();
-            // Block: F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+S, Ctrl+P
-            if (e.keyCode === 123 ||
-                (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) ||
-                (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 80))) {
-                e.preventDefault();
-                setViolationCount(v => {
-                    const next = v + 1;
-                    logAction('IDS', 'Detection', `Unauthorized Action Attempted: ${e.keyCode}. Count: ${next}`);
-                    return next;
-                });
-                return false;
-            }
+            // Restrictions removed by user request
+            return true;
         };
 
         // Core Watchdogs
@@ -198,7 +207,8 @@ const AdminPanel = () => {
             atomicPurge();
         }
 
-        // ANTI-DEBUGGER: Detects if DevTools 'Sources' panel or Debugger is active
+        // ANTI-DEBUGGER: Disabled by user request
+        /*
         intervals.push(setInterval(() => {
             const start = performance.now();
             debugger;
@@ -208,20 +218,11 @@ const AdminPanel = () => {
                 setSecurityScore(s => (parseFloat(s) - 5.0).toFixed(1));
             }
         }, 4000));
+        */
 
-        // CONSOLE TAMPER PROTECTION
+        // CONSOLE TAMPER PROTECTION: Disabled by user request
         const protectConsole = () => {
-            const noop = () => {
-                logAction('IDS', 'Console', 'Unauthorized console access attempt blocked.');
-                return false;
-            };
-            // Disable common inspection tools
-            if (!window.location.hostname.includes('localhost')) {
-                // console.log = noop;
-                // console.warn = noop;
-                // console.error = noop;
-                // console.table = noop;
-            }
+            return true;
         };
         protectConsole();
 
@@ -261,8 +262,7 @@ const AdminPanel = () => {
             if (activeInstance && activeInstance !== instanceId && isLoggedIn) {
                 logAction('OMEGA', 'Tab Conflict', 'Multiple admin instances detected.');
                 // Show warning instead of instant purge to avoid accidental logout
-                addToast('SESSION CONFLICT', 'Admin panel boshqa tabda ochilgan. Bu tab bloklandi.', <FaShieldAlt />);
-                setIsLockdown(true);
+                addToast('SESSION CONFLICT', 'Admin panel boshqa tabda ochilgan. Diqqat bilan foydalaning.', <FaShieldAlt />);
             } else {
                 localStorage.setItem(tabKey, instanceId);
             }
@@ -292,8 +292,9 @@ const AdminPanel = () => {
         window.addEventListener('input', checkInjection);
         window.addEventListener('error', handleSuspiciousError);
 
-        window.addEventListener('contextmenu', blockHostileActions);
-        window.addEventListener('keydown', blockHostileActions);
+        // Event listeners for security (keyboard/right-click) are now neutral
+        window.addEventListener('contextmenu', (e) => { });
+        window.addEventListener('keydown', (e) => { });
         window.addEventListener('mousemove', resetInactivity);
         window.addEventListener('mousedown', resetInactivity);
         window.addEventListener('visibilitychange', handleVisibilityChange);
@@ -301,19 +302,18 @@ const AdminPanel = () => {
         // DOM INTEGRITY: MutationObserver to detect if security elements are hidden/removed
         const observer = new MutationObserver((mutations) => {
             // GRACE PERIOD: Don't check integrity if we just logged in or nodes haven't rendered yet
-            if (!isLoggedIn || isLockdown) return;
+            if (!isLoggedIn) return;
 
             mutations.forEach((mutation) => {
                 if (mutation.type === 'childList') {
                     const securityNodes = ['.abs-void-watermark', '.security-pulse', '.admin-sidebar', '.admin-header'];
                     securityNodes.forEach(selector => {
                         // Only trigger if node existed but was removed, not if it's just not there yet
-                        if (!document.querySelector(selector) && isLoggedIn && !isLockdown) {
+                        if (!document.querySelector(selector) && isLoggedIn) {
                             // Check if sufficient time has passed since login (grace period 5s)
                             const loginTime = parseInt(sessionStorage.getItem('bsb_login_time') || '0');
                             if (Date.now() - loginTime > 5000) {
                                 logAction('OMEGA', 'DOM Integrity', `Security component ${selector} tampered/removed.`);
-                                setIsLockdown(true);
                             }
                         }
                     });
@@ -355,7 +355,6 @@ const AdminPanel = () => {
         }
         if (violationCount >= 3) {
             setIsPermanentLock(true);
-            setIsLockdown(true);
             logAction('IDS', 'Lockdown', 'Violation threshold exceeded (Level 3)');
         }
     }, [violationCount]);
@@ -553,10 +552,9 @@ const AdminPanel = () => {
                     response.msg = "ABS-VOID Commands: help, status, lockdown, shield, audit, purge, scramble, reboot, void, logout";
                     break;
                 case 'lockdown':
-                    response.msg = "CRITICAL: LOCKDOWN INITIATED. TIZIM MUZLATILMOQDA...";
-                    response.type = 'error';
-                    logAction('Security', 'Emergency', 'Lockdown triggered via Terminal');
-                    setTimeout(() => setIsLockdown(true), 1500);
+                    response.msg = "SECURITY: Tizim xavfsizligi terminal orqali tekshirilmoqda...";
+                    response.type = 'warning';
+                    logAction('Security', 'Emergency', 'Lockdown protocol simulated via Terminal');
                     break;
                 case 'purge':
                     response.msg = "FATAL: ATOMIC_PURGE INITIATED. MEMORY WIPING...";
@@ -1148,7 +1146,7 @@ const AdminPanel = () => {
                                                 <div className="heat-point p4" title="Olmazor: 45 ta"></div>
                                                 <div className="heat-point p5" title="Sergeli: 28 ta"></div>
                                             </div>
-                                            <img src="https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/69.2406,41.2995,11,0/600x300?access_token=YOUR_MAPBOX_TOKEN" onError={(e) => e.target.src = "https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1000&auto=format&fit=crop"} alt="Tashkent Map" />
+                                            <img src={`https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/69.2406,41.2995,11,0/600x300?access_token=${import.meta.env.VITE_MAPBOX_TOKEN || 'YOUR_MAPBOX_TOKEN'}`} onError={(e) => e.target.src = "https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1000&auto=format&fit=crop"} alt="Tashkent Map" />
                                         </div>
                                     </div>
                                 </div>
@@ -2970,76 +2968,6 @@ const AdminPanel = () => {
                 return <div>Tez kunda...</div>;
         }
     };
-
-    if (isLockdown) {
-        return (
-            <div className={`lockdown-overlay ${isPermanentLock ? 'permanent' : ''}`}>
-                <div className="void-glitch-overlay"></div>
-                <div className="void-scanline"></div>
-
-                <div className="lockdown-core">
-                    <motion.div
-                        className="warning-shield"
-                        animate={{ scale: [1, 1.1, 1], opacity: [0.7, 1, 0.7] }}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                    >
-                        <FaShieldAlt size={120} color="#ff0033" />
-                    </motion.div>
-
-                    <h1 className="glitch-text" data-text={isPermanentLock ? "CRITICAL_SYSTEM_FAILURE" : "SYSTEM_LOCKDOWN"}>
-                        {isPermanentLock ? "CRITICAL_SYSTEM_FAILURE" : "SYSTEM_LOCKDOWN"}
-                    </h1>
-
-                    <div className="diagnostics-terminal">
-                        <div className="terminal-header">
-                            <span>TERMINAL v4.0.9 - SECURITY_CORE</span>
-                            <div className="dots"><span></span><span></span><span></span></div>
-                        </div>
-                        <div className="terminal-content">
-                            <p className="log-entry">[0.0001] Initializing VOID_CORE integrity check...</p>
-                            <p className="log-entry">[0.0042] Threat detected: HOSTILE_INTENT_DETECTED</p>
-                            <p className="log-entry">[0.0192] Violation Count: {violationCount}/3</p>
-                            <p className="log-entry">[0.0481] Security Protocol: BLACK_VOID initiated</p>
-                            {isPermanentLock && (
-                                <>
-                                    <p className="log-entry danger">[ERROR] MEMORY_INTEGRITY_COMPROMISED</p>
-                                    <p className="log-entry danger">[ERROR] SESSION_CLONING_DETECTED</p>
-                                    <p className="log-entry danger">[FATAL] PERMANENT_LOCK_ENGAGED</p>
-                                    <p className="log-entry danger">[ACTION] Hardware ID blacklisted on Master Server</p>
-                                </>
-                            )}
-                            <p className="log-entry active-line">_</p>
-                        </div>
-                    </div>
-
-                    <p className="lockdown-msg">
-                        {isPermanentLock
-                            ? "Ushbu qurilma tizim xavfsizligini buzishga urindi. Barcha kirish huquqlari server darajasida doimiy bloklandi."
-                            : "Shubhali harakat aniqlandi. Davom etish uchun SuperAdmin tasdig'i talab qilinadi."}
-                    </p>
-
-                    {!isPermanentLock && (
-                        <button
-                            className="emergency-unlock-btn"
-                            onClick={() => {
-                                const pass = window.prompt("MASTER_OVERRIDE_KEY:");
-                                if (pass === 'VOID_RECOVERY_99') {
-                                    setIsLockdown(false);
-                                    setViolationCount(0);
-                                    addToast('SECURITY', 'Sistem qayta tiklandi', <FaShieldAlt />);
-                                } else {
-                                    setViolationCount(v => v + 1);
-                                    addToast('FATAL', 'Override key noto\'g\'ri!', <FaTimesCircle />);
-                                }
-                            }}
-                        >
-                            <FaBolt /> OVERRIDE LOCKDOWN
-                        </button>
-                    )}
-                </div>
-            </div>
-        );
-    }
 
     if (!isLoggedIn) return <AdminLogin onLogin={handleLogin} />;
 

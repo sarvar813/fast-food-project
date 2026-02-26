@@ -12,7 +12,7 @@ from .models import PhoneMap, Subscription, Review, Reservation
 from .serializers import PhoneMapSerializer, SubscriptionSerializer, ReviewSerializer, ReservationSerializer
 
 # --- Configuration & Global State ---
-DEFAULT_BOT_TOKEN = ""  # Telegram bot token removed for security (use environment variables)
+DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 ESKIZ_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "eskiz_settings.json")
 
 pending_codes = {}  # {phone: code}
