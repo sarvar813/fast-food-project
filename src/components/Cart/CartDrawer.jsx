@@ -11,7 +11,7 @@ const CartDrawer = () => {
         clearCart, placeOrder, updateOrderStatus, discount, finalTotal, applyCoupon, appliedCoupon,
         sendVerificationCode, telegramSettings, bonuses, useBonuses, setUseBonuses, bonusToUse, discountAmount,
         userStats, addToCart, deliveryFee, setDeliveryFee, isSurgeActive, surgeMultiplier,
-        getRecommendedItems, finalDeliveryFee, claimLoyaltyReward
+        getRecommendedItems, finalDeliveryFee, claimLoyaltyReward, sendTelegramNotification
     } = useCart();
 
     const getStatusInfo = (level) => {
@@ -87,6 +87,9 @@ const CartDrawer = () => {
         };
 
         placeOrder(newOrder);
+        if (success) {
+            sendTelegramNotification(newOrder);
+        }
         setOrderDetails(newOrder);
         setStep('cart');
         clearCart();

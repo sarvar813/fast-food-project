@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FaUtensils, FaClipboardList, FaUsers, FaChartLine, FaSignOutAlt, FaPlus, FaTrash, FaEdit, FaBell, FaSearch, FaCogs, FaEye, FaEyeSlash, FaCheckCircle, FaTimesCircle, FaTimes, FaCalendarAlt, FaPrint, FaComments, FaPaperPlane, FaMotorcycle, FaDoorOpen, FaHistory, FaPalette, FaCrown, FaUserTie, FaGem, FaGift, FaFire, FaBolt, FaMapMarkerAlt, FaExclamationTriangle, FaVolumeUp, FaVolumeMute, FaShieldAlt, FaFingerprint } from 'react-icons/fa';
+import { FaUtensils, FaClipboardList, FaUsers, FaChartLine, FaSignOutAlt, FaPlus, FaTrash, FaEdit, FaBell, FaSearch, FaCogs, FaEye, FaEyeSlash, FaCheckCircle, FaTimesCircle, FaTimes, FaCalendarAlt, FaPrint, FaComments, FaPaperPlane, FaMotorcycle, FaDoorOpen, FaHistory, FaPalette, FaCrown, FaUserTie, FaGem, FaGift, FaFire, FaBolt, FaMapMarkerAlt, FaExclamationTriangle, FaVolumeUp, FaVolumeMute, FaShieldAlt, FaFingerprint, FaBars, FaEllipsisV } from 'react-icons/fa';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, AreaChart, Area, PieChart, Pie, Legend } from 'recharts';
 import { useCart } from '../../context/CartContext';
 import { useProducts } from '../../context/ProductContext';
@@ -28,12 +28,13 @@ const AdminPanel = () => {
     const [editingProduct, setEditingProduct] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const shadowRef = React.useRef({ auth: false, role: null, integrity: 'STABLE' });
 
     const {
         orders, updateOrderStatus, updateOrderDetails, isStoreOpen, setIsStoreOpen,
-        telegramSettings, setTelegramSettings, sendTelegramNotification,
+        telegramSettings, setTelegramSettings, sendTelegramNotification, sendCustomerNotification,
         auditLogs, setAuditLogs, logAction, siteSettings, setSiteSettings,
         careerApplications, handleCareerAction,
         staff, addStaff, deleteStaff, updateStaff,
@@ -369,7 +370,8 @@ const AdminPanel = () => {
             const start = performance.now();
             setBackendStatus('checking');
             try {
-                await fetch('http://127.0.0.1:8000/', { method: 'GET' });
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+                await fetch(`${apiUrl}/`, { method: 'GET' });
                 const duration = Math.round(performance.now() - start);
                 setLatency(duration);
                 setBackendStatus(duration > 500 ? 'warning' : 'online');
@@ -737,7 +739,8 @@ const AdminPanel = () => {
     const fetchReviews = async () => {
         playUXSound('pop');
         try {
-            const res = await fetch('http://127.0.0.1:8000/reviews');
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${apiUrl}/reviews`);
             if (res.ok) {
                 const data = await res.json();
                 setAllReviews(data);
@@ -939,11 +942,18 @@ const AdminPanel = () => {
         addToast('BUYURTMA YANGILANDI!', `#${orderId} buyurtma holati '${status}' ga o'zgartirildi!`, <FaCheckCircle />);
         logAction('Admin', 'Order Status', `#${orderId} -> ${status}`);
 
-        // Agar Admin "HA, TO'LOV QILDIM" (preparing) ni bossa, Telegramga xabar yuboramiz
+        // Customer notification when accepted
         if (status === 'preparing') {
             const order = orders.find(o => String(o.orderId) === String(orderId));
             if (order) {
-                sendTelegramNotification(order);
+                const statusMsg = `🛒 <b>BUYURTMANGIZ QABUL QILINDI!</b>\n\n🆔 ID: #${orderId}\n💰 Jami: $${order.total.toFixed(2)}\n\n👨‍🍳 Taomingiz tayyorlanishni boshladi. Yoqimli ishtaha!`;
+                sendCustomerNotification(order.phone, statusMsg);
+            }
+        } else if (status === 'shipping') {
+            const order = orders.find(o => String(o.orderId) === String(orderId));
+            if (order) {
+                const statusMsg = `🛵 Buyurtmangiz #${orderId} yo'lga chiqdi! Kuryerni kuting.`;
+                sendCustomerNotification(order.phone, statusMsg);
             }
         }
     };
@@ -1515,7 +1525,8 @@ const AdminPanel = () => {
                                             if (!window.confirm(confirmText)) return;
                                             setIsBroadcasting(true);
                                             try {
-                                                const res = await fetch('http://localhost:8000/broadcast', {
+                                                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+                                                const res = await fetch(`${apiUrl}/broadcast`, {
                                                     method: 'POST',
                                                     headers: { 'Content-Type': 'application/json' },
                                                     body: JSON.stringify({
@@ -2461,28 +2472,30 @@ const AdminPanel = () => {
 
                         <div className="orders-summary-table-luxury">
                             <h3>Oxirgi Savdolar Tahlili</h3>
-                            <table className="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Mijoz</th>
-                                        <th>Summa</th>
-                                        <th>Kategoriya</th>
-                                        <th>Sana</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {orders.slice(0, 5).map(o => (
-                                        <tr key={o.id}>
-                                            <td>#{o.orderId}</td>
-                                            <td>{o.customer}</td>
-                                            <td style={{ color: '#2ecc71', fontWeight: 'bold' }}>${parseFloat(o.total).toFixed(2)}</td>
-                                            <td>{o.items[0]?.category || 'Kombos'}</td>
-                                            <td>{o.date}</td>
+                            <div className="table-responsive">
+                                <table className="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Mijoz</th>
+                                            <th>Summa</th>
+                                            <th>Kategoriya</th>
+                                            <th>Sana</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {orders.slice(0, 5).map(o => (
+                                            <tr key={o.id}>
+                                                <td>#{o.orderId}</td>
+                                                <td>{o.customer}</td>
+                                                <td style={{ color: '#2ecc71', fontWeight: 'bold' }}>${parseFloat(o.total).toFixed(2)}</td>
+                                                <td>{o.items[0]?.category || 'Kombos'}</td>
+                                                <td>{o.date}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 );
@@ -3049,10 +3062,16 @@ const AdminPanel = () => {
     }
 
     return (
-        <div className="admin-panel-container">
-            <aside className="admin-sidebar">
-                <div className="admin-logo">
-                    <h2>BSB <span>ADMIN</span></h2>
+        <div className={`admin-panel-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+            {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
+            <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+                <div className="sidebar-header-flex">
+                    <div className="admin-logo">
+                        <h2>BSB <span>ADMIN</span></h2>
+                    </div>
+                    <button className="mobile-close-btn" onClick={() => setIsSidebarOpen(false)}>
+                        <FaTimes />
+                    </button>
                 </div>
                 <nav className="admin-nav scrollbar-custom">
                     <div className="security-pulse">
@@ -3102,6 +3121,7 @@ const AdminPanel = () => {
                                     onClick={() => {
                                         setActiveTab(item.id);
                                         playUXSound('click');
+                                        if (window.innerWidth <= 1024) setIsSidebarOpen(false);
                                     }}
                                 >
                                     {item.icon}
@@ -3124,6 +3144,9 @@ const AdminPanel = () => {
             <main className="admin-main">
                 <header className="admin-header">
                     <div className="header-left">
+                        <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)} title="Menyu">
+                            <FaEllipsisV />
+                        </button>
                         <div className={`server-status-pill ${backendStatus}`}>
                             <div className="status-icon">
                                 <FaCogs />

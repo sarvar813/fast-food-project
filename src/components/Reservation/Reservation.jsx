@@ -19,7 +19,8 @@ const Reservation = () => {
         setStatus('loading');
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/reservations', {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+            const response = await fetch(`${apiUrl}/reservations`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

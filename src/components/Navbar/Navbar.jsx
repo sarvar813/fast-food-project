@@ -176,8 +176,14 @@ const Navbar = () => {
             <div className="container">
                 <div className="navbar-content">
                     <Link to="/" className="logo">
-                        <h1 className="logo-text">BLACK STAR BURGER</h1>
-                        <h1 className="logo-text secondary">BLACK STAR BURGER</h1>
+                        <div className="logo-main">
+                            <h1 className="logo-text">BLACK STAR</h1>
+                            <h1 className="logo-text">BURGER</h1>
+                        </div>
+                        <div className="logo-secondary">
+                            <h1 className="logo-text secondary">BLACK STAR</h1>
+                            <h1 className="logo-text secondary">BURGER</h1>
+                        </div>
                     </Link>
 
                     <div className={`nav-links-wrapper ${isMobileMenuOpen ? 'open' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>

@@ -23,7 +23,8 @@ const Profile = () => {
         if (!userPhone) return;
         setChecking(true);
         try {
-            const res = await fetch(`http://localhost:8000/check-phone/${userPhone}`);
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${apiUrl}/check-phone/${userPhone}`);
             const data = await res.json();
             setIsLinked(data.linked);
         } catch (err) {

@@ -21,7 +21,8 @@ const SubscriptionModal = ({ plan, onClose, onSubmit }) => {
         const code = Math.floor(1000 + Math.random() * 9000).toString();
         setGeneratedCode(code);
 
-        const backendUrls = ['http://127.0.0.1:8000', 'http://localhost:8000'];
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const backendUrls = [apiUrl];
         let success = false;
 
         for (const baseUrl of backendUrls) {

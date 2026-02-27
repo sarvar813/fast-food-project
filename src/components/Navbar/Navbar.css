@@ -25,50 +25,70 @@
     text-decoration: none;
     position: relative;
     transition: 0.3s;
+    line-height: 0.85;
 }
 
-.logo:hover {
-    transform: scale(1.02);
+.logo-main,
+.logo-secondary {
+    display: flex;
+    flex-direction: column;
 }
 
-.logo-text {
-    font-size: 26px;
-    font-weight: 900;
-    color: var(--text-color);
-    margin: 0;
-    line-height: 1;
-    font-family: var(--font-heading);
-    letter-spacing: -1px;
+.logo-main {
+    position: relative;
+    z-index: 2;
 }
 
-.logo-text.secondary {
-    font-size: 26px;
+.logo-secondary {
     position: absolute;
     top: 2px;
     left: 2px;
-    z-index: -1;
+    z-index: 1;
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: 950;
+    color: var(--text-color);
+    margin: 0;
+    line-height: 0.85;
+    font-family: var(--font-heading);
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+}
+
+.logo-text.secondary {
     color: var(--primary-color);
-    opacity: 0.3;
-    pointer-events: none;
-    filter: blur(1px);
+    opacity: 0.4;
+    filter: blur(2px);
 }
 
 .nav-links {
     list-style: none;
     display: flex;
-    gap: 35px;
+    gap: 25px;
     padding: 0;
     margin: 0;
+    align-items: center;
+}
+
+.nav-links li {
+    display: flex;
+    align-items: center;
 }
 
 .nav-links li a {
     font-family: var(--font-heading);
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 800;
     color: var(--text-color);
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     text-decoration: none;
     transition: 0.3s;
+    text-transform: uppercase;
+    white-space: nowrap;
+    display: block;
+    padding: 8px 0;
 }
 
 .nav-links li a.active,

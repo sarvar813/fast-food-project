@@ -373,11 +373,19 @@ export const CartProvider = ({ children }) => {
 
     const sendCustomerNotification = async (phone, text) => {
         const { botToken } = telegramSettings;
+        const eskizSettings = JSON.parse(localStorage.getItem('bsb_eskiz_settings') || '{}');
         try {
-            await fetch('http://127.0.0.1:8000/send-message', {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+            await fetch(`${apiUrl}/send-message`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone, text, bot_token: botToken })
+                body: JSON.stringify({
+                    phone,
+                    text,
+                    bot_token: botToken,
+                    email: eskizSettings.email,
+                    password: eskizSettings.password
+                })
             });
         } catch (err) {
             console.error('Customer notification failed:', err);
@@ -561,7 +569,7 @@ export const CartProvider = ({ children }) => {
         <CartContext.Provider value={{
             cartItems, isCartOpen, setIsCartOpen, addToCart, removeFromCart,
             updateQuantity, clearCart, cartTotal, cartCount, orders,
-            placeOrder, updateOrderStatus, updateOrderDetails, sendVerificationCode, discount,
+            placeOrder, updateOrderStatus, updateOrderDetails, sendVerificationCode, sendCustomerNotification, discount,
             discountAmount, finalTotal, applyCoupon, appliedCoupon,
             isStoreOpen, setIsStoreOpen, telegramSettings, setTelegramSettings,
             sendTelegramNotification, bonuses, useBonuses, setUseBonuses, bonusToUse,

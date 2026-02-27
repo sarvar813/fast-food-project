@@ -82,6 +82,13 @@ class SMSRequest(BaseModel):
     bot_token: str = None
     chat_id: str = None
 
+class MessageRequest(BaseModel):
+    phone: str
+    text: str
+    bot_token: str
+    email: str = None
+    password: str = None
+
 def get_eskiz_token(email, password):
     global eskiz_token
     if eskiz_token["token"] and time.time() < eskiz_token["expires_at"]:
@@ -331,18 +338,48 @@ def bot_polling(bot_token):
             print(f"[DEBUG] Polling error: {e}")
             time.sleep(5)
 
-class MessageRequest(BaseModel):
-    phone: str
-    text: str
-    bot_token: str
+# FastAPI Models and Routes are defined at the top for clarity
 
 @app.post("/send-message")
 async def send_message(data: MessageRequest):
     p = "".join(filter(str.isdigit, data.phone))
+    if len(p) == 9:
+        p = "998" + p
+    if p.startswith("8") and len(p) == 11:
+        p = "998" + p[1:]
+    
+    results = {"telegram": "not_sent", "sms": "pending"}
+    
+    # 1. Telegram
     if p in phone_to_chat_id:
-        send_tg(data.bot_token, phone_to_chat_id[p], data.text)
-        return {"status": "sent"}
-    return {"status": "user_not_found"}
+        if send_tg(data.bot_token, phone_to_chat_id[p], data.text):
+            results["telegram"] = "sent"
+        else:
+            results["telegram"] = "error"
+            
+    # 2. SMS Fallback (Eskiz)
+    clean_text = data.text.replace('<b>', '').replace('</b>', '').replace('<i>', '').replace('</i>', '').replace('<code>', '').replace('</code>', '').replace('<br>', '\n').replace('<br/>', '\n')
+    
+    eskiz = load_eskiz_settings()
+    email = data.email or eskiz.get("email")
+    password = data.password or eskiz.get("password")
+
+    if email and password:
+        try:
+            token = get_eskiz_token(email, password)
+            if token:
+                res = requests.post("https://notify.eskiz.uz/api/message/sms/send", 
+                                   headers={"Authorization": f"Bearer {token}"}, 
+                                   data={"mobile_phone": p, "message": clean_text, "from": "4546"})
+                results["sms"] = "sent" if res.status_code == 200 else f"error: {res.text}"
+            else:
+                results["sms"] = "error: token_not_found"
+        except Exception as e:
+            results["sms"] = f"error: {str(e)}"
+    else:
+        results["sms"] = "skipped: No credentials"
+        
+    return results
 
 @app.get("/customers")
 async def get_customers():

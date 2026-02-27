@@ -4,12 +4,12 @@ import requests
 import threading
 import json
 import os
-from django.shortcuts import render
+# from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import PhoneMap, Subscription, Review, Reservation
-from .serializers import PhoneMapSerializer, SubscriptionSerializer, ReviewSerializer, ReservationSerializer
+from .serializers import SubscriptionSerializer, ReviewSerializer, ReservationSerializer
 
 # --- Configuration & Global State ---
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
@@ -249,8 +249,10 @@ def home(request):
 def send_verification(request):
     data = request.data
     phone = "".join(filter(str.isdigit, str(data.get('phone', ''))))
-    if len(phone) == 9: phone = "998" + phone
-    if phone.startswith("8") and len(phone) == 11: phone = "998" + phone[1:]
+    if len(phone) == 9:
+        phone = "998" + phone
+    if phone.startswith("8") and len(phone) == 11:
+        phone = "998" + phone[1:]
     
     code = str(data.get('code', ''))
     bot_token = data.get('bot_token') or DEFAULT_BOT_TOKEN
@@ -284,15 +286,50 @@ def send_verification(request):
 
 @api_view(['POST'])
 def send_message(request):
-    phone = "".join(filter(str.isdigit, str(request.data.get('phone', ''))))
-    text = request.data.get('text', '')
-    bot_token = request.data.get('bot_token') or DEFAULT_BOT_TOKEN
+    data = request.data
+    phone = "".join(filter(str.isdigit, str(data.get('phone', ''))))
+    if len(phone) == 9:
+        phone = "998" + phone
+    if phone.startswith("8") and len(phone) == 11:
+        phone = "998" + phone[1:]
     
+    text = data.get('text', '')
+    # SMS uchun HTML teglarini olib tashlaymiz
+    clean_text = text.replace('<b>', '').replace('</b>', '').replace('<i>', '').replace('</i>', '').replace('<code>', '').replace('</code>', '').replace('<br>', '\n').replace('<br/>', '\n')
+    
+    bot_token = data.get('bot_token') or DEFAULT_BOT_TOKEN
+    
+    results = {"telegram": "not_sent", "sms": "pending"}
+    
+    # 1. Telegramga yuborishga harakat qilamiz
     pmap = PhoneMap.objects.filter(phone=phone).first()
     if pmap:
-        send_tg(bot_token, pmap.chat_id, text)
-        return Response({"status": "sent"})
-    return Response({"status": "user_not_found"})
+        if send_tg(bot_token, pmap.chat_id, text):
+            results["telegram"] = "sent"
+        else:
+            results["telegram"] = "error"
+            
+    # 2. Eskiz orqali SMS yuboramiz
+    eskiz = load_eskiz_settings()
+    email = data.get('email') or eskiz.get('email')
+    password = data.get('password') or eskiz.get('password')
+    
+    if email and password:
+        try:
+            token = get_eskiz_token(email, password)
+            if token:
+                res = requests.post("https://notify.eskiz.uz/api/message/sms/send", 
+                                   headers={"Authorization": f"Bearer {token}"}, 
+                                   data={"mobile_phone": phone, "message": clean_text, "from": "4546"})
+                results["sms"] = "sent" if res.status_code == 200 else f"error: {res.text}"
+            else:
+                results["sms"] = "error: token_not_found"
+        except Exception as e:
+            results["sms"] = f"error: {str(e)}"
+    else:
+        results["sms"] = "skipped: No credentials"
+        
+    return Response(results)
 
 @api_view(['GET'])
 def get_customers(request):
@@ -420,7 +457,7 @@ def res_action(request):
         if new_status == "confirmed":
             msg = f"✅ <b>STOL BAND QILISH TASDIQLANDI!</b>\n\n👤 Ism: {res.name}\n🗓 Sana: {res.date}\n⏰ Vaqt: {res.time}\n👥 Mehmonlar: {res.guests}\n\nSizni kutib qolamiz! 😊"
         elif new_status == "cancelled":
-            msg = f"❌ <b>STOL BAND QILISH BEKOR QILINDI</b>\n\nUzr so'raymiz, ko'rsatilgan vaqtda joylarimiz band ekan. Boshqa vaqtni tanlab ko'rishingizni iltimos qilamiz."
+            msg = "❌ <b>STOL BAND QILISH BEKOR QILINDI</b>\n\nUzr so'raymiz, ko'rsatilgan vaqtda joylarimiz band ekan. Boshqa vaqtni tanlab ko'rishingizni iltimos qilamiz."
         
         send_tg(bot_token, pmap.chat_id, msg)
             
