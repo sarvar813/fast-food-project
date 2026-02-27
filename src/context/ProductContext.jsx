@@ -139,7 +139,7 @@ const initialProducts = [
         name: 'Chili Hot Sauce',
         price: '$1.50',
         category: 'SIDES',
-        image: 'https://images.unsplash.com/photo-1607330283713-1077755b62e4?q=80&w=800&auto=format&fit=crop',
+        image: '/chili.png',
         description: 'Maksimal achchiqlikni sevuvchilar uchun maxsus Chili sousi.',
         ingredients: ['Chili qalampiri', 'Ziravorlar', 'Tabiiy pomidor'],
         rating: 4.8,
@@ -163,7 +163,7 @@ const initialProducts = [
         name: 'Sweet & Thai Sauce',
         price: '$1.50',
         category: 'SIDES',
-        image: 'https://images.unsplash.com/photo-1585325701166-38169ec3118a?q=80&w=800&auto=format&fit=crop',
+        image: '/sweet-thai.png',
         description: 'Nordon-shirin Thai uslubidagi sous.',
         ingredients: ['Shakar', 'Sarimsoq', 'Limon'],
         rating: 4.7,
@@ -175,7 +175,7 @@ const initialProducts = [
         name: 'White Garlic Sauce',
         price: '$1.50',
         category: 'SIDES',
-        image: 'https://images.unsplash.com/photo-1549590143-fd300407a97b?q=80&w=800&auto=format&fit=crop',
+        image: '/garlic.png',
         description: 'Mayin sarimsoqli oq sous.',
         ingredients: ['Sarimsoq', 'Qaymoq', 'Ko\'katlar'],
         rating: 4.8,
@@ -395,7 +395,13 @@ export const ProductProvider = ({ children }) => {
         const saved = localStorage.getItem('bsb_products');
         if (saved) {
             try {
-                const savedProducts = JSON.parse(saved);
+                const savedProducts = JSON.parse(saved).map(p => {
+                    // Yangi rasmlarni majburiy yuklash
+                    if (p.id === 9 && p.image.includes('unsplash')) return { ...p, image: '/chili.png' };
+                    if (p.id === 101 && p.image.includes('unsplash')) return { ...p, image: '/sweet-thai.png' };
+                    if (p.id === 102 && p.image.includes('unsplash')) return { ...p, image: '/garlic.png' };
+                    return p;
+                });
                 const savedIds = savedProducts.map(p => p.id);
                 // Faqat yangi (kodga qo'shilgan) mahsulotlarni qo'shamiz, mavjudlarini o'zgartirmaymiz
                 const newInitialProducts = initialProducts.filter(p => !savedIds.includes(p.id));
