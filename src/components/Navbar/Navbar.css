@@ -774,8 +774,3 @@
     background: var(--primary-color) !important;
     color: #fff !important;
 }
-
-/* Dark mode adjustment */
-[data-theme='dark'] .navbar {
-    background-color: rgba(12, 12, 12, 0.85);
-}

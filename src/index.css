@@ -27,7 +27,7 @@
   --card-bg: #ffffff;
   --border-color: #e9ecef;
   --section-bg: #f8f9fa;
-  --nav-bg: rgba(255, 255, 255, 0.85);
+  --nav-bg: #ffffff;
   --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
@@ -39,7 +39,7 @@
   --card-bg: #181818;
   --border-color: #222222;
   --section-bg: #0a0a0a;
-  --nav-bg: rgba(12, 12, 12, 0.85);
+  --nav-bg: #0c0c0c;
   --shadow-main: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 
@@ -53,7 +53,7 @@
   --border-color: #ff00ff;
   --section-bg: #000000;
   --text-gray: #ff00ff;
-  --nav-bg: rgba(5, 5, 5, 0.85);
+  --nav-bg: #050505;
 }
 
 [data-theme='neon'] * {
