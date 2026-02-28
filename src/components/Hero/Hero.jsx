@@ -15,7 +15,7 @@ const Hero = () => {
     const { addToCart, setIsCartOpen, isStoreOpen } = useCart();
     const { products } = useProducts();
 
-    const slides = [
+    const slides = React.useMemo(() => [
         {
             productId: 1,
             image: 'https://images.unsplash.com/photo-1610440042657-612c34d95e9f?q=80&w=1000&auto=format&fit=crop',
@@ -74,7 +74,7 @@ const Hero = () => {
                 t('hero.slides.slide4.ing4')
             ]
         }
-    ];
+    ], [t]);
 
     useEffect(() => {
         const interval = setInterval(() => {
