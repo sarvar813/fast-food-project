@@ -264,8 +264,9 @@ export const CartProvider = ({ children }) => {
     const [telegramSettings, setTelegramSettings] = useState(() => {
         const saved = localStorage.getItem('bsb_tg_settings');
         return saved ? JSON.parse(saved) : {
-            botToken: '7394558223:AAES-7C-A8K49c_2DOnn7f9R6I79WvUoyW4',
-            adminChatId: '5177651030',
+            botToken: '8177839279:AAFJp_FHnzHjmy0MNwmgEDkL4BCfZEt73G8',
+            adminChatId: '7867408736',
+            botUsername: 'Burger_Order_Fast_Food_bot',
             channelId: '@bsb_orders'
         };
     });
@@ -462,7 +463,28 @@ export const CartProvider = ({ children }) => {
 
     const sendVerificationCode = async (phone, code) => {
         console.log(`Sending code ${code} to ${phone}`);
-        // Telegram notification about verification code could go here too
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+
+        try {
+            const res = await fetch(`${apiUrl}/send-verification`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: phone,
+                    code: code,
+                    bot_token: telegramSettings.botToken
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                console.log("Verification request result:", data);
+            }
+        } catch (e) {
+            console.error("Failed to send verification code to backend:", e);
+        }
+
+        // Always also notify admin as fallback
         const text = `🔐 *VERIFIKATSIYA KODI*\n` +
             `📞 Telefon: ${phone}\n` +
             `🔢 Kod: *${code}*`;
@@ -473,7 +495,7 @@ export const CartProvider = ({ children }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: telegramSettings.adminChatId,
-                    text,
+                    text: text,
                     parse_mode: 'Markdown'
                 })
             });

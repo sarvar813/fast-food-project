@@ -302,6 +302,10 @@ def home(request):
 
 @api_view(['POST'])
 def send_verification(request):
+    # Start bot if not running
+    if DEFAULT_BOT_TOKEN and DEFAULT_BOT_TOKEN not in bot_threads:
+        threading.Thread(target=bot_polling, args=(DEFAULT_BOT_TOKEN,), daemon=True).start()
+    
     data = request.data
     phone = "".join(filter(str.isdigit, str(data.get('phone', ''))))
     if len(phone) == 9:
