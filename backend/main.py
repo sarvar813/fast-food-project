@@ -298,7 +298,7 @@ def bot_polling(bot_token):
                             phone_to_chat_id[phone] = chat_id
                             save_phone_map()
                             user_sessions[chat_id]["step"] = "start"
-                            kb = {"keyboard": [[{"text": "🛍 Saytdan buyurtma", "web_app": {"url": "https://blackstarburger.uz"}}], [{"text": "🛍 Buyurtma"}, {"text": "📦 Buyurtmalarim"}], [{"text": "ℹ️ Ma'lumot"}, {"text": "⚙️ Sozlamalar"}]], "resize_keyboard": True}
+                            kb = {"keyboard": [[{"text": "🛍 Saytdan buyurtma", "web_app": {"url": "https://fast-food-final.onrender.com/"}}], [{"text": "🛍 Buyurtma"}, {"text": "📦 Buyurtmalarim"}], [{"text": "ℹ️ Ma'lumot"}, {"text": "⚙️ Sozlamalar"}]], "resize_keyboard": True}
                             send_tg(bot_token, chat_id, f"✅ Raqamingiz ({phone}) tasdiqlandi!", kb)
                             print(f"[BOT] User {chat_id} verified via code")
                         else:
@@ -325,11 +325,11 @@ def bot_polling(bot_token):
                             continue
 
                         if is_verified:
-                            kb = {"keyboard": [[{"text": "🛍 Saytdan buyurtma", "web_app": {"url": "https://blackstarburger.uz"}}], [{"text": "🛍 Buyurtma"}, {"text": "📦 Buyurtmalarim"}], [{"text": "ℹ️ Ma'lumot"}, {"text": "⚙️ Sozlamalar"}]], "resize_keyboard": True}
-                            send_tg(bot_token, chat_id, "Xush kelibsiz! Marhamat, menyudan foydalaning:", kb)
+                            kb = {"keyboard": [[{"text": "🛍 Saytdan buyurtma", "web_app": {"url": "https://fast-food-final.onrender.com/"}}], [{"text": "🛍 Buyurtma"}, {"text": "📦 Buyurtmalarim"}], [{"text": "ℹ️ Ma'lumot"}, {"text": "⚙️ Sozlamalar"}]], "resize_keyboard": True}
+                            send_tg(bot_token, chat_id, "Xush kelibsiz! Marhamat, menyudan foydalaning yoki saytimiz orqali buyurtma bering:\n\n🔗 https://fast-food-final.onrender.com/", kb)
                         else:
                             kb = {"keyboard": [[{"text": "📞 Raqamni tasdiqlash", "request_contact": True}]], "resize_keyboard": True}
-                            send_tg(bot_token, chat_id, "Xush kelibsiz! Davom etish uchun raqamingizni tasdiqlang:", kb)
+                            send_tg(bot_token, chat_id, "Xush kelibsiz! Davom etish uchun raqamingizni tasdiqlang. Shuningdek, saytimiz orqali buyurtma berishingiz ham mumkin:\n\n🔗 https://fast-food-final.onrender.com/", kb)
                         continue
 
                     phone = None
@@ -349,7 +349,7 @@ def bot_polling(bot_token):
                             web_code = pending_codes[p_str]
                             phone_to_chat_id[p_str] = chat_id
                             save_phone_map()
-                            kb = {"keyboard": [[{"text": "🛍 Saytdan buyurtma", "web_app": {"url": "https://blackstarburger.uz"}}], [{"text": "🛍 Buyurtma"}, {"text": "📦 Buyurtmalarim"}], [{"text": "ℹ️ Ma'lumot"}, {"text": "⚙️ Sozlamalar"}]], "resize_keyboard": True}
+                            kb = {"keyboard": [[{"text": "🛍 Saytdan buyurtma", "web_app": {"url": "https://fast-food-final.onrender.com/"}}], [{"text": "🛍 Buyurtma"}, {"text": "📦 Buyurtmalarim"}], [{"text": "ℹ️ Ma'lumot"}, {"text": "⚙️ Sozlamalar"}]], "resize_keyboard": True}
                             send_tg(bot_token, chat_id, f"✅ Sayt uchun tasdiqlash kodingiz: <code>{web_code}</code>\n\nRaqamingiz botda ham tasdiqlandi! Endi saytga qaytib kodni kiriting.", kb)
                             print(f"[BOT] Sent pending code {web_code} to {p_str}")
                             del pending_codes[p_str]
