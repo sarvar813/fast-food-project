@@ -23,6 +23,7 @@ import MoodFood from './components/MoodFood/MoodFood';
 import SocialProof from './components/SocialProof/SocialProof';
 import EasterEgg from './components/EasterEgg/EasterEgg';
 import SecretMenu from './components/SecretMenu/SecretMenu';
+import LiveNotifications from './components/LiveNotifications/LiveNotifications';
 
 import './App.css';
 
@@ -105,6 +106,7 @@ const AppContent = () => {
       {!isAdminOrCourierPage && <SocialProof />}
       {!isAdminOrCourierPage && <EasterEgg />}
       {!isAdminOrCourierPage && <SecretMenu />}
+      <LiveNotifications />
     </div >
   );
 };
