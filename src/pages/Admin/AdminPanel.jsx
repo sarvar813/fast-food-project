@@ -1017,7 +1017,7 @@ const AdminPanel = () => {
                                                         className="admin-confirm-btn"
                                                         onClick={() => handleStatusChange(order.orderId, 'preparing')}
                                                     >
-                                                        HA, TO'LOV QILDIM
+                                                        TO'LOV QABUL QILINDI
                                                     </button>
                                                     <button
                                                         className="admin-cancel-btn"

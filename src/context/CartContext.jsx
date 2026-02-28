@@ -297,8 +297,21 @@ export const CartProvider = ({ children }) => {
         } catch (e) { console.error(e); }
     };
 
-    const sendCustomerNotification = async (phone, status) => {
-        // SMS through Eskiz/other can be here
+    const sendCustomerNotification = async (phone, text) => {
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+        try {
+            await fetch(`${apiUrl}/send-message`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: phone,
+                    text: text,
+                    bot_token: telegramSettings.botToken
+                })
+            });
+        } catch (e) {
+            console.error("Failed to send customer notification:", e);
+        }
     };
 
     const addToCart = (product) => {
