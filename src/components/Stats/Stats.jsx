@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, useInView, useSpring, useTransform, animate } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { FaHamburger, FaUtensils, FaShippingFast, FaMapMarkerAlt } from 'react-icons/fa';
 import './Stats.css';
 
@@ -25,29 +26,30 @@ const Counter = ({ value, duration = 2 }) => {
 };
 
 const Stats = () => {
+    const { t } = useTranslation();
     const statsData = [
         {
             icon: <FaHamburger />,
             value: '10000+',
-            label: 'Sotilgan Burgerlar',
+            label: t('home_sections.stats.delivered', 'Sotilgan Burgerlar'),
             color: '#e30034'
         },
         {
             icon: <FaUtensils />,
             value: '50+',
-            label: 'Menyu Turlari',
+            label: t('home_sections.stats.menu_items', 'Menyu Turlari'),
             color: '#ff9d00'
         },
         {
             icon: <FaShippingFast />,
-            value: '15min',
-            label: 'Tezkor Yetkazib Berish',
+            value: `15${t('home_sections.stats.min', 'min')}`,
+            label: t('home_sections.stats.delivery', 'Tezkor Yetkazib Berish'),
             color: '#e30034'
         },
         {
             icon: <FaMapMarkerAlt />,
             value: '12+',
-            label: 'Filiallarimiz',
+            label: t('home_sections.stats.branches', 'Filiallarimiz'),
             color: '#ff9d00'
         }
     ];

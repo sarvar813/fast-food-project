@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { FaGooglePlay, FaApple } from 'react-icons/fa';
 import './AppDownload.css';
 
 const AppDownload = () => {
+    const { t } = useTranslation();
     return (
         <section className="app-download-section">
             <div className="app-download-container">
@@ -14,11 +16,10 @@ const AppDownload = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                 >
-                    <span className="app-badge">MOBIL ILOVA</span>
-                    <h2>Black Star Burger <span>cho'ntagingizda!</span></h2>
+                    <span className="app-badge">{t('home_sections.apps.badge', 'MOBIL ILOVA')}</span>
+                    <h2>{t('home_sections.apps.title_main', 'Black Star Burger')} <span>{t('home_sections.apps.title_sub', "cho'ntagingizda!")}</span></h2>
                     <p>
-                        Ilovamizni yuklab oling va yanada tezroq buyurtma bering.
-                        Maxsus chegirmalar, keshbeklar va faqat ilova foydalanuvchilari uchun yashirin menyular sizni kutmoqda!
+                        {t('home_sections.apps.desc', 'Ilovamizni yuklab oling va yanada tezroq buyurtma bering. Maxsus chegirmalar, keshbeklar va faqat ilova foydalanuvchilari uchun yashirin menyular sizni kutmoqda!')}
                     </p>
 
                     <div className="app-buttons">
@@ -41,15 +42,15 @@ const AppDownload = () => {
                     <div className="app-features-mini">
                         <div className="mini-feat">
                             <div className="dot green"></div>
-                            <span>Tezkor yetkazib berish</span>
+                            <span>{t('home_sections.apps.feat1', 'Tezkor yetkazib berish')}</span>
                         </div>
                         <div className="mini-feat">
                             <div className="dot gold"></div>
-                            <span>10% Keshbek</span>
+                            <span>{t('home_sections.apps.feat2', '10% Keshbek')}</span>
                         </div>
                         <div className="mini-feat">
                             <div className="dot red"></div>
-                            <span>Maxsus aksiyalar</span>
+                            <span>{t('home_sections.apps.feat3', 'Maxsus aksiyalar')}</span>
                         </div>
                     </div>
                 </motion.div>

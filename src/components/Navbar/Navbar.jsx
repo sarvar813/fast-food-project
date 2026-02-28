@@ -41,12 +41,12 @@ const Navbar = () => {
                 <div className="orders-history-overlay" onClick={() => setIsOrdersHistoryOpen(false)}>
                     <div className="orders-history-content" onClick={(e) => e.stopPropagation()}>
                         <div className="history-header">
-                            <h3>{t('navbar.my_orders', 'Mening buyurtmalarim')}</h3>
+                            <h3>{t('navbar.my_orders')}</h3>
                             <button onClick={() => setIsOrdersHistoryOpen(false)}><FaTimes /></button>
                         </div>
                         <div className="history-list">
                             {orders.length === 0 ? (
-                                <p className="no-orders text-center py-4">{t('navbar.no_orders', 'Sizda hali buyurtmalar yo\'q')}</p>
+                                <p className="no-orders text-center py-4">{t('navbar.no_orders')}</p>
                             ) : (
                                 orders.slice(0, 5).map((order, idx) => (
                                     <div key={idx} className="history-item" onClick={() => {
@@ -61,8 +61,8 @@ const Navbar = () => {
                                             <span className={`status-dot ${order.status}`}></span>
                                             {order.status === 'pending' ? t('navbar.statuses.pending', 'Kutilmoqda') :
                                                 order.status === 'preparing' ? t('navbar.statuses.preparing', 'Tayyorlanmoqda') :
-                                                    order.status === 'shipping' ? t('navbar.statuses.shipping', 'Yo\'lda') :
-                                                        order.status === 'completed' ? t('navbar.statuses.completed', 'Bajarildi') : t('navbar.statuses.cancelled', 'Bekor qilindi')}
+                                                    order.status === 'shipping' ? t('navbar.statuses.shipping') :
+                                                        order.status === 'completed' ? t('navbar.statuses.completed') : t('navbar.statuses.cancelled')}
                                         </div>
                                         <div className="h-total">${order.total.toFixed(2)}</div>
                                     </div>
@@ -78,14 +78,14 @@ const Navbar = () => {
                 <div className="orders-history-overlay" onClick={() => setIsWishlistOpen(false)}>
                     <div className="orders-history-content wishlist-modal" onClick={(e) => e.stopPropagation()}>
                         <div className="history-header">
-                            <h3>{t('navbar.wishlist', 'Saralanganlar')} ({wishlistItems.length})</h3>
+                            <h3>{t('navbar.wishlist')} ({wishlistItems.length})</h3>
                             <button onClick={() => setIsWishlistOpen(false)}><FaTimes /></button>
                         </div>
                         <div className="history-list">
                             {wishlistItems.length === 0 ? (
                                 <div className="no-items">
                                     <FaHeart style={{ fontSize: '40px', color: '#eee', marginBottom: '15px' }} />
-                                    <p>{t('navbar.wishlist_empty', 'Saralangan mahsulotlar hozircha yo\'q')}</p>
+                                    <p>{t('navbar.wishlist_empty')}</p>
                                     <button className="empty-close-btn" onClick={() => setIsWishlistOpen(false)}>
                                         CHIQISH
                                     </button>
@@ -136,7 +136,7 @@ const Navbar = () => {
                         <input
                             name="search"
                             type="text"
-                            placeholder={t('navbar.search_placeholder', 'Mahsulotlarni qidirish...')}
+                            placeholder={t('navbar.search_placeholder')}
                             autoFocus
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -200,13 +200,13 @@ const Navbar = () => {
 
                     <div className="nav-actions">
                         <div className="nav-icons">
-                            <Link to="/admin" className="admin-icon" title="Admin Panel" target="_blank" rel="noopener noreferrer">
+                            <Link to="/admin" className="admin-icon" title={t('footer.admin_access')} target="_blank" rel="noopener noreferrer">
                                 <FaShieldAlt />
                             </Link>
-                            <Link to="/profile" className="profile-icon" title="Mening profilim">
+                            <Link to="/profile" className="profile-icon" title={t('navbar.my_profile', 'Mening profilim')}>
                                 <FaUserCircle />
                             </Link>
-                            <button className="theme-toggle-btn" onClick={toggleTheme} title="Mavzuni o'zgartirish">
+                            <button className="theme-toggle-btn" onClick={toggleTheme} title={t('navbar.toggle_theme', 'Mavzuni o\'zgartirish')}>
                                 {theme === 'light' ? <FaMoon /> : theme === 'dark' ? <FaSun /> : <FaBolt style={{ color: '#ff00ff' }} />}
                             </button>
                             <button className="wishlist-icon" onClick={() => setIsWishlistOpen(true)} title={t('navbar.wishlist_title', 'Saralanganlar')}>
@@ -220,7 +220,7 @@ const Navbar = () => {
                             <button className="search-icon" onClick={() => setIsSearchOpen(true)}>
                                 <FaSearch />
                             </button>
-                            <button className="exit-icon" onClick={handleLogout} title={t('navbar.logout', 'Chiqish')}>
+                            <button className="exit-icon" onClick={handleLogout} title={t('navbar.logout')}>
                                 <FaSignOutAlt />
                             </button>
                             <div className="language-selector">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FaUtensils, FaClipboardList, FaUsers, FaChartLine, FaSignOutAlt, FaPlus, FaTrash, FaEdit, FaBell, FaSearch, FaCogs, FaEye, FaEyeSlash, FaCheckCircle, FaTimesCircle, FaTimes, FaCalendarAlt, FaPrint, FaComments, FaPaperPlane, FaMotorcycle, FaDoorOpen, FaHistory, FaPalette, FaCrown, FaUserTie, FaGem, FaGift, FaFire, FaBolt, FaMapMarkerAlt, FaExclamationTriangle, FaVolumeUp, FaVolumeMute, FaShieldAlt, FaFingerprint, FaBars, FaEllipsisV } from 'react-icons/fa';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, AreaChart, Area, PieChart, Pie, Legend } from 'recharts';
 import { useCart } from '../../context/CartContext';
@@ -10,6 +11,7 @@ import AdminLogin from './AdminLogin';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [currentRole, setCurrentRole] = useState(null);
@@ -1055,12 +1057,12 @@ const AdminPanel = () => {
         if (!allowedTabsByRole[currentRole].includes(activeTab)) {
             return (
                 <div className="admin-access-denied">
-                    <h2><FaExclamationTriangle /> Kirishga ruxsat yo'q</h2>
-                    <p>Sizning rolingiz ({currentRole}) ushbu sahifaga kirish huquqiga ega emas.</p>
+                    <h2><FaExclamationTriangle /> {t('admin.access_denied', "Kirishga ruxsat yo'q")}</h2>
+                    <p>{t('admin.role_no_access', { role: currentRole, defaultValue: `Sizning rolingiz (${currentRole}) ushbu sahifaga kirish huquqiga ega emas.` })}</p>
                     <button onClick={() => {
                         const defaultTab = allowedTabsByRole[currentRole][0] || 'dashboard';
                         setActiveTab(defaultTab);
-                    }}>Ruxsat etilgan sahifaga o'tish</button>
+                    }}>{t('admin.go_to_allowed', "Ruxsat etilgan sahifaga o'tish")}</button>
                 </div>
             );
         }
@@ -1107,13 +1109,13 @@ const AdminPanel = () => {
 
                             <div className="daily-goal-card">
                                 <div className="goal-header">
-                                    <h3>KUNLIK SAVDO MAQSADI ($2000)</h3>
+                                    <h3>{t('admin.dashboard.daily_goal')} ($2000)</h3>
                                     <span>{Math.min(100, (todaySales / 2000 * 100)).toFixed(1)}%</span>
                                 </div>
                                 <div className="goal-progress-bar">
                                     <div className="goal-fill" style={{ width: `${Math.min(100, (todaySales / 2000 * 100))}%` }}></div>
                                 </div>
-                                <p>Bugungi maqsadga yetish uchun yana ${Math.max(0, 2000 - todaySales).toFixed(2)} kerak</p>
+                                <p>{t('admin.dashboard.goal_remaining', { amount: Math.max(0, 2000 - todaySales).toFixed(2), defaultValue: `Bugungi maqsadga yetish uchun yana $${Math.max(0, 2000 - todaySales).toFixed(2)} kerak` })}</p>
                             </div>
                         </div>
 
@@ -1186,17 +1188,17 @@ const AdminPanel = () => {
                                 </div>
 
                                 <div className="quick-actions-card">
-                                    <h3>TEZKOR AMALLAR</h3>
+                                    <h3>{t('admin.dashboard.quick_actions')}</h3>
                                     <div className="quick-actions-list">
                                         <div className={`store-toggle-card ${isStoreOpen ? 'open' : 'closed'}`}>
                                             <div className="toggle-info">
-                                                <h4>Do'kon holati (Ochiq/Yopiq)</h4>
-                                                <p>{isStoreOpen ? 'Hozirda mijozlar buyurtma bera oladi ✅' : 'Hozirda do\'kon yopiq (Mahsulotlar qolmadi) ❌'}</p>
+                                                <h4>{t('admin.dashboard.store_status')}</h4>
+                                                <p>{isStoreOpen ? t('admin.dashboard.store_open_desc') : t('admin.dashboard.store_closed_desc')}</p>
                                             </div>
                                             <button
                                                 className={`toggle-btn ${isStoreOpen ? 'active' : ''}`}
                                                 onClick={() => setIsStoreOpen(!isStoreOpen)}
-                                                title={isStoreOpen ? "Do'konni yopish" : "Do'konni ochish"}
+                                                title={isStoreOpen ? t('admin.dashboard.store_closed_desc') : t('admin.dashboard.store_open_desc')}
                                             >
                                                 <div className="toggle-circle"></div>
                                             </button>
@@ -1204,17 +1206,17 @@ const AdminPanel = () => {
 
                                         <button className="q-action-item" onClick={() => setActiveTab('menu')}>
                                             <span className="q-icon"><FaPlus /></span>
-                                            <span>Yangi mahsulot</span>
+                                            <span>{t('admin.dashboard.new_product')}</span>
                                         </button>
 
                                         <button className="q-action-item" onClick={() => setActiveTab('orders')}>
                                             <span className="q-icon"><FaClipboardList /></span>
-                                            <span>Buyurtmalarni saralash</span>
+                                            <span>{t('admin.dashboard.sort_orders')}</span>
                                         </button>
 
                                         <button className="q-action-item" onClick={() => window.print()}>
                                             <span className="q-icon"><FaPrint /></span>
-                                            <span>Hisobotni chop etish</span>
+                                            <span>{t('admin.dashboard.print_report')}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -1327,20 +1329,20 @@ const AdminPanel = () => {
                     <div className="admin-menu-manage">
                         <div className="admin-actions">
                             <div className="tab-title">
-                                <h2>Menyuni boshqarish <span>({products.length})</span></h2>
+                                <h2>{t('admin.menu.title')} <span>({products.length})</span></h2>
                             </div>
                             <div className="action-buttons">
                                 <div className="inner-search">
                                     <FaSearch />
                                     <input
                                         type="text"
-                                        placeholder="Mahsulot qidirish..."
+                                        placeholder={t('admin.menu.search_placeholder')}
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
                                 </div>
                                 <button className="add-btn" onClick={() => setIsAddingProduct(true)}>
-                                    <FaPlus /> Yangi mahsulot
+                                    <FaPlus /> {t('admin.menu.add_product')}
                                 </button>
                             </div>
                         </div>
@@ -1350,7 +1352,7 @@ const AdminPanel = () => {
                                 <div key={product.id} className={`menu-admin-item ${product.isAvailable === false ? 'out-of-stock' : ''}`}>
                                     <div className="item-img-container">
                                         <img src={product.image} alt={product.name} />
-                                        {product.isAvailable === false && <span className="stock-badge">Tugagan</span>}
+                                        {product.isAvailable === false && <span className="stock-badge">{t('admin.menu.out_of_stock')}</span>}
                                     </div>
                                     <div className="item-details">
                                         <h4>{product.name}</h4>
@@ -1376,9 +1378,9 @@ const AdminPanel = () => {
                                             setIsAddingProduct(true);
                                         }}><FaEdit /></button>
                                         <button className="delete-icon" onClick={() => {
-                                            if (window.confirm('O\'chirishni tasdiqlaysizmi?')) {
+                                            if (window.confirm(t('admin.menu.delete_confirm'))) {
                                                 deleteProduct(product.id);
-                                                addToast('O\'CHIRILDI!', `${product.name} menyudan olib tashlandi.`, <FaTrash />);
+                                                addToast('O\'CHIRILDI!', `${product.name} ${t('admin.menu.deleted_toast')}`, <FaTrash />);
                                                 logAction('Admin', 'Menu', `${product.name} o'chirildi.`);
                                             }
                                         }}><FaTrash /></button>

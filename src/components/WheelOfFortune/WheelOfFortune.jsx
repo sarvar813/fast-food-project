@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { launchConfetti } from '../../utils/confetti';
 import { FaGift, FaTimes, FaRedo } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import './WheelOfFortune.css';
 
 const WheelOfFortune = ({ isStatic = false }) => {
+    const { t } = useTranslation();
     const { setBonuses } = useCart();
     const [isOpen, setIsOpen] = useState(false);
     const [isSpinning, setIsSpinning] = useState(false);
@@ -13,14 +15,14 @@ const WheelOfFortune = ({ isStatic = false }) => {
     const [canSpin, setCanSpin] = useState(true);
 
     const segments = [
-        { label: '5 BONUS', color: '#e30034', type: 'bonus', value: 5 },
-        { label: 'YANA BIR BOR', color: '#111', type: 'empty', value: 0 },
+        { label: `5 ${t('loyalty_levels.badge', 'BONUS')}`, color: '#e30034', type: 'bonus', value: 5 },
+        { label: t('common.no', 'YANA BIR BOR'), color: '#111', type: 'empty', value: 0 },
         { label: '10% OFF', color: '#f1b417', type: 'coupon', value: 'LUCKY10' },
-        { label: '10 BONUS', color: '#e30034', type: 'bonus', value: 10 },
-        { label: 'AFSUS...', color: '#111', type: 'empty', value: 0 },
+        { label: `10 ${t('loyalty_levels.badge', 'BONUS')}`, color: '#e30034', type: 'bonus', value: 10 },
+        { label: t('wheel_of_fortune.lose_title', 'AFSUS...'), color: '#111', type: 'empty', value: 0 },
         { label: '20% OFF', color: '#f1b417', type: 'coupon', value: 'LUCKY20' },
-        { label: 'FREE FRIES', color: '#e30034', type: 'bonus', value: 4 },
-        { label: 'ERTAGA...', color: '#111', type: 'empty', value: 0 },
+        { label: t('combo_specials.add_btn', 'FREE FRIES'), color: '#e30034', type: 'bonus', value: 4 },
+        { label: t('common.cancel', 'ERTAGA...'), color: '#111', type: 'empty', value: 0 },
     ];
 
     useEffect(() => {
@@ -77,7 +79,7 @@ const WheelOfFortune = ({ isStatic = false }) => {
         return (
             <div className="wheel-static-container">
                 <div className="wheel-header">
-                    <h4>OMADINGIZNI SINAB KO'RING</h4>
+                    <h4>{t('wheel_of_fortune.desc', "OMADINGIZNI SINAB KO'RING")}</h4>
                 </div>
                 <div className="wheel-container mini">
                     <div className="wheel-pointer"></div>
@@ -90,11 +92,11 @@ const WheelOfFortune = ({ isStatic = false }) => {
                     </div>
                 </div>
                 <button className="spin-btn mini" onClick={handleSpin} disabled={!canSpin || isSpinning}>
-                    {isSpinning ? '...' : canSpin ? 'AYLANTIR' : '10s KUTING'}
+                    {isSpinning ? '...' : canSpin ? t('wheel_of_fortune.spin_btn', 'AYLANTIR') : t('wheel_of_fortune.limit_msg', { count: 10, defaultValue: '10s KUTING' })}
                 </button>
                 {result && (
                     <div className="static-result">
-                        <p>{result.type === 'empty' ? 'Afsus...' : `YUTUQ: ${result.label}!`}</p>
+                        <p>{result.type === 'empty' ? t('wheel_of_fortune.lose_title', 'Afsus...') : t('wheel_of_fortune.win_msg', { prize: result.label, defaultValue: `YUTUQ: ${result.label}!` })}</p>
                     </div>
                 )}
             </div>
@@ -105,7 +107,7 @@ const WheelOfFortune = ({ isStatic = false }) => {
         <>
             <button className="wheel-trigger" onClick={() => setIsOpen(true)}>
                 <FaGift className="gift-icon" />
-                <span>BONUS!</span>
+                <span>{t('wheel_of_fortune.trigger', 'BONUS!')}</span>
             </button>
 
             {isOpen && (
@@ -116,8 +118,8 @@ const WheelOfFortune = ({ isStatic = false }) => {
                         </button>
 
                         <div className="wheel-header">
-                            <h2>BAXT G'ILDIRAGI</h2>
-                            <p>Har 10 sekundda bir marta aylantiring va sovg'alarga ega bo'ling!</p>
+                            <h2>{t('wheel_of_fortune.title', "BAXT G'ILDIRAGI")}</h2>
+                            <p>{t('wheel_of_fortune.desc', "Har 10 sekundda bir marta aylantiring va sovg'alarga ega bo'ling!")}</p>
                         </div>
 
                         <div className="wheel-container">
@@ -150,19 +152,19 @@ const WheelOfFortune = ({ isStatic = false }) => {
                                     onClick={handleSpin}
                                     disabled={!canSpin || isSpinning}
                                 >
-                                    {isSpinning ? 'AYLANYAPTI...' : canSpin ? 'AYLANTIRISH' : 'BUGUNLIK TUGADI'}
+                                    {isSpinning ? t('wheel_of_fortune.spinning', 'AYLANYAPTI...') : canSpin ? t('wheel_of_fortune.spin_btn', 'AYLANTIRISH') : t('wheel_of_fortune.limit_msg', { count: 10, defaultValue: 'KEYINGI SAFAR' })}
                                 </button>
                             ) : (
                                 <div className="wheel-result">
-                                    <h3>{result.type === 'empty' ? 'Afsus...' : 'TABRIKLAYMIZ!'}</h3>
-                                    <p>{result.type === 'empty' ? 'Omadingizni ertaga sinab ko\'ring.' : `Siz ${result.label} yutib oldingiz!`}</p>
-                                    <button className="close-res-btn" onClick={() => setIsOpen(false)}>DAVOM ETISH</button>
+                                    <h3>{result.type === 'empty' ? t('wheel_of_fortune.lose_title', 'Afsus...') : t('wheel_of_fortune.win_title', 'TABRIKLAYMIZ!')}</h3>
+                                    <p>{result.type === 'empty' ? t('wheel_of_fortune.lose_msg', "Omadingizni keyinroq sinab ko'ring.") : t('wheel_of_fortune.win_msg', { prize: result.label, defaultValue: `Siz ${result.label} yutib oldingiz!` })}</p>
+                                    <button className="close-res-btn" onClick={() => setIsOpen(false)}>{t('wheel_of_fortune.continue_btn', 'DAVOM ETISH')}</button>
                                 </div>
                             )}
                         </div>
 
                         {!canSpin && !result && (
-                            <p className="spin-limit-msg">Muzlatildi. Keyingi aylantirish uchun 10 sekund kuting.</p>
+                            <p className="spin-limit-msg">{t('wheel_of_fortune.limit_msg', { count: 10, defaultValue: "Muzlatildi. Keyingi aylantirish uchun kuting." })}</p>
                         )}
                     </div>
                 </div>

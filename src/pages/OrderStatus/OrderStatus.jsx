@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
@@ -6,6 +7,7 @@ import { FaCheckCircle, FaClock, FaTruck, FaHome, FaShoppingBag, FaMotorcycle, F
 import './OrderStatus.css';
 
 const OrderStatus = () => {
+    const { t } = useTranslation();
     const { id } = useParams();
     const { orders } = useCart();
     const [order, setOrder] = useState(null);
@@ -19,19 +21,19 @@ const OrderStatus = () => {
         return (
             <div className="order-status-page empty">
                 <div className="container">
-                    <h2>Buyurtma topilmadi 😕</h2>
-                    <p>Kechirasiz, bunday ID raqamli buyurtma topilmadi.</p>
-                    <Link to="/menu" className="back-btn">MENYUGA QAYTISH</Link>
+                    <h2>{t('order_status.not_found_title')}</h2>
+                    <p>{t('order_status.not_found_desc')}</p>
+                    <Link to="/menu" className="back-btn">{t('order_status.back_to_menu')}</Link>
                 </div>
             </div>
         );
     }
 
     const steps = [
-        { status: 'pending', id: 'pending', label: 'Qabul qilindi', icon: <FaCheckCircle /> },
-        { status: 'preparing', id: 'preparing', label: 'Tayyorlanmoqda', icon: <FaClock /> },
-        { status: 'shipping', id: 'shipping', label: 'Yo\'lda', icon: <FaTruck /> },
-        { status: 'completed', id: 'completed', label: 'Yetkazildi', icon: <FaHome /> }
+        { status: 'pending', id: 'pending', label: t('order_status.steps.accepted'), icon: <FaCheckCircle /> },
+        { status: 'preparing', id: 'preparing', label: t('order_status.steps.preparing'), icon: <FaClock /> },
+        { status: 'shipping', id: 'shipping', label: t('order_status.steps.shipping'), icon: <FaTruck /> },
+        { status: 'completed', id: 'completed', label: t('order_status.steps.delivered'), icon: <FaHome /> }
     ];
 
     const currentStepIndex = steps.findIndex(s => s.status === order.status);
@@ -41,13 +43,13 @@ const OrderStatus = () => {
             <div className="container">
                 <div className="order-card">
                     <div className="order-header">
-                        <h1>Buyurtma holati</h1>
+                        <h1>{t('order_status.title')}</h1>
                         <p className="order-id">ID: #{order.orderId}</p>
                         {order.status === 'completed' && (
                             <div className="thank-you-message">
                                 <FaCheckCircle />
-                                <h2>Buyurtmangiz yetkazib berildi!</h2>
-                                <p>Xaridingiz uchun rahmat! Yoqimli ishtaha!</p>
+                                <h2>{t('order_status.thank_you')}</h2>
+                                <p>{t('order_status.thank_you_desc')}</p>
                             </div>
                         )}
                     </div>
@@ -68,7 +70,7 @@ const OrderStatus = () => {
                     </div>
 
                     <div className="order-details-box">
-                        <h3>Buyurtma tafsilotlari</h3>
+                        <h3>{t('order_status.details_title')}</h3>
                         <div className="order-items-list">
                             {order.items.map((item, i) => (
                                 <div key={i} className="tracking-item">
@@ -78,7 +80,7 @@ const OrderStatus = () => {
                             ))}
                         </div>
                         <div className="tracking-total">
-                            <span>Jami:</span>
+                            <span>{t('order_status.total')}:</span>
                             <span>${order.total.toFixed(2)}</span>
                         </div>
                     </div>
@@ -91,8 +93,8 @@ const OrderStatus = () => {
                                     <div className="pulse"></div>
                                 </div>
                                 <div className="rider-info-live">
-                                    <h4>Kuryer yo'lda!</h4>
-                                    <p>Alijon Nabijonov sizga yaqinlashmoqda</p>
+                                    <h4>{t('order_status.courier_on_way')}</h4>
+                                    <p>{t('order_status.courier_desc')}</p>
                                 </div>
                                 <div className="eta-badge">12 min</div>
                             </div>
@@ -114,21 +116,21 @@ const OrderStatus = () => {
 
                     <div className="delivery-info">
                         <div className="info-row">
-                            <strong>Mijoz:</strong>
+                            <strong>{t('order_status.customer')}:</strong>
                             <span>{order.customer}</span>
                         </div>
                         <div className="info-row">
-                            <strong>Manzil:</strong>
+                            <strong>{t('order_status.address')}:</strong>
                             <span>{order.address}</span>
                         </div>
                         <div className="info-row">
-                            <strong>Sana:</strong>
+                            <strong>{t('order_status.date')}:</strong>
                             <span>{order.date}</span>
                         </div>
                     </div>
 
                     <div className="actions">
-                        <Link to="/menu" className="continue-btn"><FaShoppingBag /> YANA BUYURTMA BERISH</Link>
+                        <Link to="/menu" className="continue-btn"><FaShoppingBag /> {t('order_status.order_more')}</Link>
                     </div>
                 </div>
             </div>

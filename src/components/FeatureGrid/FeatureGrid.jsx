@@ -1,16 +1,18 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import './FeatureGrid.css';
 
 const FeatureGrid = () => {
+    const { t } = useTranslation();
     const { addToCart, isStoreOpen } = useCart();
     const [selectedRecipe, setSelectedRecipe] = React.useState(null);
 
     const gridItems = [
         {
-            id: 'fg1',
+            id: 801,
             type: 'text',
-            title: 'BUTTERBURGER',
+            name: 'BUTTERBURGER',
             subtitle: 'Welcome',
             price: '$12.00',
             image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=800&auto=format&fit=crop'
@@ -25,9 +27,9 @@ const FeatureGrid = () => {
             }
         },
         {
-            id: 'fg2',
+            id: 802,
             type: 'text',
-            title: 'CHEESE AND BACON',
+            name: 'CHEESE AND BACON',
             subtitle: 'Welcome',
             price: '$14.50',
             image: 'https://images.unsplash.com/photo-1610440042657-612c34d95e9f?q=80&w=1000&auto=format&fit=crop'
@@ -51,9 +53,9 @@ const FeatureGrid = () => {
             }
         },
         {
-            id: 'fg3',
+            id: 803,
             type: 'text',
-            title: 'BLACK BURGERS',
+            name: 'BLACK BURGERS',
             subtitle: 'Welcome',
             price: '$13.00',
             image: 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop'
@@ -68,9 +70,9 @@ const FeatureGrid = () => {
             }
         },
         {
-            id: 'fg4',
+            id: 804,
             type: 'text',
-            title: 'CLASSIC BURGER',
+            name: 'CLASSIC BURGER',
             subtitle: 'Welcome',
             price: '$10.00',
             image: 'https://images.unsplash.com/photo-1512152272829-e3139592d56f?q=80&w=800&auto=format&fit=crop'
@@ -81,7 +83,7 @@ const FeatureGrid = () => {
         if (isStoreOpen) {
             addToCart({
                 id: item.id,
-                title: item.title,
+                name: item.name,
                 price: item.price,
                 image: item.image
             });
@@ -102,20 +104,20 @@ const FeatureGrid = () => {
                         {item.type === 'text' ? (
                             <div className="f-text-content">
                                 <h4 className="f-subtitle">{item.subtitle}</h4>
-                                <h2 className="f-title">{item.title}</h2>
+                                <h2 className="f-title">{item.name}</h2>
                                 <button
                                     className="f-link-btn"
                                     onClick={() => handleAddToCart(item)}
                                     disabled={!isStoreOpen}
                                 >
-                                    {isStoreOpen ? 'BUY NOW +' : 'Yopiq'}
+                                    {isStoreOpen ? t('hero.buy_now') + ' +' : t('menu.out_of_stock')}
                                 </button>
                             </div>
                         ) : (
                             <div className="f-image-clickable" onClick={() => openRecipe(item.recipe)}>
                                 <img src={item.url} alt="Food feature" className="f-image" />
                                 <div className="f-image-overlay">
-                                    <span>RETSEPTNI KO'RISH</span>
+                                    <span>{t('menu.view_recipe', "RETSEPTNI KO'RISH")}</span>
                                 </div>
                             </div>
                         )}
@@ -132,7 +134,7 @@ const FeatureGrid = () => {
                         </div>
                         <div className="recipe-modal-body">
                             <div className="recipe-section">
-                                <h3>Masalliqlar:</h3>
+                                <h3>{t('menu.ingredients_title', 'Masalliqlar:')}</h3>
                                 <ul>
                                     {selectedRecipe.ingredients.map((ing, i) => (
                                         <li key={i}>{ing}</li>
@@ -140,7 +142,7 @@ const FeatureGrid = () => {
                                 </ul>
                             </div>
                             <div className="recipe-section">
-                                <h3>Tayyorlash bosqichlari:</h3>
+                                <h3>{t('menu.steps_title', 'Tayyorlash bosqichlari:')}</h3>
                                 <ol>
                                     {selectedRecipe.steps.map((step, i) => (
                                         <li key={i}>{step}</li>

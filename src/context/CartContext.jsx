@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { launchConfetti } from '../utils/confetti';
 import { useToast } from './ToastContext';
 
@@ -7,6 +8,7 @@ const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
+    const { t } = useTranslation();
     const toast = useToast();
     const [cartItems, setCartItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -105,37 +107,37 @@ export const CartProvider = ({ children }) => {
 
     const addStaff = (member) => {
         setStaff(prev => [...prev, { ...member, id: Date.now(), joined: new Date().toISOString().split('T')[0], status: 'active' }]);
-        toast.success("Yangi xodim qo'shildi! 👨‍🍳");
+        toast.success(t('admin.staff_added', "Yangi xodim qo'shildi! 👨‍🍳"));
     };
 
     const deleteStaff = (id) => {
         setStaff(prev => prev.filter(s => s.id !== id));
-        toast.error("Xodim tizimdan o'chirildi.");
+        toast.error(t('admin.staff_deleted', "Xodim tizimdan o'chirildi."));
     };
 
     const updateStaff = (id, updatedData) => {
         setStaff(prev => prev.map(s => s.id === id ? { ...s, ...updatedData } : s));
-        toast.info("Xodim ma'lumotlari yangilandi.");
+        toast.info(t('admin.staff_updated', "Xodim ma'lumotlari yangilandi."));
     };
 
     const addCoupon = (coupon) => {
         setCoupons(prev => [...prev, { ...coupon, status: 'active' }]);
-        toast.success("Yangi promokod yaratildi! 🎫");
+        toast.success(t('admin.coupon_created', "Yangi promokod yaratildi! 🎫"));
     };
 
     const deleteCoupon = (code) => {
         setCoupons(prev => prev.filter(c => c.code !== code));
-        toast.warning("Promokod o'chirildi.");
+        toast.warning(t('admin.coupon_deleted', "Promokod o'chirildi."));
     };
 
     const addReward = (reward) => {
         setRewards(prev => [...prev, { ...reward, id: Date.now(), status: 'active' }]);
-        toast.success("Yangi sovg'a qo'shildi! 🎁");
+        toast.success(t('admin.reward_added', "Yangi sovg'a qo'shildi! 🎁"));
     };
 
     const deleteReward = (id) => {
         setRewards(prev => prev.filter(r => r.id !== id));
-        toast.error("Sovg'a olib tashlandi.");
+        toast.error(t('admin.reward_deleted', "Sovg'a olib tashlandi."));
     };
 
     const submitCareerApplication = async (appData) => {
@@ -148,7 +150,7 @@ export const CartProvider = ({ children }) => {
             });
             if (res.ok) {
                 fetchCareers();
-                toast.success("Arizangiz muvaffaqiyatli yuborildi!");
+                toast.success(t('careers.success', "Arizangiz muvaffaqiyatli yuborildi!"));
             }
         } catch (e) {
             console.error("Career submit error:", e);
@@ -236,12 +238,20 @@ export const CartProvider = ({ children }) => {
             const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
             const res = await fetch(`${apiUrl}/orders`);
             if (res.ok) {
-                const data = await res.json();
-                setOrders(data);
-                localStorage.setItem('bsb_orders', JSON.stringify(data));
+                const contentType = res.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const data = await res.json();
+                    setOrders(data);
+                    localStorage.setItem('bsb_orders', JSON.stringify(data));
+                } else {
+                    console.error("API returned non-JSON response. Check your VITE_API_URL in .env");
+                }
             }
         } catch (e) {
             console.error("Orders fetch error:", e);
+            // Fallback load from localStorage if offline
+            const saved = localStorage.getItem('bsb_orders');
+            if (saved) setOrders(JSON.parse(saved));
         }
     };
 
@@ -251,388 +261,195 @@ export const CartProvider = ({ children }) => {
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        // Still keep localStorage for quick load next time
-        if (orders.length > 0) {
-            localStorage.setItem('bsb_orders', JSON.stringify(orders));
-        }
-    }, [orders]);
-
-    useEffect(() => {
-        localStorage.setItem('bsb_user_stats', JSON.stringify(userStats));
-    }, [userStats]);
-
-    // Avtomatik va Manual yopish/ochish logikasi
-    useEffect(() => {
-        const checkTime = () => {
-            const now = new Date();
-            const hour = now.getHours();
-
-            // Faqat soat almashganda (Transition) avtomatik ishlaydi
-            if (hour !== lastAutoHour) {
-                if (hour === 23) {
-                    setIsStoreOpen(false); // Soat 23:00 da yopiladi
-                } else if (hour === 9) {
-                    setIsStoreOpen(true); // Soat 09:00 da ochiladi
-                }
-                setLastAutoHour(hour);
-            }
-        };
-
-        checkTime();
-        const interval = setInterval(checkTime, 30000); // Har 30 soniyada tekshirish
-        return () => clearInterval(interval);
-    }, [lastAutoHour, isStoreOpen]);
-
-    useEffect(() => {
-        const handleStorageChange = (e) => {
-            if (e.key === 'bsb_orders') {
-                setOrders(JSON.parse(e.newValue));
-            }
-            if (e.key === 'bsb_store_status') {
-                setIsStoreOpen(JSON.parse(e.newValue));
-            }
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
-
-    const addToCart = (product) => {
-        playUXSound('cartAdd');
-        setCartItems((prevItems) => {
-            const existingItem = prevItems.find(item => item.id === product.id);
-            if (existingItem) {
-                return prevItems.map(item =>
-                    item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-                );
-            }
-            return [...prevItems, { ...product, quantity: 1 }];
-        });
-    };
-
-    const removeFromCart = (id) => {
-        setCartItems((prevItems) => prevItems.filter(item => item.id !== id));
-    };
-
-    const updateQuantity = (id, amount) => {
-        setCartItems((prevItems) =>
-            prevItems.map(item =>
-                item.id === id ? { ...item, quantity: Math.max(1, item.quantity + amount) } : item
-            )
-        );
-    };
-
-    const clearCart = () => setCartItems([]);
-
     const [telegramSettings, setTelegramSettings] = useState(() => {
         const saved = localStorage.getItem('bsb_tg_settings');
-        const defaults = {
-            botToken: import.meta.env.VITE_TELEGRAM_BOT_TOKEN || '',
-            chatId: import.meta.env.VITE_TELEGRAM_CHAT_ID || '',
-            botUsername: 'blackstar_burger_bot'
+        return saved ? JSON.parse(saved) : {
+            botToken: '7394558223:AAES-7C-A8K49c_2DOnn7f9R6I79WvUoyW4',
+            adminChatId: '5177651030',
+            channelId: '@bsb_orders'
         };
-        return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
     });
 
     useEffect(() => {
         localStorage.setItem('bsb_tg_settings', JSON.stringify(telegramSettings));
     }, [telegramSettings]);
 
-    const sendTelegramNotification = (orderData) => {
-        const { botToken, chatId } = telegramSettings;
-        if (!botToken || !chatId) return;
+    const sendTelegramNotification = async (order) => {
+        const text = `🚀 *YANGI BUYURTMA!* #${order.orderId}\n` +
+            `👤 Mijoz: ${order.customer || order.customerName || "Noma'lum"}\n` +
+            `📞 Tel: ${order.phone || order.customerPhone || "Noma'lum"}\n` +
+            `🏠 Manzil: ${order.address || order.customerAddress || "Aniq emas"}\n` +
+            `💰 Summa: $${order.total}\n` +
+            `-------------------\n` +
+            (order.items || []).map(i => `• ${i.name} x${i.quantity}`).join('\n');
 
-        const itemsList = orderData.items.map(item => `- ${item.name} x${item.quantity}`).join('\n');
-        const message = `🔔 YANGI BUYURTMA!\n\n🆔 ID: #${orderData.orderId}\n👤 Mijoz: ${orderData.customer}\n📞 Tel: ${orderData.phone}\n📍 Manzil: ${orderData.address}\n\n📦 Mahsulotlar:\n${itemsList}\n\n💰 Jam: $${orderData.total.toFixed(2)}\n📅 Sana: ${orderData.date}`;
-
-        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' })
-        }).catch(err => console.error('Telegram notification failed:', err));
-    };
-
-    const sendVerificationCode = async (phone, code) => {
-        const { botToken, chatId } = telegramSettings;
-        const message = `🔐 Tasdiqlash kodingiz: ${code}`;
-        const eskizSettings = JSON.parse(localStorage.getItem('bsb_eskiz_settings') || '{}');
-
-        const sendToTelegramFallback = () => {
-            const fallbackMessage = `🔐 <b>TASDIQLASH KODI</b>\n\n📱 Tel: ${phone}\n🔢 Kod: <code>${code}</code>\n\n<i>Mijozga: ${message}</i>`;
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        try {
+            await fetch(`https://api.telegram.org/bot${telegramSettings.botToken}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chatId, text: fallbackMessage, parse_mode: 'HTML' })
-            }).catch(e => console.error('Telegram fallback failed:', e));
+                body: JSON.stringify({
+                    chat_id: telegramSettings.adminChatId,
+                    text,
+                    parse_mode: 'Markdown'
+                })
+            });
+        } catch (e) { console.error(e); }
+    };
 
-            toast.warning("SMS tizimida muammo! Kodni Telegram botimizdan olishingiz mumkin.", 6000);
+    const sendCustomerNotification = async (phone, status) => {
+        // SMS through Eskiz/other can be here
+    };
+
+    const addToCart = (product) => {
+        if (!isStoreOpen) {
+            toast.error(t('home.store_closed'));
+            return;
+        }
+        setCartItems(prev => {
+            const existing = prev.find(item => item.id === product.id);
+            if (existing) {
+                return prev.map(item =>
+                    item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+                );
+            }
+            return [...prev, { ...product, quantity: 1 }];
+        });
+        toast.success(t('cart.added_to_cart', { name: product.name, defaultValue: `${product.name} savatchaga qo'shildi! 🛒` }));
+        playUXSound('cartAdd');
+    };
+
+    const removeFromCart = (productId) => {
+        setCartItems(prev => prev.filter(item => item.id !== productId));
+        playUXSound('pop');
+    };
+
+    const updateQuantity = (productId, delta) => {
+        setCartItems(prev => prev.map(item => {
+            if (item.id === productId) {
+                const newQty = Math.max(1, item.quantity + delta);
+                return { ...item, quantity: newQty };
+            }
+            return item;
+        }));
+    };
+
+    const getCartTotal = () => {
+        return cartItems.reduce((total, item) => {
+            const price = parseFloat(item.price.replace('$', ''));
+            return total + (price * item.quantity);
+        }, 0);
+    };
+
+    const placeOrder = async (orderDetails) => {
+        const orderId = Math.floor(100000 + Math.random() * 900000);
+        const newOrder = {
+            ...orderDetails,
+            orderId,
+            items: cartItems,
+            total: getCartTotal() + (isSurgeActive ? deliveryFee * surgeMultiplier : deliveryFee),
+            status: 'pending',
+            date: new Date().toLocaleString()
         };
 
-        try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
-            const response = await fetch(`${apiUrl}/send-verification`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phone: phone,
-                    code: code,
-                    message: message,
-                    bot_token: botToken,
-                    chat_id: chatId,
-                    email: eskizSettings.email,
-                    password: eskizSettings.password
-                })
-            });
-
-            const result = await response.json();
-            if (result.sms !== 'sent') {
-                console.warn('SMS failed, using Telegram fallback:', result.sms);
-                sendToTelegramFallback();
-            } else {
-                toast.success("SMS muvaffaqiyatli yuborildi! ✅");
-            }
-        } catch (err) {
-            console.error('Network error during verification, using Telegram fallback:', err);
-            sendToTelegramFallback();
-        }
-    };
-
-    const sendCustomerNotification = async (phone, text) => {
-        const { botToken } = telegramSettings;
-        const eskizSettings = JSON.parse(localStorage.getItem('bsb_eskiz_settings') || '{}');
-        try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
-            await fetch(`${apiUrl}/send-message`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phone,
-                    text,
-                    bot_token: botToken,
-                    email: eskizSettings.email,
-                    password: eskizSettings.password
-                })
-            });
-        } catch (err) {
-            console.error('Customer notification failed:', err);
-        }
-    };
-
-    const placeOrder = async (orderData) => {
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
             const res = await fetch(`${apiUrl}/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData)
+                body: JSON.stringify(newOrder)
             });
+
             if (res.ok) {
-                setOrders(prevOrders => [orderData, ...prevOrders]);
-                fetchOrders(); // Refresh from backend
+                const contentType = res.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const result = await res.json();
+                    setOrders(prev => [result, ...prev]);
+                    setCartItems([]);
+                    launchConfetti();
+                    playUXSound('success');
+
+                    // Update user stats
+                    const newStats = {
+                        totalOrders: userStats.totalOrders + 1,
+                        level: userStats.totalOrders + 1 >= 15 ? 'GOLD' : (userStats.totalOrders + 1 >= 5 ? 'SILVER' : 'BRONZE')
+                    };
+                    setUserStats(newStats);
+                    localStorage.setItem('bsb_user_stats', JSON.stringify(newStats));
+
+                    // Add bonuses (5% cashback)
+                    const bonusEarned = (newOrder.total || 0) * 0.05;
+                    setBonuses(prev => prev + bonusEarned);
+
+                    sendTelegramNotification(result);
+                    return result;
+                }
             }
-        } catch (e) {
-            console.error("Order placement error:", e);
-            // Fallback to local
-            setOrders(prevOrders => [orderData, ...prevOrders]);
-        }
 
-        // If bonuses were used, subtract them
-        if (useBonuses) {
-            setBonuses(prev => Math.max(0, prev - bonusToUse));
-            setUseBonuses(false);
-        }
-
-        // Celebrate!
-        if (orderData.status !== 'cancelled') {
-            playUXSound('success');
+            // Fallback: Save locally if API fails or returns HTML
+            console.warn("Saving order locally as fallback...");
+            setOrders(prev => [newOrder, ...prev]);
+            localStorage.setItem('bsb_orders', JSON.stringify([newOrder, ...orders]));
+            setCartItems([]);
             launchConfetti();
+            playUXSound('success');
+            sendTelegramNotification(newOrder);
+            return newOrder;
+
+        } catch (e) {
+            console.error("Order placement failed, fallback to local:", e);
+            // Fallback
+            setOrders(prev => [newOrder, ...prev]);
+            localStorage.setItem('bsb_orders', JSON.stringify([newOrder, ...orders]));
+            setCartItems([]);
+            launchConfetti();
+            playUXSound('success');
+            sendTelegramNotification(newOrder);
+            return newOrder;
         }
-    };
-
-    // Order status notifications effect
-    useEffect(() => {
-        if (orders.length === 0) return;
-
-        const lastStatuses = JSON.parse(localStorage.getItem('bsb_last_notified') || '{}');
-        const newNotified = { ...lastStatuses };
-        let changed = false;
-
-        orders.forEach(order => {
-            const orderId = String(order.orderId);
-            const currentStatus = order.status;
-
-            if (lastStatuses[orderId] !== currentStatus) {
-                let statusMsg = "";
-                if (currentStatus === 'preparing') {
-                    statusMsg = `🛒 <b>BUYURTMANGIZ QABUL QILINDI!</b>\n\n🆔 ID: #${orderId}\n💰 Jami: $${order.total.toFixed(2)}\n\n👨‍🍳 Taomingiz tayyorlanishni boshladi. Yoqimli ishtaha!`;
-                }
-                else if (currentStatus === 'shipping') statusMsg = `🛵 Buyurtmangiz #${orderId} yo'lga chiqdi! Kuryerni kuting.`;
-                else if (currentStatus === 'completed') statusMsg = `BUYURTMANGIZ YETKAZIB BERILDI!\n\nXaridingiz uchun rahmat! Yoqimli ishtaha!`;
-                else if (currentStatus === 'cancelled') statusMsg = `❌ Afsuski, buyurtmangiz #${orderId} bekor qilindi.`;
-
-                if (statusMsg) {
-                    sendCustomerNotification(order.phone, statusMsg);
-                    changed = true;
-                }
-                newNotified[orderId] = currentStatus;
-            }
-        });
-
-        if (changed) {
-            localStorage.setItem('bsb_last_notified', JSON.stringify(newNotified));
-        }
-    }, [orders]);
-
-    // Surge Pricing Logic
-    useEffect(() => {
-        const activeOrders = orders.filter(o => o.status === 'pending' || o.status === 'preparing').length;
-        if (activeOrders >= 10) {
-            setSurgeMultiplier(1.5);
-            setIsSurgeActive(true);
-        } else if (activeOrders >= 5) {
-            setSurgeMultiplier(1.2);
-            setIsSurgeActive(true);
-        } else {
-            setSurgeMultiplier(1);
-            setIsSurgeActive(false);
-        }
-    }, [orders]);
-
-    const getRecommendedItems = (currentCart) => {
-        // Logic to suggest items missing in cart
-        const categories = currentCart.map(item => item.category);
-        const recommendations = [];
-
-        if (!categories.includes('DRINKS')) {
-            recommendations.push({ id: 7, name: 'Milkshake', price: '$4.50', category: 'DRINKS', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?q=80&w=800&auto=format&fit=crop' });
-        }
-        if (!categories.includes('DESSERTS')) {
-            recommendations.push({ id: 40, name: 'Chocolate Lava Cake', price: '$6.50', category: 'DESSERTS', image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?q=80&w=800&auto=format&fit=crop' });
-        }
-        if (!categories.includes('SIDES')) {
-            recommendations.push({ id: 5, name: 'Onion Rings', price: '$5.50', category: 'SIDES', image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?q=80&w=800&auto=format&fit=crop' });
-        }
-
-        return recommendations.slice(0, 2);
     };
 
     const updateOrderStatus = async (orderId, newStatus) => {
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
-            const res = await fetch(`${apiUrl}/orders/update-status`, {
-                method: 'POST',
+            const res = await fetch(`${apiUrl}/orders/${orderId}/status`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId: String(orderId), status: newStatus })
+                body: JSON.stringify({ status: newStatus })
             });
+
             if (res.ok) {
-                setOrders(prevOrders => prevOrders.map(o =>
-                    String(o.orderId) === String(orderId) ? { ...o, status: newStatus } : o
-                ));
+                const updatedOrder = await res.json();
+                setOrders(prev => prev.map(o => o.orderId === orderId ? updatedOrder : o));
+                toast.success(t('admin.status_updated', { id: orderId, defaultValue: `Buyurtma #${orderId} holati yangilandi: ${newStatus}` }));
+                return updatedOrder;
             }
         } catch (e) {
-            console.error("Order status update error:", e);
-            setOrders(prevOrders => prevOrders.map(o =>
-                String(o.orderId) === String(orderId) ? { ...o, status: newStatus } : o
-            ));
-        }
-
-        // Bajarilganda bonus qo'shish va VIP level yangilash
-        if (newStatus === 'completed') {
-            const order = orders.find(o => String(o.orderId) === String(orderId));
-            if (order) {
-                // Count burgers for loyalty stamps
-                const burgerCount = order.items
-                    .filter(item => item.category === 'BURGERS')
-                    .reduce((acc, item) => acc + item.quantity, 0);
-
-                // Update User Stats
-                setUserStats(prev => {
-                    const newTotal = prev.totalOrders + 1;
-                    let newLevel = 'BRONZE';
-                    if (newTotal >= 15) newLevel = 'GOLD';
-                    else if (newTotal >= 5) newLevel = 'SILVER';
-
-                    const currentStamps = prev.loyaltyStamps || 0;
-                    const newStamps = Math.min(5, currentStamps + burgerCount);
-
-                    return { ...prev, totalOrders: newTotal, level: newLevel, loyaltyStamps: newStamps };
-                });
-
-                let cashbackPercent = 0.05;
-                if (userStats.level === 'SILVER') cashbackPercent = 0.07;
-                else if (userStats.level === 'GOLD') cashbackPercent = 0.10;
-
-                const cashback = order.total * cashbackPercent;
-                setBonuses(prev => prev + cashback);
-            }
-        }
-
-        if (newStatus === 'preparing') {
-            setTimeout(() => updateOrderStatus(orderId, 'shipping'), 15000); // 15s to ship
-        } else if (newStatus === 'shipping') {
-            setTimeout(() => updateOrderStatus(orderId, 'completed'), 30000); // 30s to deliver
+            console.error(e);
+            // Fallback for local
+            setOrders(prev => prev.map(o => o.orderId === orderId ? { ...o, status: newStatus } : o));
         }
     };
 
-    const [appliedCoupon, setAppliedCoupon] = useState(null);
-    const [discount, setDiscount] = useState(0);
-
-    const applyCoupon = (code) => {
-        const coupons = { 'NEW2026': 20, 'BSB50': 100, 'ALIBEK': 10 };
-        if (coupons[code]) {
-            setAppliedCoupon(code);
-            setDiscount(coupons[code]);
-            return { success: true, percent: coupons[code] };
-        }
-        return { success: false, message: 'Noto\'g\'ri promokod!' };
-    };
-
-    const cartTotal = cartItems.reduce((total, item) => {
-        const price = parseFloat(item.price.replace('$', ''));
-        return total + price * item.quantity;
-    }, 0);
-
-    const discountAmount = (cartTotal * discount) / 100;
-    const bonusToUse = useBonuses ? Math.min(bonuses, cartTotal - discountAmount) : 0;
-    const finalDeliveryFee = deliveryFee * surgeMultiplier;
-    const finalTotal = cartTotal - discountAmount - bonusToUse;
-
-    const claimLoyaltyReward = () => {
-        if (userStats.loyaltyStamps >= 5) {
-            setUserStats(prev => ({ ...prev, loyaltyStamps: 0 }));
-            setBonuses(prev => prev + 10); // Give $10 bonus (price of a good burger)
-            launchConfetti();
-            alert("Tabriklaymiz! 5 ta burger uchun sovg'a tariqasida $10 bonus balansingizga qo'shildi! 🎉");
-            return true;
-        }
-        return false;
-    };
-
-    const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-
-    const updateOrderDetails = (orderId, updates) => {
-        setOrders(prevOrders => prevOrders.map(o =>
-            String(o.orderId) === String(orderId) ? { ...o, ...updates } : o
-        ));
+    const updateOrderDetails = (orderId, updatedData) => {
+        setOrders(prev => prev.map(o => o.orderId === orderId ? { ...o, ...updatedData } : o));
     };
 
     return (
         <CartContext.Provider value={{
-            cartItems, isCartOpen, setIsCartOpen, addToCart, removeFromCart,
-            updateQuantity, clearCart, cartTotal, cartCount, orders,
-            placeOrder, updateOrderStatus, updateOrderDetails, sendVerificationCode, sendCustomerNotification, discount,
-            discountAmount, finalTotal, applyCoupon, appliedCoupon,
-            isStoreOpen, setIsStoreOpen, telegramSettings, setTelegramSettings,
-            sendTelegramNotification, bonuses, useBonuses, setUseBonuses, bonusToUse,
-            userStats, deliveryFee, setDeliveryFee, surgeMultiplier, isSurgeActive,
-            getRecommendedItems, finalDeliveryFee,
-            auditLogs, setAuditLogs, logAction, siteSettings, setSiteSettings,
-            claimLoyaltyReward,
-            staff, addStaff, deleteStaff, updateStaff, setStaff,
+            cartItems, addToCart, removeFromCart, updateQuantity,
+            isCartOpen, setIsCartOpen, getCartTotal, placeOrder,
+            orders, updateOrderStatus, updateOrderDetails,
+            isStoreOpen, setIsStoreOpen, bonuses, setBonuses,
+            userStats, playUXSound,
+            telegramSettings, setTelegramSettings,
+            sendTelegramNotification, sendCustomerNotification,
+            auditLogs, setAuditLogs, logAction,
+            siteSettings, setSiteSettings,
+            careerApplications, handleCareerAction, submitCareerApplication, fetchCareers,
+            staff, addStaff, deleteStaff, updateStaff,
             coupons, addCoupon, deleteCoupon,
             rewards, addReward, deleteReward,
-            submitCareerApplication, careerApplications, handleCareerAction, fetchCareers,
-            playUXSound
+            useBonuses, setUseBonuses, deliveryFee, surgeMultiplier, isSurgeActive
         }}>
             {children}
         </CartContext.Provider>

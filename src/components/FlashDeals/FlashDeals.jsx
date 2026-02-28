@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaFire, FaBolt, FaShoppingCart } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import './FlashDeals.css';
 
 const FlashDeals = () => {
+    const { t } = useTranslation();
     const { addToCart } = useCart();
     const [timeLeft, setTimeLeft] = useState(3600 + 45 * 60 + 22); // Mock timer for effects
 
     const dealItem = {
-        id: 'flash-1',  
+        id: 'flash-1',
         name: 'FLAMING COMBO DELUXE',
         originalPrice: 25.00,
         dealPrice: 15.99,
@@ -42,10 +44,10 @@ const FlashDeals = () => {
                             animate={{ scale: [1, 1.1, 1] }}
                             transition={{ duration: 1, repeat: Infinity }}
                         >
-                            <FaBolt /> SHOОNQOR TAKLIF
+                            <FaBolt /> {t('flash_deals.badge', 'SHOV-SHUVLI TAKLIF')}
                         </motion.div>
-                        <h2>KUNNING "YONAYOTGAN" AKSIYASI 🔥</h2>
-                        <p>Vaxt tugamoqda! Ushbu komboni eng arzon narxda sotib oling.</p>
+                        <h2>{t('flash_deals.title', 'KUNNING "YONAYOTGAN" AKSIYASI 🔥')}</h2>
+                        <p>{t('flash_deals.desc', 'Vaqt tugamoqda! Ushbu komboni eng arzon narxda sotib oling.')}</p>
 
                         <div className="timer-container">
                             <AnimatePresence mode="wait">
@@ -69,7 +71,7 @@ const FlashDeals = () => {
                             className="grab-deal-btn"
                             onClick={() => addToCart({ ...dealItem, price: `$${dealItem.dealPrice}` })}
                         >
-                            <FaShoppingCart /> SAVATGA QO'SHISH +
+                            <FaShoppingCart /> {t('flash_deals.add_btn', "SAVATGA QO'SHISH +")}
                         </button>
                     </div>
 

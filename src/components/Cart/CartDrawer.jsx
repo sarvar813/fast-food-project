@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import { FaTimes, FaMinus, FaPlus, FaTrashAlt, FaArrowLeft, FaCreditCard, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
 import MapPicker from '../Map/MapPicker';
@@ -6,6 +7,7 @@ import Receipt from './Receipt';
 import './CartDrawer.css';
 
 const CartDrawer = () => {
+    const { t } = useTranslation();
     const {
         isCartOpen, setIsCartOpen, cartItems, cartTotal, updateQuantity, removeFromCart,
         clearCart, placeOrder, updateOrderStatus, discount, finalTotal, applyCoupon, appliedCoupon,
@@ -65,7 +67,7 @@ const CartDrawer = () => {
         if (userCode === generatedCode) {
             setStep('payment');
         } else {
-            alert('Xato kod! Qaytadan urinib ko\'ring.');
+            alert(t('cart.verify_error', 'Xato kod! Qaytadan urinib ko\'ring.'));
         }
     };
 
@@ -126,10 +128,10 @@ const CartDrawer = () => {
                     <div className={`cart-drawer ${isCartOpen ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
                         <div className="cart-header">
                             <h2>
-                                {step === 'cart' && 'Savatchangiz'}
-                                {step === 'info' && 'Maʼlumotlar'}
-                                {step === 'verification' && 'Tasdiqlash'}
-                                {step === 'payment' && 'Toʻlov'}
+                                {step === 'cart' && t('cart.title')}
+                                {step === 'info' && t('cart.info_title')}
+                                {step === 'verification' && t('cart.verify_title')}
+                                {step === 'payment' && t('cart.payment_title')}
                             </h2>
                             <button className="close-cart" onClick={() => setIsCartOpen(false)}>
                                 <FaTimes />
@@ -147,13 +149,13 @@ const CartDrawer = () => {
                                                 <span className="level-name">{statusInfo.label}</span>
                                             </div>
                                             <div className="loyalty-details">
-                                                <h4>Sodiqlik Darajasi</h4>
-                                                <p>{statusInfo.rate} Cashback har bir buyurtmadan</p>
+                                                <h4>{t('cart.loyalty_title')}</h4>
+                                                <p>{statusInfo.rate} {t('cart.cashback_text')}</p>
                                             </div>
                                         </div>
 
                                         <div className="stamps-section">
-                                            <p className="stamps-title">Burger Maratoni: <span>{userStats.loyaltyStamps || 0}/5</span></p>
+                                            <p className="stamps-title">{t('cart.marathon_title')}: <span>{userStats.loyaltyStamps || 0}/5</span></p>
                                             <div className="stamps-grid">
                                                 {[1, 2, 3, 4, 5].map(i => (
                                                     <div key={i} className={`stamp ${i <= (userStats.loyaltyStamps || 0) ? 'active' : ''}`}>
@@ -163,7 +165,7 @@ const CartDrawer = () => {
                                             </div>
                                             {userStats.loyaltyStamps >= 5 && (
                                                 <button className="claim-reward-btn" onClick={claimLoyaltyReward}>
-                                                    SOVG'ANI OLISH 🎁
+                                                    {t('cart.claim_reward')}
                                                 </button>
                                             )}
                                         </div>
@@ -179,7 +181,7 @@ const CartDrawer = () => {
                                                         }}
                                                     ></div>
                                                 </div>
-                                                <span>Keyingi darajaga: {userStats.level === 'BRONZE' ? 5 - userStats.totalOrders : 15 - userStats.totalOrders} TA</span>
+                                                <span>{t('cart.next_level')}: {userStats.level === 'BRONZE' ? 5 - userStats.totalOrders : 15 - userStats.totalOrders} {t('cart.next_level_suffix', 'TA')}</span>
                                             </div>
                                         )}
                                     </div>
@@ -188,17 +190,17 @@ const CartDrawer = () => {
                                         <div className="surge-warning-card">
                                             <div className="surge-icon">⚡</div>
                                             <div className="surge-text">
-                                                <h4>Yuqori talab mavjud</h4>
-                                                <p>Buyurtmalar juda ko'p! Yetkazib berish vaqti va narxi biroz oshishi mumkin (x{surgeMultiplier}).</p>
+                                                <h4>{t('cart.surge_title')}</h4>
+                                                <p>{t('cart.surge_desc')} (x{surgeMultiplier}).</p>
                                             </div>
                                         </div>
                                     )}
                                     {cartItems.length === 0 ? (
                                         <div className="empty-cart">
                                             <FaTrashAlt />
-                                            <p>Savatchangiz hozircha bo'sh</p>
+                                            <p>{t('cart.empty')}</p>
                                             <button className="empty-close-btn" onClick={() => setIsCartOpen(false)}>
-                                                CHIQISH
+                                                {t('navbar.logout').toUpperCase()}
                                             </button>
                                         </div>
                                     ) : (
@@ -231,24 +233,24 @@ const CartDrawer = () => {
                                             {hasBurger && !hasComboExtras && (
                                                 <div className="combo-suggest-card">
                                                     <div className="combo-info">
-                                                        <span className="combo-badge">COMBO SAVDO ⚡</span>
-                                                        <p>Burgeringizga <b>Fri + Ichimlik</b> qo'shamizmi? Atigi <b>$5.00</b> qo'shimcha!</p>
+                                                        <span className="combo-badge">{t('cart.combo_title')}</span>
+                                                        <p dangerouslySetInnerHTML={{ __html: t('cart.combo_desc') }}></p>
                                                     </div>
-                                                    <button className="add-combo-btn" onClick={makeItCombo}>Qo'shish</button>
+                                                    <button className="add-combo-btn" onClick={makeItCombo}>{t('cart.add_btn')}</button>
                                                 </div>
                                             )}
 
                                             <form className="coupon-form" onSubmit={handleApplyCoupon}>
                                                 <input
                                                     type="text"
-                                                    placeholder="Promokod"
+                                                    placeholder={t('cart.coupon_placeholder')}
                                                     value={couponCode}
                                                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                                                 />
                                                 <button type="submit">OK</button>
                                             </form>
                                             {appliedCoupon && (
-                                                <p className="applied-coupon-text">Promokod qo'llanildi: <strong>{appliedCoupon} (-{discount}%)</strong></p>
+                                                <p className="applied-coupon-text">{t('cart.coupon_success')}: <strong>{appliedCoupon} (-{discount}%)</strong></p>
                                             )}
                                             {useBonuses && bonuses > 0 && (
                                                 <div className="bonus-usage">
@@ -258,14 +260,14 @@ const CartDrawer = () => {
                                                             checked={useBonuses}
                                                             onChange={(e) => setUseBonuses(e.target.checked)}
                                                         />
-                                                        <span className="bonus-text"> Bonusdan foydalanish ($ {bonuses.toFixed(2)} bor)</span>
+                                                        <span className="bonus-text"> {t('cart.use_bonuses')} (${bonuses.toFixed(2)} {t('cart.bonus_available', 'bor')})</span>
                                                     </label>
                                                 </div>
                                             )}
 
                                             {/* Upselling Section */}
                                             <div className="upsell-section">
-                                                <h4>O'zi bilan yana nima olamiz? 😋</h4>
+                                                <h4>{t('cart.upsell_title')}</h4>
                                                 <div className="upsell-items">
                                                     {getRecommendedItems(cartItems).map(item => (
                                                         <div key={item.id} className="upsell-item" onClick={() => addToCart(item)}>
@@ -292,30 +294,30 @@ const CartDrawer = () => {
                             {step === 'info' && (
                                 <form className="checkout-form" onSubmit={handleInfoSubmit}>
                                     <button type="button" className="back-to-cart" onClick={() => setStep('cart')}>
-                                        <FaArrowLeft /> Savatga qaytish
+                                        <FaArrowLeft /> {t('cart.back_to_cart')}
                                     </button>
                                     <div className="form-group">
-                                        <label>Ism</label>
+                                        <label>{t('cart.form.name')}</label>
                                         <input
                                             type="text"
-                                            placeholder="Ismingizni kiriting"
+                                            placeholder={t('cart.form.name_placeholder')}
                                             value={customerInfo.name}
                                             onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
                                             required
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label>Familiya</label>
+                                        <label>{t('cart.form.surname')}</label>
                                         <input
                                             type="text"
-                                            placeholder="Familiyangizni kiriting"
+                                            placeholder={t('cart.form.surname_placeholder')}
                                             value={customerInfo.surname}
                                             onChange={(e) => setCustomerInfo({ ...customerInfo, surname: e.target.value })}
                                             required
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label>Telefon raqam</label>
+                                        <label>{t('cart.form.phone')}</label>
                                         <input
                                             type="tel"
                                             placeholder="+998 -- --- -- --"
@@ -336,26 +338,26 @@ const CartDrawer = () => {
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label>Manzil (yoki xaritadan tanlang)</label>
+                                        <label>{t('cart.form.address')} ({t('cart.form.map_btn').toLowerCase()})</label>
                                         <div className="address-input-wrapper">
                                             <input
                                                 type="text"
-                                                placeholder="Yetkazib berish manzili"
+                                                placeholder={t('cart.form.address_placeholder')}
                                                 value={customerInfo.address}
                                                 onChange={(e) => setCustomerInfo({ ...customerInfo, address: e.target.value })}
                                                 required
                                             />
-                                            <button type="button" className="map-btn" onClick={() => setIsMapOpen(true)}>XARITA</button>
+                                            <button type="button" className="map-btn" onClick={() => setIsMapOpen(true)}>{t('cart.form.map_btn')}</button>
                                         </div>
                                     </div>
                                     <div className="form-group">
-                                        <label>Yetkazib berish vaqti</label>
+                                        <label>{t('cart.form.time')}</label>
                                         <select
                                             className="preorder-select"
                                             value={preOrderTime}
                                             onChange={(e) => setPreOrderTime(e.target.value)}
                                         >
-                                            <option value="ASAP">Iloji boricha tezroq (30-45 daqiqa)</option>
+                                            <option value="ASAP">{t('cart.form.asap')}</option>
                                             <option value="18:00">18:00 gacha</option>
                                             <option value="19:00">19:00 gacha</option>
                                             <option value="20:00">20:00 gacha</option>
@@ -363,32 +365,32 @@ const CartDrawer = () => {
                                             <option value="22:00">22:00 gacha</option>
                                         </select>
                                     </div>
-                                    <button type="submit" className="confirm-btn">SMS KOD YUBORISH</button>
+                                    <button type="submit" className="confirm-btn">{t('cart.send_code')}</button>
                                 </form>
                             )}
 
                             {step === 'verification' && (
                                 <div className="verification-step">
                                     <button type="button" className="back-to-cart" onClick={() => setStep('info')}>
-                                        <FaArrowLeft /> Maʼlumotlarga qaytish
+                                        <FaArrowLeft /> {t('cart.back_to_info')}
                                     </button>
                                     <div className="verification-info">
-                                        <p>Biz sizning {customerInfo.phone} raqamingizga kod yubordik.</p>
+                                        <p>{t('cart.verify_desc', { phone: customerInfo.phone })}</p>
                                         <div className="bot-link-box">
-                                            <p>Agar SMS kelmasa, botimizdan oling:</p>
+                                            <p>{t('cart.bot_fallback')}</p>
                                             <a
                                                 href={`https://t.me/${telegramSettings.botUsername}?start=verify`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="bot-link-btn"
                                             >
-                                                BOTGA KIRISH
+                                                {t('cart.bot_btn')}
                                             </a>
                                         </div>
                                     </div>
                                     <form onSubmit={handleVerificationSubmit}>
                                         <div className="form-group">
-                                            <label>Kodni kiriting</label>
+                                            <label>{t('cart.enter_code')}</label>
                                             <input
                                                 type="text"
                                                 maxLength="4"
@@ -401,14 +403,14 @@ const CartDrawer = () => {
                                                 required
                                             />
                                         </div>
-                                        <button type="submit" className="confirm-btn">TASDIQLASH</button>
+                                        <button type="submit" className="confirm-btn">{t('cart.verify_btn')}</button>
                                     </form>
                                     <button
                                         className="resend-code"
                                         onClick={handleInfoSubmit}
                                         disabled={resendCountdown > 0}
                                     >
-                                        {resendCountdown > 0 ? `KODNI QAYTA YUBORISH (${resendCountdown}s)` : 'KODNI QAYTA YUBORISH'}
+                                        {resendCountdown > 0 ? `${t('cart.resend_code')} (${resendCountdown}s)` : t('cart.resend_code')}
                                     </button>
                                 </div>
                             )}
@@ -416,36 +418,36 @@ const CartDrawer = () => {
                             {step === 'payment' && (
                                 <div className="payment-step">
                                     <div className="payment-methods">
-                                        <h3>Toʻlov usulini tanlang</h3>
+                                        <h3>{t('cart.payment_method')}</h3>
                                         <div
                                             className={`payment-card ${paymentMethod === 'card' ? 'active' : ''}`}
                                             onClick={() => setPaymentMethod('card')}
                                         >
                                             <FaCreditCard />
-                                            <span>Naqd / Terminal</span>
+                                            <span>{t('cart.cash_terminal')}</span>
                                         </div>
                                         <div
                                             className={`payment-card ${paymentMethod === 'payme' ? 'active' : ''}`}
                                             onClick={() => setPaymentMethod('payme')}
                                         >
                                             <div className="pay-logo payme">Payme</div>
-                                            <span>Payme orqali</span>
+                                            <span>{t('cart.payme')}</span>
                                         </div>
                                         <div
                                             className={`payment-card ${paymentMethod === 'click' ? 'active' : ''}`}
                                             onClick={() => setPaymentMethod('click')}
                                         >
                                             <div className="pay-logo click">CLICK</div>
-                                            <span>Click orqali</span>
+                                            <span>{t('cart.click')}</span>
                                         </div>
                                     </div>
                                     <div className="payment-actions">
-                                        <p>Pul oʻtkazilganini tasdiqlaysizmi?</p>
+                                        <p>{t('cart.confirm_payment')}</p>
                                         <button className="pay-confirm-btn" onClick={() => handlePaymentConfirm(true)}>
-                                            HA, TOʻLOV QILDIM
+                                            {t('cart.pay_yes')}
                                         </button>
                                         <button className="pay-cancel-btn" onClick={() => handlePaymentConfirm(false)}>
-                                            YOʻQ, BEKOR QILISH
+                                            {t('cart.pay_no')}
                                         </button>
                                     </div>
                                 </div>
@@ -456,32 +458,32 @@ const CartDrawer = () => {
                             <div className="cart-footer">
                                 <div className="summary-details">
                                     <div className="total-row">
-                                        <span>Subtotal:</span>
+                                        <span>{t('cart.summary.subtotal')}:</span>
                                         <span>${cartTotal.toFixed(2)}</span>
                                     </div>
                                     {discount > 0 && (
                                         <div className="total-row discount">
-                                            <span>Chegirma:</span>
+                                            <span>{t('cart.summary.discount')}:</span>
                                             <span>-${discountAmount.toFixed(2)}</span>
                                         </div>
                                     )}
                                     {useBonuses && bonusToUse > 0 && (
                                         <div className="total-row bonus">
-                                            <span>Bonus:</span>
+                                            <span>{t('cart.summary.bonus')}:</span>
                                             <span>-${bonusToUse.toFixed(2)}</span>
                                         </div>
                                     )}
                                     <div className="total-row delivery">
-                                        <span>Yetkazib berish {isSurgeActive && <span className="surge-small">⚡ SURGE</span>}:</span>
-                                        <span>{finalDeliveryFee === 0 ? 'BEPUL' : `$${finalDeliveryFee.toFixed(2)}`}</span>
+                                        <span>{t('cart.summary.delivery')} {isSurgeActive && <span className="surge-small">⚡ SURGE</span>}:</span>
+                                        <span>{finalDeliveryFee === 0 ? t('cart.summary.free') : `$${finalDeliveryFee.toFixed(2)}`}</span>
                                     </div>
                                     <div className="total-row grand-total">
-                                        <span>Jami summasi:</span>
+                                        <span>{t('cart.summary.total')}:</span>
                                         <span>${(finalTotal + finalDeliveryFee).toFixed(2)}</span>
                                     </div>
                                 </div>
                                 <button className="checkout-btn" onClick={handleCheckoutClick}>
-                                    BUYURTMA BERISH
+                                    {t('cart.checkout_btn')}
                                 </button>
                             </div>
                         )}

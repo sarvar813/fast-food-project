@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import Header from './components/Header/Header.jsx';
 import Navbar from './components/Navbar/Navbar.jsx';
 import Home from './pages/Home/Home.jsx';
@@ -47,6 +48,7 @@ const PageWrapper = ({ children }) => (
 );
 
 const AppContent = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const isAdminOrCourierPage = location.pathname.startsWith('/admin') || location.pathname.startsWith('/courier');
 
@@ -54,14 +56,14 @@ const AppContent = () => {
     const originalTitle = document.title;
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        document.title = "Sizni sog'indik! 🍔";
+        document.title = t('navbar.miss_you', "Sizni sog'indik! 🍔");
       } else {
         document.title = originalTitle;
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []);
+  }, [t]);
 
   return (
     <div className="app">

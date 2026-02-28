@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import { FaBox, FaMapMarkerAlt, FaPhoneAlt, FaCheckCircle, FaUserAlt, FaMotorcycle, FaListUl } from 'react-icons/fa';
 import './CourierPanel.css';
 
 const CourierPanel = () => {
+    const { t } = useTranslation();
     const { orders, updateOrderStatus } = useCart();
     const courierOrders = orders.filter(o => o.status === 'shipping');
-    const availableOrders = orders.filter(o => o.status === 'preparing' || o.status === 'completed'); // Actually in reality preparing/ready
 
     const [activeTab, setActiveTab] = useState('my-orders');
 
     const handleDeliveryComplete = (orderId) => {
         updateOrderStatus(orderId, 'completed');
-        alert('Buyurtma muvaffaqiyatli yetkazildi! ✅');
+        alert(t('courier.delivered_success', 'Buyurtma muvaffaqiyatli yetkazildi! ✅'));
     };
 
     return (
@@ -21,7 +22,7 @@ const CourierPanel = () => {
                 <div className="c-user">
                     <FaMotorcycle className="c-icon" />
                     <div>
-                        <h2>Kuryer Paneli</h2>
+                        <h2>{t('courier.title', 'Kuryer Paneli')}</h2>
                         <span className="online-badge">Online</span>
                     </div>
                 </div>
@@ -32,13 +33,13 @@ const CourierPanel = () => {
                     className={activeTab === 'my-orders' ? 'active' : ''}
                     onClick={() => setActiveTab('my-orders')}
                 >
-                    <FaBox /> Mening buyurtmalarim ({courierOrders.length})
+                    <FaBox /> {t('courier.my_orders', 'Mening buyurtmalarim')} ({courierOrders.length})
                 </button>
                 <button
                     className={activeTab === 'available' ? 'active' : ''}
                     onClick={() => setActiveTab('available')}
                 >
-                    <FaListUl /> Mavjud buyurtmalar
+                    <FaListUl /> {t('courier.available_orders', 'Mavjud buyurtmalar')}
                 </button>
             </div>
 
@@ -47,7 +48,7 @@ const CourierPanel = () => {
                     <div className="order-cards">
                         {courierOrders.length === 0 ? (
                             <div className="empty-state">
-                                <p>Sizda hozircha yetkazilayotgan buyurtmalar yo'q.</p>
+                                <p>{t('courier.no_active_orders', "Sizda hozircha yetkazilayotgan buyurtmalar yo'q.")}</p>
                             </div>
                         ) : (
                             courierOrders.map(order => (
@@ -69,7 +70,7 @@ const CourierPanel = () => {
                                     </div>
                                     <div className="order-footer">
                                         <button className="done-btn" onClick={() => handleDeliveryComplete(order.orderId)}>
-                                            <FaCheckCircle /> YETKAZDIM
+                                            <FaCheckCircle /> {t('courier.delivered_btn', 'YETKAZDIM')}
                                         </button>
                                     </div>
                                 </div>
@@ -80,7 +81,7 @@ const CourierPanel = () => {
 
                 {activeTab === 'available' && (
                     <div className="empty-state">
-                        <p>Hozircha yangi buyurtmalar mavjud emas.</p>
+                        <p>{t('courier.no_available_orders', "Hozircha yangi buyurtmalar mavjud emas.")}</p>
                     </div>
                 )}
             </div>

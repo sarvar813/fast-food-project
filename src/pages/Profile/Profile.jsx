@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
 import { FaUserCircle, FaHistory, FaMedal, FaCrown, FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa';
@@ -7,6 +8,7 @@ import LoyaltyStampCard from '../../components/LoyaltyStampCard/LoyaltyStampCard
 import './Profile.css';
 
 const Profile = () => {
+    const { t } = useTranslation();
     const { orders, userStats, bonuses, addToCart } = useCart();
     const toast = useToast();
     const [userPhone, setUserPhone] = React.useState(localStorage.getItem('bsb_user_phone') || '');
@@ -37,7 +39,7 @@ const Profile = () => {
     const handleSavePhone = () => {
         localStorage.setItem('bsb_user_phone', userPhone);
         checkTelegramLink();
-        toast.success("Raqamingiz muvaffaqiyatli saqlandi! ✅");
+        toast.success(t('profile.save_success', 'Raqamingiz muvaffaqiyatli saqlandi! ✅'));
     };
 
     const getStatusInfo = (level) => {
@@ -60,8 +62,8 @@ const Profile = () => {
                         <div className="user-avatar">
                             <FaUserCircle />
                         </div>
-                        <h3>Xush kelibsiz!</h3>
-                        <p className="user-bonus">Sizning bonuslaringiz: <span>${bonuses.toFixed(2)}</span></p>
+                        <h3>{t('profile.welcome', 'Xush kelibsiz!')}</h3>
+                        <p className="user-bonus">{t('profile.bonus_balance')}: <span>${bonuses.toFixed(2)}</span></p>
 
                         <div className="phone-link-mini">
                             <input
@@ -70,7 +72,7 @@ const Profile = () => {
                                 value={userPhone}
                                 onChange={(e) => setUserPhone(e.target.value)}
                             />
-                            <button onClick={handleSavePhone}>Saqlash</button>
+                            <button onClick={handleSavePhone}>{t('profile.save_btn')}</button>
                         </div>
                     </div>
 
@@ -79,11 +81,11 @@ const Profile = () => {
                     <div className="loyalty-card" style={{ borderTop: `5px solid ${statusInfo.color}`, marginTop: '20px' }}>
                         <div className="loyalty-header">
                             <span className="level-icon" style={{ color: statusInfo.color }}>{statusInfo.icon}</span>
-                            <h4>{statusInfo.label} STATUS</h4>
+                            <h4>{statusInfo.label} {t('profile.status', 'STATUS')}</h4>
                         </div>
                         <div className="loyalty-progress-container">
                             <div className="progress-text">
-                                <span>Daraja ko'rsatkichi</span>
+                                <span>{t('profile.level_progress', 'Daraja ko\'rsatkichi')}</span>
                                 <span>{userStats.totalOrders} / {nextLevelOrders}</span>
                             </div>
                             <div className="loyalty-progress-bar">
@@ -91,7 +93,7 @@ const Profile = () => {
                             </div>
                             {userStats.level !== 'GOLD' && (
                                 <p className="next-level-hint">
-                                    Yana {nextLevelOrders - userStats.totalOrders} ta buyurtma keyingi daraja uchun
+                                    {t('profile.next_level_hint', 'Yana {{count}} ta buyurtma keyingi daraja uchun', { count: nextLevelOrders - userStats.totalOrders })}
                                 </p>
                             )}
                         </div>
@@ -121,12 +123,12 @@ const Profile = () => {
                     <div className={`telegram-link-card ${isLinked ? 'verified' : ''}`}>
                         <div className="tg-header">
                             <span className="tg-icon">{isLinked ? <FaCheckCircle /> : '✈️'}</span>
-                            <h4>{isLinked ? 'Telegram Ulangan' : 'Telegram Bot'}</h4>
+                            <h4>{isLinked ? t('profile.tg_linked', 'Telegram Ulangan') : t('profile.tg_bot', 'Telegram Bot')}</h4>
                         </div>
                         <p>
                             {isLinked
-                                ? "Sizning hisobingiz Telegram botimiz bilan muvaffaqiyatli bog'langan! ✅"
-                                : "Buyurtma holatini kuzatish uchun botimizni ulashni unutmang!"}
+                                ? t('profile.tg_success', "Sizning hisobingiz Telegram botimiz bilan muvaffaqiyatli bog'langan! ✅")
+                                : t('profile.tg_hint', "Buyurtma holatini kuzatish uchun botimizni ulashni unutmang!")}
                         </p>
                         {!isLinked && (
                             <a
@@ -135,10 +137,10 @@ const Profile = () => {
                                 rel="noopener noreferrer"
                                 className="tg-link-btn"
                             >
-                                BOTGA KIRISH
+                                {t('cart.bot_btn')}
                             </a>
                         )}
-                        {isLinked && <span className="linked-badge">ULANGAN</span>}
+                        {isLinked && <span className="linked-badge">{t('profile.linked', 'ULANGAN')}</span>}
                     </div>
 
                     <WheelOfFortune isStatic={true} />
@@ -147,13 +149,13 @@ const Profile = () => {
                 <div className="profile-main">
                     <div className="section-header">
                         <FaHistory />
-                        <h2>Buyurtmalar tarixi</h2>
+                        <h2>{t('profile.order_history', 'Buyurtmalar tarixi')}</h2>
                     </div>
 
                     <div className="orders-history-list">
                         {orders.length === 0 ? (
                             <div className="no-orders">
-                                <p>Sizda hali buyurtmalar yo'q. Hozirroq birinchi buyurtmani bering!</p>
+                                <p>{t('navbar.no_orders')}</p>
                             </div>
                         ) : (
                             orders.map(order => (
@@ -167,7 +169,7 @@ const Profile = () => {
                                             {order.status === 'preparing' && <FaClock />}
                                             {order.status === 'shipping' && <FaClock />}
                                             {order.status === 'cancelled' && <FaTimesCircle />}
-                                            {order.status.toUpperCase()}
+                                            {t(`navbar.statuses.${order.status}`)}
                                         </span>
                                     </div>
 
@@ -175,19 +177,19 @@ const Profile = () => {
                                         <div className="order-stepper">
                                             <div className={`step ${['pending', 'preparing', 'shipping'].includes(order.status) ? 'completed' : ''} ${order.status === 'pending' ? 'active' : ''}`}>
                                                 <div className="step-icon"><FaCheckCircle /></div>
-                                                <span className="step-label">Qabul qilindi</span>
+                                                <span className="step-label">{t('order_status.steps.accepted')}</span>
                                             </div>
                                             <div className={`step ${['preparing', 'shipping'].includes(order.status) ? 'completed' : ''} ${order.status === 'preparing' ? 'active' : ''}`}>
                                                 <div className="step-icon">🍳</div>
-                                                <span className="step-label">Tayyorlik</span>
+                                                <span className="step-label">{t('order_status.steps.preparing')}</span>
                                             </div>
                                             <div className={`step ${['shipping'].includes(order.status) ? 'completed' : ''} ${order.status === 'shipping' ? 'active' : ''}`}>
                                                 <div className="step-icon">🚚</div>
-                                                <span className="step-label">Yo'lda</span>
+                                                <span className="step-label">{t('order_status.steps.shipping')}</span>
                                             </div>
                                             <div className={`step ${order.status === 'completed' ? 'completed' : ''}`}>
                                                 <div className="step-icon">🏠</div>
-                                                <span className="step-label">Yetkazildi</span>
+                                                <span className="step-label">{t('order_status.steps.delivered')}</span>
                                             </div>
                                         </div>
                                     )}
@@ -199,15 +201,15 @@ const Profile = () => {
                                             ))}
                                         </div>
                                         <div className="history-item-total">
-                                            Jami: <strong>${order.total.toFixed(2)}</strong>
+                                            {t('order_status.total')}: <strong>${order.total.toFixed(2)}</strong>
                                             <button
                                                 className="reorder-btn"
                                                 onClick={() => {
                                                     order.items.forEach(item => addToCart(item));
-                                                    alert("Mahsulotlar savatchaga qo'shildi!");
+                                                    toast.success(t('cart.reorder_success', "Mahsulotlar savatchaga qo'shildi!"));
                                                 }}
                                             >
-                                                Qayta buyurtma
+                                                {t('profile.reorder_btn', 'Qayta buyurtma')}
                                             </button>
                                         </div>
                                     </div>

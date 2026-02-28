@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaHeadset, FaPaperPlane, FaTimes, FaCircle } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import { useChat } from '../../context/ChatContext';
 import './SupportChat.css';
 
 const SupportChat = () => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState('');
     const { chats, sendMessage } = useChat();
@@ -40,7 +42,7 @@ const SupportChat = () => {
         // Provide a first auto-reply if it's the first message or after some time
         if (activeChat.messages.length === 0) {
             setTimeout(() => {
-                sendMessage(userId, "Xabaringiz admin panelga yuborildi. Tez orada javob qaytaramiz! 😊", 'admin');
+                sendMessage(userId, t('support_chat.auto_reply', "Xabaringiz admin panelga yuborildi. Tez orada javob qaytaramiz! 😊"), 'admin');
             }, 1000);
         }
     };
@@ -53,7 +55,7 @@ const SupportChat = () => {
                     <FaHeadset />
                     <span className="online-indicator"><FaCircle /></span>
                 </div>
-                <span>Admin bilan aloqa</span>
+                <span>{t('support_chat.trigger', 'Admin bilan aloqa')}</span>
             </button>
 
             {/* Chat Window */}
@@ -67,7 +69,7 @@ const SupportChat = () => {
                             </div>
                             <div className="admin-info">
                                 <h4>Support Admin</h4>
-                                <span>Online</span>
+                                <span>{t('support_chat.online', 'Online')}</span>
                             </div>
                         </div>
                         <button className="close-support" onClick={() => setIsOpen(false)}>
@@ -78,7 +80,7 @@ const SupportChat = () => {
                     <div className="chat-messages">
                         {activeChat.messages.length === 0 && (
                             <div className="message-bubble admin">
-                                <p>Salom! Savolingiz bormi? Admin panelga to'g'ridan-to'g'ri yozishingiz mumkin.</p>
+                                <p>{t('support_chat.system_msg', "Salom! Savolingiz bormi? Admin panelga to'g'ridan-to'g'ri yozishingiz mumkin.")}</p>
                                 <span className="msg-time">Tizim</span>
                             </div>
                         )}
@@ -94,7 +96,7 @@ const SupportChat = () => {
                     <form className="chat-input-area" onSubmit={handleSend}>
                         <input
                             type="text"
-                            placeholder="Xabarni yozing..."
+                            placeholder={t('support_chat.placeholder', "Xabarni yozing...")}
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                         />

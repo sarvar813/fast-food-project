@@ -7,47 +7,6 @@ import { useCart } from '../../context/CartContext';
 import { useProducts } from '../../context/ProductContext';
 import './Hero.css';
 
-const slides = [
-    {
-        productId: 1,
-        image: 'https://images.unsplash.com/photo-1610440042657-612c34d95e9f?q=80&w=1000&auto=format&fit=crop',
-        subtitle: 'PREMIUM QUALITY',
-        title: 'BLACK STAR SPECIAL',
-        description: 'Haqiqiy 100% mol go\'shti, maxsus qora bulka va bizning sirlangan sousimiz bilan unutilmas ta\'m.',
-        price: '$14.99',
-        isPremium: true,
-        ingredients: ['100% Halol Go\'sht', 'Yangi Pishirilgan Bulka', 'Maxsus Siri-Sous', 'Qora bulka']
-    },
-    {
-        productId: 15,
-        image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=1000&auto=format&fit=crop',
-        subtitle: 'EXCLUSIVE DEAL',
-        title: 'PREMIUM BURGER',
-        description: 'Haqiqiy mol go\'shti, yangi sabzavotlar va bizning maxsus sousimiz bilan tayyorlangan shohona lazzat.',
-        price: '$12.00',
-        isPremium: true,
-        ingredients: ['100% Halol Go\'sht', 'Yangi Pishirilgan Bulka', 'Maxsus Siri-Sous', 'Klassik bulka']
-    },
-    {
-        productId: 2,
-        image: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=1000&auto=format&fit=crop',
-        subtitle: 'BEST SELLER',
-        title: 'MELTY CHEESE BURGER',
-        description: 'Eritilgan Cheddar pishlog\'i va qarsildoq bodring bilan boyitilgan klassik lazzat.',
-        price: '$9.50',
-        ingredients: ['Klassik bulka', 'Mol go\'shti', 'Cheddar pishlog\'i', 'Bodring']
-    },
-    {
-        productId: 3,
-        image: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?q=80&w=1000&auto=format&fit=crop',
-        subtitle: 'NEW ARRIVAL',
-        title: 'BACON DELIGHT',
-        description: 'Qarsildoq bekon va dudlangan Barbeque sousi bilan haqiqiy erish bo\'lmas lazzat.',
-        price: '$11.00',
-        ingredients: ['Maxsus bulka', 'Dudlangan bekon', 'Mol go\'shti kotleti', 'BBQ sousi']
-    }
-];
-
 const Hero = () => {
     const { t } = useTranslation();
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -56,6 +15,67 @@ const Hero = () => {
     const { addToCart, setIsCartOpen, isStoreOpen } = useCart();
     const { products } = useProducts();
 
+    const slides = [
+        {
+            productId: 1,
+            image: 'https://images.unsplash.com/photo-1610440042657-612c34d95e9f?q=80&w=1000&auto=format&fit=crop',
+            subtitle: t('hero.slides.slide1.subtitle'),
+            title: t('hero.slides.slide1.title'),
+            description: t('hero.slides.slide1.desc'),
+            price: '$14.99',
+            isPremium: true,
+            ingredients: [
+                t('hero.slides.slide1.ing1'),
+                t('hero.slides.slide1.ing2'),
+                t('hero.slides.slide1.ing3'),
+                t('hero.slides.slide1.ing4')
+            ]
+        },
+        {
+            productId: 15,
+            image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=1000&auto=format&fit=crop',
+            subtitle: t('hero.slides.slide2.subtitle'),
+            title: t('hero.slides.slide2.title'),
+            description: t('hero.slides.slide2.desc'),
+            price: '$12.00',
+            isPremium: true,
+            ingredients: [
+                t('hero.slides.slide2.ing1'),
+                t('hero.slides.slide2.ing2'),
+                t('hero.slides.slide2.ing3'),
+                t('hero.slides.slide2.ing4')
+            ]
+        },
+        {
+            productId: 2,
+            image: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=1000&auto=format&fit=crop',
+            subtitle: t('hero.slides.slide3.subtitle'),
+            title: t('hero.slides.slide3.title'),
+            description: t('hero.slides.slide3.desc'),
+            price: '$9.50',
+            ingredients: [
+                t('hero.slides.slide3.ing1'),
+                t('hero.slides.slide3.ing2'),
+                t('hero.slides.slide3.ing3'),
+                t('hero.slides.slide3.ing4')
+            ]
+        },
+        {
+            productId: 3,
+            image: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?q=80&w=1000&auto=format&fit=crop',
+            subtitle: t('hero.slides.slide4.subtitle'),
+            title: t('hero.slides.slide4.title'),
+            description: t('hero.slides.slide4.desc'),
+            price: '$11.00',
+            ingredients: [
+                t('hero.slides.slide4.ing1'),
+                t('hero.slides.slide4.ing2'),
+                t('hero.slides.slide4.ing3'),
+                t('hero.slides.slide4.ing4')
+            ]
+        }
+    ];
+
     useEffect(() => {
         const interval = setInterval(() => {
             if (!selectedProduct) {
@@ -63,7 +83,7 @@ const Hero = () => {
             }
         }, 5000);
         return () => clearInterval(interval);
-    }, [selectedProduct]);
+    }, [selectedProduct, slides.length]);
 
     const nextSlide = () => setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
     const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
@@ -162,7 +182,7 @@ const Hero = () => {
                                 animate={{ y: 0 }}
                                 transition={{ duration: 0.8, ease: "anticipate" }}
                             >
-                                {isStoreOpen ? activeSlide.title : 'MAHSULOTLAR QOLMADI'}
+                                {isStoreOpen ? activeSlide.title : t('menu.out_of_stock')}
                             </motion.h1>
                         </div>
 
@@ -174,7 +194,7 @@ const Hero = () => {
                         >
                             {isStoreOpen
                                 ? activeSlide.description
-                                : 'Hozirda barcha mahsulotlarimiz tugagan. Tez orada yangi mahsulotlar keladi!'}
+                                : t('home.store_closed')}
                         </motion.p>
 
                         {activeSlide.isPremium && activeSlide.ingredients && (
@@ -189,7 +209,7 @@ const Hero = () => {
 
                         {isStoreOpen && !activeSlide.isPremium && (
                             <div className="hero-price-tag">
-                                <span>Soting olish: </span>
+                                <span>{t('hero.buy_now')}: </span>
                                 <span className="h-price">{activeSlide.price}</span>
                             </div>
                         )}
@@ -250,7 +270,7 @@ const Hero = () => {
                                     <p className="modal-description-premium">{selectedProduct.description}</p>
 
                                     <div className="modal-ingredients-premium">
-                                        <h4>TARKIBI:</h4>
+                                        <h4>{t('menu.ingredients_title')}</h4>
                                         <div className="ingredients-pill-grid">
                                             {selectedProduct.ingredients && selectedProduct.ingredients.map((ing, i) => (
                                                 <div key={i} className="ingredient-pill">
@@ -276,7 +296,7 @@ const Hero = () => {
                                                 }
                                             }}
                                         >
-                                            <FaShoppingCart /> SAVATCHAGA QO'SHISH
+                                            <FaShoppingCart /> {t('menu.add_to_cart')}
                                         </button>
                                     </div>
                                 </div>

@@ -15,19 +15,19 @@ const Footer = () => {
                     <div className="footer-col">
                         <h3 className="f-col-title">{t('footer.opening_hours', 'ISHLASH VAQTLARI')}</h3>
                         <ul className="opening-hours-list">
-                            <li><span>{t('footer.days.monday', 'DUSHANBA')}</span> <span className="dots"></span> <span>9:00 - 22:00</span></li>
-                            <li><span>{t('footer.days.tuesday', 'SESHANBA')}</span> <span className="dots"></span> <span>9:00 - 22:00</span></li>
-                            <li><span>{t('footer.days.wednesday', 'CHORSHANBA')}</span> <span className="dots"></span> <span>9:00 - 22:00</span></li>
-                            <li><span>{t('footer.days.thursday', 'PAYSHANBA')}</span> <span className="dots"></span> <span>9:00 - 22:00</span></li>
-                            <li><span>{t('footer.days.friday', 'JUMA')}</span> <span className="dots"></span> <span>9:00 - 01:00</span></li>
-                            <li><span>{t('footer.days.saturday', 'SHANBA')}</span> <span className="dots"></span> <span>9:00 - 01:00</span></li>
-                            <li><span>{t('footer.days.sunday', 'YAKSHANBA')}</span> <span className="dots"></span> <span className="closed-text">{t('footer.closed', 'YOPIQ')}</span></li>
+                            <li><span>{t('footer.days.monday')}</span> <span className="dots"></span> <span>9:00 - 22:00</span></li>
+                            <li><span>{t('footer.days.tuesday')}</span> <span className="dots"></span> <span>9:00 - 22:00</span></li>
+                            <li><span>{t('footer.days.wednesday')}</span> <span className="dots"></span> <span>9:00 - 22:00</span></li>
+                            <li><span>{t('footer.days.thursday')}</span> <span className="dots"></span> <span>9:00 - 22:00</span></li>
+                            <li><span>{t('footer.days.friday')}</span> <span className="dots"></span> <span>9:00 - 01:00</span></li>
+                            <li><span>{t('footer.days.saturday')}</span> <span className="dots"></span> <span>9:00 - 01:00</span></li>
+                            <li><span>{t('footer.days.sunday')}</span> <span className="dots"></span> <span className="closed-text">{t('footer.closed')}</span></li>
                         </ul>
                     </div>
 
                     {/* Column 2: Latest Posts */}
                     <div className="footer-col">
-                        <h3 className="f-col-title">{t('footer.latest_posts', 'SO\'NGGI YANGILIKLAR')}</h3>
+                        <h3 className="f-col-title">{t('footer.latest_posts')}</h3>
                         <div className="latest-posts">
                             {/* ... */}
                             <div className="post-item">
@@ -40,7 +40,7 @@ const Footer = () => {
 
                     {/* Column 3: Contact Us + Search */}
                     <div className="footer-col">
-                        <h3 className="f-col-title">{t('footer.contact_us', 'ALOQA')}</h3>
+                        <h3 className="f-col-title">{t('footer.contact_us')}</h3>
                         <div className="contact-info-block">
                             <p>GRILLANDCHOW@EXAMPLE.COM</p>
                             <p>+(100) 333 4578</p>
@@ -58,14 +58,14 @@ const Footer = () => {
 
                     {/* Column 4: Locations */}
                     <div className="footer-col">
-                        <h3 className="f-col-title">{t('footer.locations', 'MANZILLARIMIZ')}</h3>
+                        <h3 className="f-col-title">{t('footer.locations')}</h3>
                         <div className="location-item">
-                            <h4>{t('footer.branch_one', 'MARKAZIY FILIAL')}</h4>
+                            <h4>{t('footer.branch_one')}</h4>
                             <p>TOSHKENT, MARKAZ-1</p>
                         </div>
                         <div className="location-divider"></div>
                         <div className="location-item">
-                            <h4>{t('footer.branch_two', 'CHILONZOR FILIALI')}</h4>
+                            <h4>{t('footer.branch_two')}</h4>
                             <p>TOSHKENT, CHILONZOR 7</p>
                         </div>
                     </div>
@@ -73,7 +73,7 @@ const Footer = () => {
 
                 <div className="footer-bottom">
                     <div className="f-bottom-left">
-                        <p>&copy; 2026 BLACK STAR BURGER. {t('footer.all_rights', 'BARCHA HUQUQLAR HIMOYA QILINGAN.')}</p>
+                        <p>&copy; 2026 BLACK STAR BURGER. {t('footer.all_rights')}</p>
                     </div>
 
                     <div className="f-social-center">
@@ -85,7 +85,7 @@ const Footer = () => {
                     </div>
 
                     <div className="f-bottom-right">
-                        <Link to="/admin" className="admin-discrete-link">{t('footer.admin_access', 'ADMIN PANEL')}</Link>
+                        <Link to="/admin" className="admin-discrete-link">{t('footer.admin_access')}</Link>
                     </div>
                 </div>
             </div>

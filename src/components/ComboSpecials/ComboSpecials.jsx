@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import './ComboSpecials.css';
 import { FaTimes, FaShoppingCart } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 const comboData = [
     {
@@ -35,6 +36,7 @@ const comboData = [
 ];
 
 const ComboSpecials = () => {
+    const { t } = useTranslation();
     const [selectedItem, setSelectedItem] = useState(null);
     const { addToCart, isStoreOpen } = useCart();
 
@@ -45,8 +47,8 @@ const ComboSpecials = () => {
         <section className="combo-specials">
             <div className="container">
                 <div className="combo-header">
-                    <h3 className="combo-subtitle">Latest foody news</h3>
-                    <h2 className="combo-main-title">SPECIALS COMBO</h2>
+                    <h3 className="combo-subtitle">{t('combo_specials.subtitle', 'Latest foody news')}</h3>
+                    <h2 className="combo-main-title">{t('combo_specials.title', 'SPECIALS COMBO')}</h2>
                 </div>
 
                 <div className="combo-grid">
@@ -84,11 +86,11 @@ const ComboSpecials = () => {
                             <div className="combo-modal-info">
                                 <h3 className="combo-modal-subtitle-premium">COMBO DEAL</h3>
                                 <p className="combo-modal-description">
-                                    Qarsildoq tost qilingan bulka va maxsus kotlet bilan tayyorlangan klassik ta'm.
+                                    {t('combo_specials.item_desc', "Qarsildoq tost qilingan bulka va maxsus kotlet bilan tayyorlangan klassik ta'm.")}
                                 </p>
 
                                 <div className="combo-modal-ingredients">
-                                    <h4>TARKIBI:</h4>
+                                    <h4>{t('combo_specials.ingredients_title', 'TARKIBI:')}</h4>
                                     <div className="combo-ingredients-pills">
                                         {(selectedItem.ingredients || ['Tostlangan bulka', "Mol go'shti kotleti", 'Cheddar', 'Maxsus sous']).map((ing, i) => (
                                             <div key={i} className="combo-pill">{ing}</div>
@@ -108,7 +110,7 @@ const ComboSpecials = () => {
                                             }
                                         }}
                                     >
-                                        <FaShoppingCart /> SAVATCHAGA QO'SHISH
+                                        <FaShoppingCart /> {t('combo_specials.add_btn', "SAVATCHAGA QO'SHISH")}
                                     </button>
                                 </div>
                             </div>

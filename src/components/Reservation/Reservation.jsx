@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { FaCalendarAlt, FaClock, FaUsers, FaUser, FaPhoneAlt, FaCommentAlt, FaCheckCircle } from 'react-icons/fa';
 import './Reservation.css';
 
 const Reservation = () => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: '',
         phone: '+998',
@@ -36,12 +38,12 @@ const Reservation = () => {
                 setTimeout(() => setStatus('idle'), 5000);
             } else {
                 const errorData = await response.json();
-                setErrorMessage(errorData.error || errorData.detail || 'Xatolik yuz berdi. Qayta urinib ko\'ring.');
+                setErrorMessage(errorData.error || errorData.detail || t('common.error_occurred', 'Xatolik yuz berdi. Qayta urinib ko\'ring.'));
                 setStatus('error');
             }
         } catch (error) {
             console.error('Reservation error:', error);
-            setErrorMessage('Server bilan bog\'lanishda xatolik yuz berdi.');
+            setErrorMessage(t('common.server_error', 'Server bilan bog\'lanishda xatolik yuz berdi.'));
             setStatus('error');
         }
     };
@@ -55,25 +57,24 @@ const Reservation = () => {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                 >
-                    <span className="res-subtitle">STOL BAND QILISH</span>
-                    <h2 className="res-title">Maxsus oqshomingizni biz bilan rejalashtiring</h2>
+                    <span className="res-subtitle">{t('home_sections.reservation.title', 'STOL BAND QILISH')}</span>
+                    <h2 className="res-title">{t('home_sections.reservation.subtitle', 'Maxsus oqshomingizni biz bilan rejalashtiring')}</h2>
                     <p className="res-description">
-                        Oila a'zolaringiz yoki do'stlaringiz bilan shinam muhitda Black Star Burger lazzatidan bahramand bo'ling.
-                        Oldindan stol band qiling va navbat kutishni unuting.
+                        {t('home_sections.reservation.desc', 'Oila a\'zolaringiz yoki do\'stlaringiz bilan shinam muhitda Black Star Burger lazzatidan bahramand bo\'ling.')}
                     </p>
 
                     <div className="res-features">
                         <div className="res-feature">
                             <div className="res-icon"><FaCheckCircle /></div>
-                            <span>Bepul band qilish</span>
+                            <span>{t('home_sections.reservation.f1', 'Bepul band qilish')}</span>
                         </div>
                         <div className="res-feature">
                             <div className="res-icon"><FaCheckCircle /></div>
-                            <span>VIP zonalar mavjud</span>
+                            <span>{t('home_sections.reservation.f2', 'VIP zonalar mavjud')}</span>
                         </div>
                         <div className="res-feature">
                             <div className="res-icon"><FaCheckCircle /></div>
-                            <span>Bayramlar uchun maxsus bezaklar</span>
+                            <span>{t('home_sections.reservation.f3', 'Bayramlar uchun maxsus bezaklar')}</span>
                         </div>
                     </div>
                 </motion.div>
@@ -87,25 +88,25 @@ const Reservation = () => {
                     {status === 'success' ? (
                         <div className="res-success-msg">
                             <div className="success-icon">✨</div>
-                            <h3>Rahmat!</h3>
-                            <p>Sizning so'rovingiz qabul qilindi. Tez orada adminlarimiz siz bilan bog'lanishadi.</p>
-                            <button onClick={() => setStatus('idle')} className="res-back-btn">YANGI BAND QILISH</button>
+                            <h3>{t('common.thanks', 'Rahmat!')}</h3>
+                            <p>{t('home_sections.reservation.success_desc', 'Sizning so\'rovingiz qabul qilindi. Tez orada adminlarimiz siz bilan bog\'lanishadi.')}</p>
+                            <button onClick={() => setStatus('idle')} className="res-back-btn">{t('home_sections.reservation.new_btn', 'YANGI BAND QILISH')}</button>
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit}>
                             <div className="res-form-grid">
                                 <div className="res-input-group">
-                                    <label><FaUser /> Ismingiz</label>
+                                    <label><FaUser /> {t('home_sections.reservation.name', 'Ismingiz')}</label>
                                     <input
                                         type="text"
-                                        placeholder="Ismingizni kiriting"
+                                        placeholder={t('home_sections.reservation.name_placeholder', 'Ismingizni kiriting')}
                                         required
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
                                 </div>
                                 <div className="res-input-group">
-                                    <label><FaPhoneAlt /> Telefon raqam</label>
+                                    <label><FaPhoneAlt /> {t('home_sections.reservation.phone', 'Telefon raqam')}</label>
                                     <input
                                         type="tel"
                                         placeholder="+998 -- --- -- --"
@@ -115,18 +116,18 @@ const Reservation = () => {
                                     />
                                 </div>
                                 <div className="res-input-group">
-                                    <label><FaUsers /> Mehmonlar soni</label>
+                                    <label><FaUsers /> {t('home_sections.reservation.guests', 'Mehmonlar soni')}</label>
                                     <select
                                         value={formData.guests}
                                         onChange={(e) => setFormData({ ...formData, guests: e.target.value })}
                                     >
                                         {[1, 2, 3, 4, 5, 6, 7, 8, 10].map(num => (
-                                            <option key={num} value={num}>{num} kishi</option>
+                                            <option key={num} value={num}>{num} {t('home_sections.reservation.person', 'kishi')}</option>
                                         ))}
                                     </select>
                                 </div>
                                 <div className="res-input-group">
-                                    <label><FaCalendarAlt /> Sana</label>
+                                    <label><FaCalendarAlt /> {t('home_sections.reservation.date', 'Sana')}</label>
                                     <input
                                         type="date"
                                         required
@@ -135,7 +136,7 @@ const Reservation = () => {
                                     />
                                 </div>
                                 <div className="res-input-group">
-                                    <label><FaClock /> Vaqt</label>
+                                    <label><FaClock /> {t('home_sections.reservation.time', 'Vaqt')}</label>
                                     <input
                                         type="time"
                                         required
@@ -144,9 +145,9 @@ const Reservation = () => {
                                     />
                                 </div>
                                 <div className="res-input-group full">
-                                    <label><FaCommentAlt /> Qo'shimcha izoh</label>
+                                    <label><FaCommentAlt /> {t('home_sections.reservation.comment', 'Qo\'shimcha izoh')}</label>
                                     <textarea
-                                        placeholder="Maxsus talablaringiz bo'lsa kiriting..."
+                                        placeholder={t('home_sections.reservation.comment_placeholder', 'Maxsus talablaringiz bo\'lsa kiriting...')}
                                         value={formData.comment}
                                         onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
                                     ></textarea>
@@ -154,7 +155,7 @@ const Reservation = () => {
                             </div>
 
                             <button type="submit" className="reservation-btn" disabled={status === 'loading'}>
-                                {status === 'loading' ? 'YUBORILMOQDA...' : 'BAND QILISHNI TASDIQLASH'}
+                                {status === 'loading' ? t('common.sending', 'YUBORILMOQDA...') : t('home_sections.reservation.submit', 'BAND QILISHNI TASDIQLASH')}
                             </button>
                             {status === 'error' && <p className="res-error-text">{errorMessage}</p>}
                         </form>

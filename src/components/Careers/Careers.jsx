@@ -1,18 +1,38 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { FaUserTie, FaMotorcycle, FaUtensils, FaCheckCircle, FaPaperPlane } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 import './Careers.css';
 
 const Careers = () => {
+    const { t } = useTranslation();
     const { submitCareerApplication } = useCart();
     const [selectedJob, setSelectedJob] = useState(null);
     const [formSent, setFormSent] = useState(false);
 
     const jobs = [
-        { id: 1, title: 'Shef-povar', icon: <FaUtensils />, salary: '$800 - $1200', desc: 'Yevropa va Milliy taomlarni tayyorlash tajribasiga ega bo\'lishingiz lozim.' },
-        { id: 2, title: 'Kuryer', icon: <FaMotorcycle />, salary: '$400 - $700', desc: 'Shaxsiy transport (skuter/mashina) va xushmuomalalik talab etiladi.' },
-        { id: 3, title: 'Menejer', icon: <FaUserTie />, salary: '$1000+', desc: 'Jamoani boshqarish va mijozlar bilan ishlash tajribasi kerak.' }
+        {
+            id: 1,
+            title: t('careers.jobs.chef', 'Shef-povar'),
+            icon: <FaUtensils />,
+            salary: '$800 - $1200',
+            desc: t('careers.jobs.chef_desc', "Yevropa va Milliy taomlarni tayyorlash tajribasiga ega bo'lishingiz lozim.")
+        },
+        {
+            id: 2,
+            title: t('careers.jobs.courier', 'Kuryer'),
+            icon: <FaMotorcycle />,
+            salary: '$400 - $700',
+            desc: t('careers.jobs.courier_desc', "Shaxsiy transport (skuter/mashina) va xushmuomalalik talab etiladi.")
+        },
+        {
+            id: 3,
+            title: t('careers.jobs.manager', 'Menejer'),
+            icon: <FaUserTie />,
+            salary: '$1000+',
+            desc: t('careers.jobs.manager_desc', "Jamoani boshqarish va mijozlar bilan ishlash tajribasi kerak.")
+        }
     ];
 
     const handleSubmit = (e) => {
@@ -41,10 +61,9 @@ const Careers = () => {
                     <motion.h2
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                    >
-                        BIZNING <span>JAMOA</span>GA QO'SHILING!
-                    </motion.h2>
-                    <p>O'z ustingizda ishlashni xohlaysizmi? Black Star Burger jamoasi sizni kutmoqda!</p>
+                        dangerouslySetInnerHTML={{ __html: t('careers.title', "BIZNING <span>JAMOA</span>GA QO'SHILING!") }}
+                    />
+                    <p>{t('careers.desc', "O'z ustingizda ishlashni xohlaysizmi? Black Star Burger jamoasi sizni kutmoqda!")}</p>
                 </div>
 
                 <div className="jobs-grid">
@@ -59,7 +78,7 @@ const Careers = () => {
                             <h3>{job.title}</h3>
                             <span className="salary">{job.salary}</span>
                             <p>{job.desc}</p>
-                            <button className="apply-btn">ANKETA TO'LDIRISH +</button>
+                            <button className="apply-btn">{t('careers.apply_btn', "ANKETA TO'LDIRISH +")}</button>
                         </motion.div>
                     ))}
                 </div>
@@ -85,27 +104,27 @@ const Careers = () => {
                                 {formSent ? (
                                     <div className="success-message">
                                         <FaCheckCircle />
-                                        <h3>Anketangiz qabul qilindi!</h3>
-                                        <p>Tez orada menejerlarimiz siz bilan bog'lanishadi.</p>
+                                        <h3>{t('careers.success_title', "Anketangiz qabul qilindi!")}</h3>
+                                        <p>{t('careers.success_desc', "Tez orada menejerlarimiz siz bilan bog'lanishadi.")}</p>
                                     </div>
                                 ) : (
                                     <>
-                                        <h3><span>{selectedJob.title}</span> uchun ariza</h3>
+                                        <h3><span>{selectedJob.title}</span> {t('careers.modal_title', "uchun ariza")}</h3>
                                         <form className="career-form" onSubmit={handleSubmit}>
                                             <div className="form-group">
-                                                <label>To'liq ismingiz</label>
-                                                <input name="userName" type="text" placeholder="Masalan: Aziz Aliev" required />
+                                                <label>{t('careers.name', "To'liq ismingiz")}</label>
+                                                <input name="userName" type="text" placeholder={t('careers.name_placeholder', "Masalan: Aziz Aliev")} required />
                                             </div>
                                             <div className="form-group">
-                                                <label>Telefon raqamingiz</label>
+                                                <label>{t('careers.phone', "Telefon raqamingiz")}</label>
                                                 <input name="userPhone" type="tel" placeholder="+998" defaultValue="+998" required />
                                             </div>
                                             <div className="form-group">
-                                                <label>Tajribangiz (Resume)</label>
-                                                <textarea name="userResume" placeholder="O'zingiz haqingizda qisqacha ma'lumot bering..." required></textarea>
+                                                <label>{t('careers.resume', "Tajribangiz (Resume)")}</label>
+                                                <textarea name="userResume" placeholder={t('careers.resume_placeholder', "O'zingiz haqingizda qisqacha ma'lumot bering...")} required></textarea>
                                             </div>
                                             <button type="submit" className="submit-career-btn">
-                                                <FaPaperPlane /> YUBORISH +
+                                                <FaPaperPlane /> {t('careers.submit', "YUBORISH +")}
                                             </button>
                                         </form>
                                     </>
@@ -118,15 +137,15 @@ const Careers = () => {
                 <div className="careers-benefits">
                     <div className="benefit">
                         <div className="b-icon">🍔</div>
-                        <h4>Bepul tushlik</h4>
+                        <h4>{t('careers.benefits.lunch', 'Bepul tushlik')}</h4>
                     </div>
                     <div className="benefit">
                         <div className="b-icon">💸</div>
-                        <h4>Haftalik maosh</h4>
+                        <h4>{t('careers.benefits.salary', 'Haftalik maosh')}</h4>
                     </div>
                     <div className="benefit">
                         <div className="b-icon">📈</div>
-                        <h4>Karyera o'sishi</h4>
+                        <h4>{t('careers.benefits.growth', 'Karyera o\'sishi')}</h4>
                     </div>
                 </div>
             </div>

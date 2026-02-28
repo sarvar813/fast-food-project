@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaMagic, FaTimes, FaRegSmile, FaRegAngry, FaRegLaugh, FaTired, FaFire, FaLeaf, FaUtensils } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import { useProducts } from '../../context/ProductContext';
 import { useCart } from '../../context/CartContext';
 import './MoodFood.css';
 
 const MoodFood = () => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState(1);
     const [selections, setSelections] = useState({ mood: '', preference: '' });
@@ -14,16 +16,16 @@ const MoodFood = () => {
     const { addToCart } = useCart();
 
     const moods = [
-        { id: 'happy', icon: <FaRegLaugh />, label: 'Baxtiyor', color: '#f1c40f' },
-        { id: 'angry', icon: <FaRegAngry />, label: 'Jahldor', color: '#e30034' },
-        { id: 'lazy', icon: <FaTired />, label: 'Dangasa', color: '#3498db' },
-        { id: 'hungry', icon: <FaRegSmile />, label: 'Juda och', color: '#2ecc71' }
+        { id: 'happy', icon: <FaRegLaugh />, label: t('mood_food.moods.happy', 'Baxtiyor'), color: '#f1c40f' },
+        { id: 'angry', icon: <FaRegAngry />, label: t('mood_food.moods.angry', 'Jahldor'), color: '#e30034' },
+        { id: 'lazy', icon: <FaTired />, label: t('mood_food.moods.lazy', 'Dangasa'), color: '#3498db' },
+        { id: 'hungry', icon: <FaRegSmile />, label: t('mood_food.moods.hungry', 'Juda och'), color: '#2ecc71' }
     ];
 
     const preferences = [
-        { id: 'Spicy', icon: <FaFire />, label: 'Achchiq' },
-        { id: 'Healthy', icon: <FaLeaf />, label: 'Sog\'lom' },
-        { id: 'Popular', icon: <FaUtensils />, label: 'Klassik' }
+        { id: 'Spicy', icon: <FaFire />, label: t('mood_food.prefs.spicy', 'Achchiq') },
+        { id: 'Healthy', icon: <FaLeaf />, label: t('mood_food.prefs.healthy', 'Sog\'lom') },
+        { id: 'Popular', icon: <FaUtensils />, label: t('mood_food.prefs.popular', 'Klassik') }
     ];
 
     const handleMoodSelect = (mood) => {
@@ -54,7 +56,7 @@ const MoodFood = () => {
         <>
             <button className="mood-trigger" onClick={() => setIsOpen(true)}>
                 <FaMagic />
-                <span className="tooltip">Sehrli Quti</span>
+                <span className="tooltip">{t('mood_food.trigger', 'Sehrli Quti')}</span>
             </button>
 
             <AnimatePresence>
@@ -77,7 +79,7 @@ const MoodFood = () => {
 
                             {step === 1 && (
                                 <div className="mood-step">
-                                    <h3>Hozirgi kayfiyatingiz qanday?</h3>
+                                    <h3>{t('mood_food.title', 'Hozirgi kayfiyatingiz qanday?')}</h3>
                                     <div className="mood-grid">
                                         {moods.map(m => (
                                             <button key={m.id} onClick={() => handleMoodSelect(m.id)} style={{ '--hover-color': m.color }}>
@@ -91,7 +93,7 @@ const MoodFood = () => {
 
                             {step === 2 && (
                                 <div className="mood-step">
-                                    <h3>Nima xohlaysiz?</h3>
+                                    <h3>{t('mood_food.pref_title', 'Nima xohlaysiz?')}</h3>
                                     <div className="pref-list">
                                         {preferences.map(p => (
                                             <button key={p.id} onClick={() => handlePreferenceSelect(p.id)}>
@@ -107,14 +109,14 @@ const MoodFood = () => {
                                     <div className="magic-loader">
                                         <FaMagic className="spin-magic" />
                                     </div>
-                                    <h3>AI siz uchun eng yaxshisini tanlayapti...</h3>
+                                    <h3>{t('mood_food.thinking', 'AI siz uchun eng yaxshisini tanlayapti...')}</h3>
                                 </div>
                             )}
 
                             {step === 4 && recommendation && (
                                 <div className="mood-step final">
                                     <div className="confetti-mini">✨</div>
-                                    <h3>Siz uchun tanlovimiz:</h3>
+                                    <h3>{t('mood_food.result_title', 'Siz uchun tanlovimiz:')}</h3>
                                     <div className="rec-card">
                                         <img src={recommendation.image} alt={recommendation.name} />
                                         <h4>{recommendation.name}</h4>
@@ -123,9 +125,9 @@ const MoodFood = () => {
                                             addToCart(recommendation);
                                             setIsOpen(false);
                                             reset();
-                                        }}>Savatchaga qo'shish +</button>
+                                        }}>{t('menu.add_to_cart', "Savatchaga qo'shish +")}</button>
                                     </div>
-                                    <button className="try-again" onClick={reset}>Boshqa tanlov</button>
+                                    <button className="try-again" onClick={reset}>{t('mood_food.retry', 'Boshqa tanlov')}</button>
                                 </div>
                             )}
                         </motion.div>

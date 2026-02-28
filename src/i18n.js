@@ -9,6 +9,22 @@ i18n
         resources: {
             uz: {
                 translation: {
+                    "common": {
+                        "thanks": "Rahmat!",
+                        "sending": "YUBORILMOQDA...",
+                        "error_occurred": "Xatolik yuz berdi.",
+                        "server_error": "Server xatoligi.",
+                        "success": "Muvaffaqiyatli!",
+                        "yes": "Ha",
+                        "no": "Yo'q",
+                        "save": "Saqlash",
+                        "cancel": "Bekor qilish",
+                        "delete": "O'chirish",
+                        "edit": "Tahrirlash",
+                        "loading": "Yuklanmoqda...",
+                        "add": "Qo'shish",
+                        "search": "Qidirish"
+                    },
                     "navbar": {
                         "home": "ASOSIY",
                         "blog": "BLOG",
@@ -17,31 +33,47 @@ i18n
                         "menu": "MENYU",
                         "shopping": "+ XARID QILISH",
                         "reservation": "BAND QILISH",
-                        "constructor": "KONSTRUKTOR"
+                        "constructor": "KONSTRUKTOR",
+                        "my_orders": "Mening buyurtmalarim",
+                        "no_orders": "Sizda hali buyurtmalar yo'q",
+                        "wishlist": "Saralanganlar",
+                        "wishlist_empty": "Saralangan mahsulotlar hozircha yo'q",
+                        "search_placeholder": "Mahsulotlarni qidirish...",
+                        "logout": "Chiqish",
+                        "logout_confirm": "Haqiqatan ham chiqmoqchimisiz?",
+                        "my_profile": "Mening profilim",
+                        "toggle_theme": "Mavzuni o'zgartirish",
+                        "statuses": {
+                            "pending": "Kutilmoqda",
+                            "preparing": "Tayyorlanmoqda",
+                            "shipping": "Yo'lda",
+                            "completed": "Bajarildi",
+                            "cancelled": "Bekor qilindi"
+                        }
                     },
                     "hero": {
                         "order_now": "BUYURTMA BERISH",
                         "view_menu": "MENYU KO'RISH",
                         "out_of_stock": "SOTUVDA YO'Q",
-                        "buy_now": "Sotib olish"
+                        "buy_now": "Sotib olish",
+                        "slides": {
+                            "slide1": {
+                                "subtitle": "PREMIUM SIFAT",
+                                "title": "BLACK STAR MAXSUS",
+                                "desc": "Haqiqiy 100% mol go'shti, maxsus qora bulka va bizning sirlangan sousimiz bilan unutilmas ta'm.",
+                                "ing1": "100% Halol Go'sht",
+                                "ing2": "Yangi Pishirilgan Bulka",
+                                "ing3": "Maxsus Siri-Sous",
+                                "ing4": "Qora bulka"
+                            }
+                        }
                     },
                     "menu": {
                         "title": "BIZNING MAXSUS MENYU",
                         "subtitle": "Shahardagi eng mazali fast-food taomlari",
-                        "search_results": "Qidiruv natijasi",
-                        "clear_search": "Qidiruvni tozalash",
-                        "out_of_stock": "TUGAGAN",
-                        "no_results_title": "Hech narsa topilmadi 😕",
-                        "no_results_desc": "Boshqa so'z bilan qidirib ko'ring yoki barcha mahsulotlarni ko'ring.",
-                        "view_all": "BARCHA MAHSULOTLAR",
-                        "ingredients_title": "Tarkibi:",
-                        "reviews_title": "Mijozlar fikrlari:",
-                        "no_reviews": "Hozircha fikrlar yo'q.",
-                        "add_review_title": "Fikr qoldirish",
-                        "name_placeholder": "Ismingiz",
-                        "comment_placeholder": "Fikringiz...",
-                        "submit_review": "YUBORISH",
                         "add_to_cart": "SAVATCHAGA QO'SHISH",
+                        "out_of_stock": "TUGAGAN",
+                        "ingredients_title": "Tarkibi:",
                         "categories": {
                             "all": "HAMMASI",
                             "burgers": "BURGERLAR",
@@ -50,281 +82,252 @@ i18n
                             "drinks": "ICHIMLIKLAR"
                         }
                     },
+                    "cart": {
+                        "title": "Savatchangiz",
+                        "empty": "Savatchangiz bo'sh",
+                        "checkout_btn": "BUYURTMA BERISH",
+                        "form": {
+                            "name": "Ism",
+                            "phone": "Telefon",
+                            "address": "Manzil"
+                        },
+                        "summary": {
+                            "subtotal": "Subtotal",
+                            "total": "Jami"
+                        }
+                    },
+                    "loyalty_levels": {
+                        "badge": "VIP PRIVILEGIYALAR",
+                        "title": "SIZNING <span>DARAFANGIZNI</span> ANIQLANG",
+                        "desc": "Qancha ko'p buyurtma bersangiz, shuncha ko'p imtiyoz va keshbeklarga ega bo'lasiz.",
+                        "current_level": "HOZIRGI DARAJA",
+                        "cashback": "KESHBEK",
+                        "orders_remaining": "Yana {{count}} ta buyurtma qoldi",
+                        "reached": "Erishilgan daraja ✨",
+                        "join_btn": "BUYURTMA BERISH",
+                        "continue_btn": "DAVOM ETISH",
+                        "bronze": "BRONZA",
+                        "silver": "KUMUSH",
+                        "gold": "OLTIN"
+                    },
+                    "careers": {
+                        "title": "BIZNING <span>JAMOA</span>GA QO'SHILING!",
+                        "desc": "O'z ustingizda ishlashni xohlaysizmi?",
+                        "apply_btn": "ANKETA TO'LDIRISH +",
+                        "modal_title": "uchun ariza",
+                        "submit": "YUBORISH +",
+                        "success_title": "Anketangiz qabul qilindi!",
+                        "success_desc": "Tez orada menejerlarimiz siz bilan bog'lanishadi.",
+                        "benefits": {
+                            "lunch": "Bepul tushlik",
+                            "salary": "Haftalik maosh",
+                            "growth": "Karyera o'sishi"
+                        },
+                        "jobs": {
+                            "chef": "Shef-povar",
+                            "courier": "Kuryer",
+                            "manager": "Menejer"
+                        }
+                    },
+                    "mood_food": {
+                        "trigger": "Sehrli Quti",
+                        "title": "Hozirgi kayfiyatingiz qanday?",
+                        "pref_title": "Nima xohlaysiz?",
+                        "thinking": "AI siz uchun eng yaxshisini tanlayapti...",
+                        "result_title": "Siz uchun tanlovimiz:",
+                        "retry": "Boshqa tanlov",
+                        "moods": {
+                            "happy": "Baxtiyor",
+                            "angry": "Jahldor",
+                            "lazy": "Dangasa",
+                            "hungry": "Juda och"
+                        },
+                        "prefs": {
+                            "spicy": "Achchiq",
+                            "healthy": "Sog'lom",
+                            "popular": "Klassik"
+                        }
+                    },
+                    "wheel_of_fortune": {
+                        "trigger": "BONUS!",
+                        "title": "BAXT G'ILDIRAGI",
+                        "desc": "Har 10 sekundda bir marta aylantiring va sovg'alarga ega bo'ling!",
+                        "spin_btn": "AYLANTIRISH",
+                        "spinning": "AYLANYAPTI...",
+                        "limit_msg": "Muzlatildi. {{count}} sekund kuting.",
+                        "win_title": "TABRIKLAYMIZ!",
+                        "lose_title": "Afsus...",
+                        "win_msg": "Siz {{prize}} yutib oldingiz!",
+                        "lose_msg": "Omadingizni keyinroq sinab ko'ring.",
+                        "continue_btn": "DAVOM ETISH"
+                    },
+                    "support_chat": {
+                        "trigger": "Admin bilan aloqa",
+                        "online": "Online",
+                        "placeholder": "Xabarni yozing...",
+                        "system_msg": "Salom! Savolingiz bormi? Admin panelga to'g'ridan-to'g'ri yozishingiz mumkin.",
+                        "auto_reply": "Xabaringiz admin panelga yuborildi. Tez orada javob qaytaramiz! 😊"
+                    },
+                    "home_sections": {
+                        "reservation": {
+                            "title": "STOL BAND QILISH",
+                            "submit": "BAND QILISHNI TASDIQLASH"
+                        },
+                        "apps": {
+                            "badge": "MOBIL ILOVA"
+                        },
+                        "stats": {
+                            "delivered": "Sotilgan Burgerlar"
+                        }
+                    },
+                    "admin": {
+                        "access_denied": "Kirishga ruxsat yo'q",
+                        "dashboard": { "daily_goal": "KUNLIK SAVDO MAQSADI" },
+                        "menu": { "title": "Menyuni boshqarish" }
+                    },
                     "footer": {
-                        "opening_hours": "ISHLASH VAQTLARI",
-                        "closed": "YOPIQ",
-                        "latest_posts": "SO'NGGI YANGILIKLAR",
-                        "contact_us": "ALOQA",
-                        "address": "TOSHKENT SHAHRI, O'ZBEKISTON",
-                        "search_article": "MAQOLA QIDIRISH",
-                        "search_placeholder": "Qidirish",
-                        "locations": "MANZILLARIMIZ",
-                        "branch_one": "MARKAZIY FILIAL",
-                        "branch_two": "CHILONZOR FILIALI",
-                        "all_rights": "BARCHA HUQUQLAR HIMOYA QILINGAN.",
-                        "admin_access": "ADMIN PANEL",
-                        "days": {
-                            "monday": "DUSHANBA",
-                            "tuesday": "SESHANBA",
-                            "wednesday": "CHORSHANBA",
-                            "thursday": "PAYSHANBA",
-                            "friday": "JUMA",
-                            "saturday": "SHANBA",
-                            "sunday": "YAKSHANBA"
-                        }
+                        "admin_access": "ADMIN PANEL"
                     },
-                    "home": {
-                        "store_closed": "Hozirda do'konimiz yopiq. Buyurtmalar qabul qilinmaydi."
-                    },
-                    "sauces": {
-                        "badge": "BIZNING SIRIMIZ",
-                        "title": "MAXSUS SOUSLAR",
-                        "desc": "Har bir burgerimizning kaliti - bu bizning sirlangan souslarimizda. Tabiiy ingredientlardan tayyorlangan takrorlanmas ta'mlar.",
-                        "explore": "BATAFSIL KO'RISH",
-                        "red": {
-                            "name": "SIGNATURE RED",
-                            "subtitle": "Sirlangan maxfiy retsept",
-                            "f1": "12 xil ziravor",
-                            "f2": "Tabiiy pomidor",
-                            "f3": "Achchiq-chuchuk"
-                        },
-                        "gold": {
-                            "name": "GOLDEN CHEDDAR",
-                            "subtitle": "Issiq va mayin lazzat",
-                            "f1": "Haqiqiy Cheddar",
-                            "f2": "Qaymoqli tekstura",
-                            "f3": "Eritilgan issiq"
-                        },
-                        "thai": {
-                            "name": "SWEET & THAI",
-                            "subtitle": "Ekzotik nordon-shirin",
-                            "f1": "Tailand siri",
-                            "f2": "Nordon-shirin",
-                            "f3": "Tabiiy ingredientlar"
-                        },
-                        "garlic": {
-                            "name": "WHITE GARLIC",
-                            "subtitle": "Mayin sarimsoqli",
-                            "f1": "Yangi sarimsoq",
-                            "f2": "Qaymoqli",
-                            "f3": "Maxsus ziravorlar"
-                        }
+                    "courier": {
+                        "title": "Kuryer Paneli",
+                        "my_orders": "Mening buyurtmalarim",
+                        "available_orders": "Mavjud buyurtmalar",
+                        "no_active_orders": "Sizda hozircha yetkazilayotgan buyurtmalar yo'q.",
+                        "no_available_orders": "Hozircha yangi buyurtmalar mavjud emas.",
+                        "delivered_success": "Buyurtma muvaffaqiyatli yetkazildi! ✅",
+                        "delivered_btn": "YETKAZDIM"
                     }
                 }
             },
             ru: {
                 translation: {
+                    "common": {
+                        "thanks": "Спасибо!",
+                        "sending": "ОТПРАВКА...",
+                        "error_occurred": "Ошибка.",
+                        "success": "Успешно!",
+                        "yes": "Да",
+                        "no": "Нет",
+                        "save": "Сохранить",
+                        "cancel": "Отмена"
+                    },
                     "navbar": {
                         "home": "ГЛАВНАЯ",
-                        "blog": "БЛОГ",
-                        "about": "О НАС",
-                        "gallery": "ГАЛЕРЕЯ",
                         "menu": "МЕНЮ",
-                        "shopping": "+ К ПОКУПКАМ",
-                        "reservation": "БРОНИРОВАНИЕ",
-                        "constructor": "КОНСТРУКТОР"
+                        "about": "О НАС",
+                        "logout": "Выйти"
                     },
-                    "hero": {
-                        "order_now": "ЗАКАЗАТЬ",
-                        "view_menu": "СМОТРЕТЬ МЕНЮ",
-                        "out_of_stock": "НЕТ В НАЛИЧИИ",
-                        "buy_now": "Купить"
+                    "loyalty_levels": {
+                        "badge": "VIP ПРИВИЛЕГИИ",
+                        "title": "ОПРЕДЕЛИТЕ ВАШ <span>УРОВЕНЬ</span>",
+                        "desc": "Больше заказов - больше бонусов.",
+                        "current_level": "ТЕКУЩИЙ УРОВЕНЬ",
+                        "cashback": "КЭШБЭК",
+                        "orders_remaining": "Еще {{count}} заказов",
+                        "reached": "Уровень достигнут ✨",
+                        "join_btn": "ЗАКАЗАТЬ",
+                        "continue_btn": "ПРОДОЛЖИТЬ"
                     },
-                    "menu": {
-                        "title": "НАШЕ ЭКСКЛЮЗИВНОЕ МЕНЮ",
-                        "subtitle": "Попробуйте лучший фаст-фуд в городе",
-                        "search_results": "Результаты поиска",
-                        "clear_search": "Очистить поиск",
-                        "out_of_stock": "ЗАКОНЧИЛОСЬ",
-                        "no_results_title": "Ничего не найдено 😕",
-                        "no_results_desc": "Попробуйте поискать другое слово или посмотрите все товары.",
-                        "view_all": "ВСЕ ТОВАРЫ",
-                        "ingredients_title": "Состав:",
-                        "reviews_title": "Отзывы клиентов:",
-                        "no_reviews": "Отзывов пока нет.",
-                        "add_review_title": "Оставить отзыв",
-                        "name_placeholder": "Ваше имя",
-                        "comment_placeholder": "Ваш отзыв...",
-                        "submit_review": "ОТПРАВИТЬ",
-                        "add_to_cart": "ДОБАВИТЬ В КОРЗИНУ",
-                        "categories": {
-                            "all": "ВСЕ",
-                            "burgers": "БУРГЕРЫ",
-                            "pizza": "ПИЦЦА",
-                            "sides": "ГАРНИРЫ",
-                            "drinks": "НАПИТКИ"
-                        }
+                    "mood_food": {
+                        "trigger": "Магия",
+                        "title": "Как ваше настроение?",
+                        "pref_title": "Что желаете?",
+                        "thinking": "ИИ выбирает лучшее для вас...",
+                        "result_title": "Наш выбор для вас:",
+                        "retry": "Попробовать снова"
                     },
-                    "footer": {
-                        "opening_hours": "ЧАСЫ РАБОТЫ",
-                        "closed": "ЗАКРЫТО",
-                        "latest_posts": "ПОСЛЕДНИЕ НОВОСТИ",
-                        "contact_us": "КОНТАКТЫ",
-                        "address": "ГОРОД ТАШКЕНТ, УЗБЕКИСТАН",
-                        "search_article": "ПОИСК СТАТЬИ",
-                        "search_placeholder": "Поиск",
-                        "locations": "НАШИ ФИЛИАЛЫ",
-                        "branch_one": "ЦЕНТРАЛЬНЫЙ ФИЛИАЛ",
-                        "branch_two": "ЧИЛАНЗАРСКИЙ ФИЛИАЛ",
-                        "all_rights": "ВСЕ ПРАВА ЗАЩИЩЕНЫ.",
-                        "admin_access": "АДМИН ПАНЕЛЬ",
-                        "days": {
-                            "monday": "ПОНЕДЕЛЬНИК",
-                            "tuesday": "ВТОРНИК",
-                            "wednesday": "СРЕДА",
-                            "thursday": "ЧЕТВЕРГ",
-                            "friday": "ПЯТНИЦА",
-                            "saturday": "СУББОТА",
-                            "sunday": "ВОСКРЕСЕНЬЕ"
-                        }
+                    "wheel_of_fortune": {
+                        "trigger": "БОНУС!",
+                        "title": "КОЛЕСО ФОРТУНЫ",
+                        "desc": "Крутите колесо каждые 10 секунд и выигрывайте призы!",
+                        "spin_btn": "КРУТИТЬ",
+                        "spinning": "КРУТИТСЯ...",
+                        "win_title": "ПОЗДРАВЛЯЕМ!",
+                        "win_msg": "Вы выиграли {{prize}}!",
+                        "continue_btn": "ПРОДОЛЖИТЬ"
                     },
-                    "home": {
-                        "store_closed": "В данный момент наш магазин закрыт. Заказы не принимаются."
+                    "support_chat": {
+                        "trigger": "Связь с админом",
+                        "placeholder": "Напишите сообщение...",
+                        "auto_reply": "Ваше сообщение отправлено админу. Скоро ответим! 😊"
                     },
-                    "sauces": {
-                        "badge": "НАШ СЕКРЕТ",
-                        "title": "СПЕЦИАЛЬНЫЕ СОУСЫ",
-                        "desc": "Секрет каждого нашего бургера заключается в наших секретных соусах. Уникальные вкусы из натуральных ингредиентов.",
-                        "explore": "ПОДРОБНЕЕ",
-                        "red": {
-                            "name": "ФИРМЕННЫЙ КРАСНЫЙ",
-                            "subtitle": "Засекреченный рецепт",
-                            "f1": "12 видов специй",
-                            "f2": "Натуральные томаты",
-                            "f3": "Кисло-сладкий"
-                        },
-                        "gold": {
-                            "name": "ЗОЛОТОЙ ЧЕДДЕР",
-                            "subtitle": "Теплый и мягкий вкус",
-                            "f1": "Настоящий Чеддер",
-                            "f2": "Сливочная текстура",
-                            "f3": "Расплавленный"
-                        },
-                        "thai": {
-                            "name": "SWEET & THAI",
-                            "subtitle": "Экзотический кисло-сладкий",
-                            "f1": "Тайский секрет",
-                            "f2": "Кисло-сладкий",
-                            "f3": "Натуральные ингредиенты"
-                        },
-                        "garlic": {
-                            "name": "WHITE GARLIC",
-                            "subtitle": "Нежный чесночный",
-                            "f1": "Свежий чеснок",
-                            "f2": "Сливочный",
-                            "f3": "Особые специи"
-                        }
+                    "courier": {
+                        "title": "Панель Курьера",
+                        "my_orders": "Мои заказы",
+                        "available_orders": "Доступные заказы",
+                        "no_active_orders": "У вас пока нет активных заказов.",
+                        "no_available_orders": "Новых заказов пока нет.",
+                        "delivered_success": "Заказ успешно доставлен! ✅",
+                        "delivered_btn": "ДОСТАВЛЕНО"
                     }
                 }
             },
             en: {
                 translation: {
+                    "common": {
+                        "thanks": "Thank you!",
+                        "sending": "SENDING...",
+                        "error_occurred": "Error.",
+                        "success": "Success!",
+                        "yes": "Yes",
+                        "no": "No",
+                        "save": "Save",
+                        "cancel": "Cancel"
+                    },
                     "navbar": {
                         "home": "HOME",
-                        "blog": "BLOG",
-                        "about": "ABOUT US",
-                        "gallery": "GALLERY",
                         "menu": "MENU",
-                        "shopping": "+ SHOPPING",
-                        "reservation": "RESERVATION",
-                        "constructor": "CONSTRUCTOR"
+                        "about": "ABOUT US",
+                        "logout": "Logout"
                     },
-                    "hero": {
-                        "order_now": "ORDER NOW",
-                        "view_menu": "VIEW MENU",
-                        "out_of_stock": "OUT OF STOCK",
-                        "buy_now": "Buy now"
+                    "loyalty_levels": {
+                        "badge": "VIP PRIVILEGES",
+                        "title": "DEFINE YOUR <span>LEVEL</span>",
+                        "desc": "More orders, more benefits.",
+                        "current_level": "CURRENT LEVEL",
+                        "cashback": "CASHBACK",
+                        "orders_remaining": "{{count}} orders remaining",
+                        "reached": "Level reached ✨",
+                        "join_btn": "ORDER NOW",
+                        "continue_btn": "CONTINUE"
                     },
-                    "menu": {
-                        "title": "OUR EXQUISITE MENU",
-                        "subtitle": "Taste the best fast food in town",
-                        "search_results": "Search results",
-                        "clear_search": "Clear search",
-                        "out_of_stock": "OUT OF STOCK",
-                        "no_results_title": "Nothing found 😕",
-                        "no_results_desc": "Try searching for another word or view all products.",
-                        "view_all": "ALL PRODUCTS",
-                        "ingredients_title": "Ingredients:",
-                        "reviews_title": "Customer Reviews:",
-                        "no_reviews": "No reviews yet.",
-                        "add_review_title": "Leave a review",
-                        "name_placeholder": "Your name",
-                        "comment_placeholder": "Your review...",
-                        "submit_review": "SUBMIT",
-                        "add_to_cart": "ADD TO CART",
-                        "categories": {
-                            "all": "ALL",
-                            "burgers": "BURGERS",
-                            "pizza": "PIZZA",
-                            "sides": "SIDES",
-                            "drinks": "DRINKS"
-                        }
+                    "mood_food": {
+                        "trigger": "Magic Box",
+                        "title": "How is your mood today?",
+                        "pref_title": "What do you want?",
+                        "thinking": "AI is choosing the best for you...",
+                        "result_title": "Our recommendation:",
+                        "retry": "Try again"
                     },
-                    "footer": {
-                        "opening_hours": "OPENING HOURS",
-                        "closed": "CLOSED",
-                        "latest_posts": "LATEST POSTS",
-                        "contact_us": "CONTACT US",
-                        "address": "TASHKENT CITY, UZBEKISTAN",
-                        "search_article": "SEARCH ARTICLE",
-                        "search_placeholder": "Search",
-                        "locations": "LOCATIONS",
-                        "branch_one": "CENTRAL BRANCH",
-                        "branch_two": "CHILANZAR BRANCH",
-                        "all_rights": "ALL RIGHTS RESERVED.",
-                        "admin_access": "ADMIN ACCESS",
-                        "days": {
-                            "monday": "MONDAY",
-                            "tuesday": "TUESDAY",
-                            "wednesday": "WEDNESDAY",
-                            "thursday": "THURSDAY",
-                            "friday": "FRIDAY",
-                            "saturday": "SATURDAY",
-                            "sunday": "SUNDAY"
-                        }
+                    "wheel_of_fortune": {
+                        "trigger": "BONUS!",
+                        "title": "WHEEL OF FORTUNE",
+                        "desc": "Spin the wheel every 10 seconds and win prizes!",
+                        "spin_btn": "SPIN",
+                        "spinning": "SPINNING...",
+                        "win_title": "CONGRATULATIONS!",
+                        "win_msg": "You won {{prize}}!",
+                        "continue_btn": "CONTINUE"
                     },
-                    "home": {
-                        "store_closed": "Our store is currently closed. Orders are not accepted."
+                    "support_chat": {
+                        "trigger": "Contact Admin",
+                        "placeholder": "Type a message...",
+                        "auto_reply": "Message sent to admin. We'll reply soon! 😊"
                     },
-                    "sauces": {
-                        "badge": "OUR SECRET",
-                        "title": "SPECIAL SAUCES",
-                        "desc": "The key to every one of our burgers is in our secret sauces. Unique flavors made from natural ingredients.",
-                        "explore": "VIEW MORE",
-                        "red": {
-                            "name": "SIGNATURE RED",
-                            "subtitle": "Secret glazed recipe",
-                            "f1": "12 types of spices",
-                            "f2": "Natural tomatoes",
-                            "f3": "Sweet & Spicy"
-                        },
-                        "gold": {
-                            "name": "GOLDEN CHEDDAR",
-                            "subtitle": "Warm and smooth flavor",
-                            "f1": "Real Cheddar",
-                            "f2": "Creamy texture",
-                            "f3": "Melted hot"
-                        },
-                        "thai": {
-                            "name": "SWEET & THAI",
-                            "subtitle": "Exotic sweet & sour",
-                            "f1": "Thai secret",
-                            "f2": "Sweet & Sour",
-                            "f3": "Natural ingredients"
-                        },
-                        "garlic": {
-                            "name": "WHITE GARLIC",
-                            "subtitle": "Creamy garlic",
-                            "f1": "Fresh garlic",
-                            "f2": "Creamy texture",
-                            "f3": "Special spices"
-                        }
+                    "courier": {
+                        "title": "Courier Panel",
+                        "my_orders": "My Orders",
+                        "available_orders": "Available Orders",
+                        "no_active_orders": "You have no active orders.",
+                        "no_available_orders": "No new orders available.",
+                        "delivered_success": "Order successfully delivered! ✅",
+                        "delivered_btn": "DELIVERED"
                     }
                 }
             }
         },
         fallbackLng: 'uz',
-        debug: true, // Turn on debug to help user see issues in console
+        debug: true,
         detection: {
             order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
             caches: ['localStorage', 'cookie']
