@@ -10,10 +10,7 @@ export const CartProvider = ({ children }) => {
     const toast = useToast();
     const [cartItems, setCartItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const [orders, setOrders] = useState(() => {
-        const savedOrders = localStorage.getItem('bsb_orders');
-        return savedOrders ? JSON.parse(savedOrders) : [];
-    });
+    const [orders, setOrders] = useState([]);
     const [careerApplications, setCareerApplications] = useState([]);
     const [isStoreOpen, setIsStoreOpen] = useState(() => {
         const saved = localStorage.getItem('bsb_store_status');
@@ -234,8 +231,31 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('bsb_store_status', JSON.stringify(isStoreOpen));
     }, [isStoreOpen]);
 
+    const fetchOrders = async () => {
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const res = await fetch(`${apiUrl}/orders`);
+            if (res.ok) {
+                const data = await res.json();
+                setOrders(data);
+                localStorage.setItem('bsb_orders', JSON.stringify(data));
+            }
+        } catch (e) {
+            console.error("Orders fetch error:", e);
+        }
+    };
+
     useEffect(() => {
-        localStorage.setItem('bsb_orders', JSON.stringify(orders));
+        fetchOrders();
+        const interval = setInterval(fetchOrders, 5000); // 5s refresh
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        // Still keep localStorage for quick load next time
+        if (orders.length > 0) {
+            localStorage.setItem('bsb_orders', JSON.stringify(orders));
+        }
     }, [orders]);
 
     useEffect(() => {
@@ -398,8 +418,23 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    const placeOrder = (orderData) => {
-        setOrders(prevOrders => [orderData, ...prevOrders]);
+    const placeOrder = async (orderData) => {
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const res = await fetch(`${apiUrl}/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+            if (res.ok) {
+                setOrders(prevOrders => [orderData, ...prevOrders]);
+                fetchOrders(); // Refresh from backend
+            }
+        } catch (e) {
+            console.error("Order placement error:", e);
+            // Fallback to local
+            setOrders(prevOrders => [orderData, ...prevOrders]);
+        }
 
         // If bonuses were used, subtract them
         if (useBonuses) {
@@ -481,45 +516,55 @@ export const CartProvider = ({ children }) => {
         return recommendations.slice(0, 2);
     };
 
-    const updateOrderStatus = (orderId, newStatus) => {
-        setOrders(prevOrders => prevOrders.map(o =>
-            String(o.orderId) === String(orderId) ? { ...o, status: newStatus } : o
-        ));
+    const updateOrderStatus = async (orderId, newStatus) => {
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const res = await fetch(`${apiUrl}/orders/update-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: String(orderId), status: newStatus })
+            });
+            if (res.ok) {
+                setOrders(prevOrders => prevOrders.map(o =>
+                    String(o.orderId) === String(orderId) ? { ...o, status: newStatus } : o
+                ));
+            }
+        } catch (e) {
+            console.error("Order status update error:", e);
+            setOrders(prevOrders => prevOrders.map(o =>
+                String(o.orderId) === String(orderId) ? { ...o, status: newStatus } : o
+            ));
+        }
 
         // Bajarilganda bonus qo'shish va VIP level yangilash
         if (newStatus === 'completed') {
-            setOrders(prevOrders => {
-                const order = prevOrders.find(o => String(o.orderId) === String(orderId));
-                if (order) {
-                    // Count burgers for loyalty stamps
-                    const burgerCount = order.items
-                        .filter(item => item.category === 'BURGERS')
-                        .reduce((acc, item) => acc + item.quantity, 0);
+            const order = orders.find(o => String(o.orderId) === String(orderId));
+            if (order) {
+                // Count burgers for loyalty stamps
+                const burgerCount = order.items
+                    .filter(item => item.category === 'BURGERS')
+                    .reduce((acc, item) => acc + item.quantity, 0);
 
-                    // Update User Stats
-                    setUserStats(prev => {
-                        const newTotal = prev.totalOrders + 1;
-                        let newLevel = 'BRONZE';
-                        if (newTotal >= 15) newLevel = 'GOLD';
-                        else if (newTotal >= 5) newLevel = 'SILVER';
+                // Update User Stats
+                setUserStats(prev => {
+                    const newTotal = prev.totalOrders + 1;
+                    let newLevel = 'BRONZE';
+                    if (newTotal >= 15) newLevel = 'GOLD';
+                    else if (newTotal >= 5) newLevel = 'SILVER';
 
-                        // Loyalty Stamps logic (MAX 5)
-                        const currentStamps = prev.loyaltyStamps || 0;
-                        const newStamps = Math.min(5, currentStamps + burgerCount);
+                    const currentStamps = prev.loyaltyStamps || 0;
+                    const newStamps = Math.min(5, currentStamps + burgerCount);
 
-                        return { ...prev, totalOrders: newTotal, level: newLevel, loyaltyStamps: newStamps };
-                    });
+                    return { ...prev, totalOrders: newTotal, level: newLevel, loyaltyStamps: newStamps };
+                });
 
-                    // Calculate Cashback based on Level
-                    let cashbackPercent = 0.05; // Bronze
-                    if (userStats.level === 'SILVER') cashbackPercent = 0.07;
-                    else if (userStats.level === 'GOLD') cashbackPercent = 0.10;
+                let cashbackPercent = 0.05;
+                if (userStats.level === 'SILVER') cashbackPercent = 0.07;
+                else if (userStats.level === 'GOLD') cashbackPercent = 0.10;
 
-                    const cashback = order.total * cashbackPercent;
-                    setBonuses(prev => prev + cashback);
-                }
-                return prevOrders;
-            });
+                const cashback = order.total * cashbackPercent;
+                setBonuses(prev => prev + cashback);
+            }
         }
 
         if (newStatus === 'preparing') {

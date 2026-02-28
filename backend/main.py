@@ -148,6 +148,20 @@ def get_eskiz_token(email, password):
 
 phone_to_chat_id = {}
 PHONE_MAP_FILE = os.path.join(os.path.dirname(__file__), "phone_to_chat_id.json")
+ORDERS_FILE = os.path.join(os.path.dirname(__file__), "orders.json")
+
+def load_orders():
+    if os.path.exists(ORDERS_FILE):
+        try:
+            with open(ORDERS_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+def save_orders(orders):
+    with open(ORDERS_FILE, "w") as f:
+        json.dump(orders, f, indent=4)
 
 if os.path.exists(PHONE_MAP_FILE):
     try:
@@ -224,6 +238,27 @@ class ReviewRequest(BaseModel):
     rating: int
     comment: str
     image: str = None
+
+class OrderItem(BaseModel):
+    id: int
+    name: str
+    price: float
+    quantity: int
+    category: str = None
+
+class OrderRequest(BaseModel):
+    orderId: str
+    customer: str
+    phone: str
+    address: str
+    items: list[OrderItem]
+    total: float
+    status: str
+    date: str
+
+class OrderStatusUpdate(BaseModel):
+    orderId: str
+    status: str
 
 def send_tg(bot_token, chat_id, text, reply_markup=None):
     if not bot_token or not chat_id:
@@ -532,6 +567,45 @@ async def broadcast(data: BroadcastRequest):
             failed += 1
             
     return {"success": success, "failed": failed}
+
+@app.get("/orders")
+@app.get("/orders/")
+async def get_orders():
+    return load_orders()
+
+@app.post("/orders")
+@app.post("/orders/")
+async def place_order_route(data: OrderRequest):
+    orders = load_orders()
+    new_order = data.dict()
+    orders.insert(0, new_order)
+    save_orders(orders)
+    
+    # Notify Admin via Telegram
+    bot_token = DEFAULT_BOT_TOKEN
+    admin_chat_id = ADMIN_CHAT_ID
+    
+    if bot_token and admin_chat_id:
+        items_list = "\n".join([f"- {item['name']} x{item['quantity']}" for item in new_order['items']])
+        msg = f"🔔 <b>YANGI BUYURTMA!</b>\n\n🆔 ID: #{new_order['orderId']}\n👤 Mijoz: {new_order['customer']}\n📞 Tel: {new_order['phone']}\n📍 Manzil: {new_order['address']}\n\n📦 Mahsulotlar:\n{items_list}\n\n💰 Jam: <b>${new_order['total']:.2f}</b>"
+        send_tg(bot_token, admin_chat_id, msg)
+        
+    return {"status": "ok", "orderId": new_order["orderId"]}
+
+@app.post("/orders/update-status")
+async def update_order_status_route(data: OrderStatusUpdate):
+    orders = load_orders()
+    found = False
+    for o in orders:
+        if str(o["orderId"]) == str(data.orderId):
+            o["status"] = data.status
+            found = True
+            break
+    if found:
+        save_orders(orders)
+        return {"status": "ok"}
+    raise HTTPException(status_code=404, detail="Order not found")
+
 
 @app.get("/check-phone/{phone}")
 async def check_phone(phone: str):
