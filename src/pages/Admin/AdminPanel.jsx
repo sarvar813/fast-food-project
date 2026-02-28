@@ -259,17 +259,11 @@ const AdminPanel = () => {
         sessionStorage.setItem('bsb_instance_id', instanceId);
 
         const checkTabIntegrity = () => {
-            const activeInstance = localStorage.getItem(tabKey);
-            if (activeInstance && activeInstance !== instanceId && isLoggedIn) {
-                logAction('OMEGA', 'Tab Conflict', 'Multiple admin instances detected.');
-                // Show warning instead of instant purge to avoid accidental logout
-                addToast('SESSION CONFLICT', 'Admin panel boshqa tabda ochilgan. Diqqat bilan foydalaning.', <FaShieldAlt />);
-            } else {
-                localStorage.setItem(tabKey, instanceId);
-            }
+            // Tab integrity check disabled by user request
+            localStorage.setItem(tabKey, instanceId);
         };
 
-        intervals.push(setInterval(checkTabIntegrity, 2000));
+        // intervals.push(setInterval(checkTabIntegrity, 2000));
 
         const checkInjection = (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
