@@ -434,12 +434,80 @@ export const CartProvider = ({ children }) => {
         setOrders(prev => prev.map(o => o.orderId === orderId ? { ...o, ...updatedData } : o));
     };
 
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [discount, setDiscount] = useState(0);
+
+    const clearCart = () => {
+        setCartItems([]);
+        setAppliedCoupon(null);
+        setDiscount(0);
+    };
+
+    const applyCoupon = (code) => {
+        const coupon = coupons.find(c => c.code === code && c.status === 'active');
+        if (coupon) {
+            setAppliedCoupon(code);
+            const discValue = parseInt(coupon.discount);
+            setDiscount(discValue);
+            return { success: true, message: t('cart.coupon_success', "Promokod qo'llanildi!") };
+        }
+        return { success: false, message: t('cart.coupon_error', "Noto'g'ri yoki faol bo'lmagan promokod") };
+    };
+
+    const cartTotal = getCartTotal();
+    const discountAmount = (cartTotal * discount) / 100;
+    const bonusToUse = useBonuses ? Math.min(bonuses, cartTotal - discountAmount) : 0;
+    const finalTotal = cartTotal - discountAmount - bonusToUse;
+    const finalDeliveryFee = finalTotal >= 50 ? 0 : (isSurgeActive ? deliveryFee * surgeMultiplier : deliveryFee);
+
+    const sendVerificationCode = async (phone, code) => {
+        console.log(`Sending code ${code} to ${phone}`);
+        // Telegram notification about verification code could go here too
+        const text = `🔐 *VERIFIKATSIYA KODI*\n` +
+            `📞 Telefon: ${phone}\n` +
+            `🔢 Kod: *${code}*`;
+
+        try {
+            await fetch(`https://api.telegram.org/bot${telegramSettings.botToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: telegramSettings.adminChatId,
+                    text,
+                    parse_mode: 'Markdown'
+                })
+            });
+        } catch (e) { console.error(e); }
+    };
+
+    const getRecommendedItems = (currentItems) => {
+        // Simple recommendation: suggested sides/drinks if not in cart
+        const recommended = [];
+        const hasSides = currentItems.some(i => i.category === 'SIDES');
+        const hasDrinks = currentItems.some(i => i.category === 'DRINKS');
+
+        if (!hasSides) {
+            recommended.push({ id: 4, name: 'French Fries', price: '$4.00', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?q=80&w=800&auto=format&fit=crop', category: 'SIDES' });
+        }
+        if (!hasDrinks) {
+            recommended.push({ id: 6, name: 'Coca Cola', price: '$2.50', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=800&auto=format&fit=crop', category: 'DRINKS' });
+        }
+        return recommended;
+    };
+
+    const claimLoyaltyReward = () => {
+        if (userStats.loyaltyStamps >= 5) {
+            setUserStats(prev => ({ ...prev, loyaltyStamps: 0 }));
+            toast.success(t('cart.reward_claimed', "Sovg'a qabul qilindi! Kelasi safar bepul burger olasiz."));
+        }
+    };
+
     const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     return (
         <CartContext.Provider value={{
             cartItems, cartCount, addToCart, removeFromCart, updateQuantity,
-            isCartOpen, setIsCartOpen, getCartTotal, placeOrder,
+            isCartOpen, setIsCartOpen, getCartTotal, cartTotal, placeOrder,
             orders, updateOrderStatus, updateOrderDetails,
             isStoreOpen, setIsStoreOpen, bonuses, setBonuses,
             userStats, playUXSound,
@@ -451,7 +519,10 @@ export const CartProvider = ({ children }) => {
             staff, addStaff, deleteStaff, updateStaff,
             coupons, addCoupon, deleteCoupon,
             rewards, addReward, deleteReward,
-            useBonuses, setUseBonuses, deliveryFee, surgeMultiplier, isSurgeActive
+            useBonuses, setUseBonuses, deliveryFee, surgeMultiplier, isSurgeActive,
+            clearCart, discount, finalTotal, applyCoupon, appliedCoupon,
+            sendVerificationCode, bonusToUse, discountAmount,
+            getRecommendedItems, finalDeliveryFee, claimLoyaltyReward
         }}>
             {children}
         </CartContext.Provider>
