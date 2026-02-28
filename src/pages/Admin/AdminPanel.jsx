@@ -475,6 +475,7 @@ const AdminPanel = () => {
 
 
     const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
+    const [editingStaff, setEditingStaff] = useState(null);
     const [subscriptions, setSubscriptions] = useState([]);
     const [isFetchingSubs, setIsFetchingSubs] = useState(false);
     const [lastSyncCount, setLastSyncCount] = useState(-1);
@@ -1932,11 +1933,22 @@ const AdminPanel = () => {
                                 <p style={{ fontSize: '11px', color: '#888', marginBottom: '15px' }}>
                                     SMS yuborish uchun <a href="https://eskiz.uz" target="_blank" rel="noreferrer">Eskiz.uz</a> dan ro'yxatdan o'tgan bo'lishingiz kerak.
                                 </p>
-                                <button className="save-btn" onClick={() => {
+                                <button className="save-btn" onClick={async () => {
                                     const email = document.getElementById('eskiz_email').value;
                                     const password = document.getElementById('eskiz_pass').value;
-                                    localStorage.setItem('bsb_eskiz_settings', JSON.stringify({ email, password }));
-                                    alert('SMS sozlamalari saqlandi!');
+
+                                    try {
+                                        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+                                        await fetch(`${apiUrl}/save-eskiz-settings`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ email, password })
+                                        });
+                                        localStorage.setItem('bsb_eskiz_settings', JSON.stringify({ email, password }));
+                                        addToast('SAVED', 'SMS sozlamalari saqlandi! ✅', <FaBolt />);
+                                    } catch (e) {
+                                        addToast('ERROR', 'Sozlamalarni saqlashda xatolik!', <FaTimesCircle />);
+                                    }
                                 }}>Saqlash</button>
                             </div>
 
@@ -3361,24 +3373,32 @@ const AdminPanel = () => {
             {isStaffModalOpen && (
                 <div className="admin-modal">
                     <div className="admin-modal-content">
-                        <h3><FaUserTie /> Yangi Xodim Qo'shish</h3>
+                        <h3><FaUserTie /> {editingStaff ? 'Xodimni Tahrirlash' : 'Yangi Xodim Qo\'shish'}</h3>
                         <form onSubmit={(e) => {
                             e.preventDefault();
                             const formData = new FormData(e.target);
                             const name = formData.get('name');
                             const role = formData.get('role');
-                            addStaff({ name, role });
-                            logAction('Admin', 'Staff', `Yangi xodim: ${name} (${role})`);
-                            addToast('QO\'SHILDI', `${name} xodimlar safiga qo'shildi!`, <FaCheckCircle />);
+
+                            if (editingStaff) {
+                                updateStaff(editingStaff.id, { name, role });
+                                logAction('Admin', 'Staff', `Tahrirlandi: ${name} (${role})`);
+                                addToast('YANGILANDI', `${name} ma'lumotlari yangilandi!`, <FaEdit />);
+                            } else {
+                                addStaff({ name, role });
+                                logAction('Admin', 'Staff', `Yangi xodim: ${name} (${role})`);
+                                addToast('QO\'SHILDI', `${name} xodimlar safiga qo'shildi!`, <FaCheckCircle />);
+                            }
                             setIsStaffModalOpen(false);
+                            setEditingStaff(null);
                         }}>
                             <div className="s-input">
                                 <label>Xodim ismi</label>
-                                <input name="name" placeholder="Masalan: Alisher Valiyev" required />
+                                <input name="name" placeholder="Masalan: Alisher Valiyev" defaultValue={editingStaff?.name} required />
                             </div>
                             <div className="s-input">
                                 <label>Lavozimi</label>
-                                <select name="role">
+                                <select name="role" defaultValue={editingStaff?.role || 'Chef'}>
                                     <option value="Chef">Chef (Oshpaz)</option>
                                     <option value="Admin">Admin (Menejer)</option>
                                     <option value="Runner">Runner (Yordamchi)</option>
@@ -3386,8 +3406,11 @@ const AdminPanel = () => {
                                 </select>
                             </div>
                             <div className="modal-actions">
-                                <button type="submit" className="save-btn">Qo'shish</button>
-                                <button type="button" className="cancel-btn" onClick={() => setIsStaffModalOpen(false)}>Bekor qilish</button>
+                                <button type="submit" className="save-btn">{editingStaff ? 'Saqlash' : 'Qo\'shish'}</button>
+                                <button type="button" className="cancel-btn" onClick={() => {
+                                    setIsStaffModalOpen(false);
+                                    setEditingStaff(null);
+                                }}>Bekor qilish</button>
                             </div>
                         </form>
                     </div>

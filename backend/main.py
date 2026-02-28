@@ -57,8 +57,37 @@ def load_eskiz_settings():
     return settings
 
 def send_sms(phone, message, email=None, password=None):
-    # Eskiz.uz deactivated as requested
-    print(f"[SMS_LOG] To: {phone} | Msg: {message}")
+    # Normalize phone
+    p = "".join(filter(str.isdigit, phone))
+    if len(p) == 9:
+        p = "998" + p
+    if p.startswith("8") and len(p) == 11:
+        p = "998" + p[1:]
+    
+    # Eskiz.uz functionality
+    eskiz = load_eskiz_settings()
+    email = email or eskiz.get("email")
+    password = password or eskiz.get("password")
+
+    if email and password:
+        try:
+            token = get_eskiz_token(email, password)
+            if token:
+                clean_text = message.replace('<b>', '').replace('</b>', '').replace('<i>', '').replace('</i>', '').replace('<code>', '').replace('</code>', '').replace('<br>', '\n').replace('<br/>', '\n')
+                res = requests.post("https://notify.eskiz.uz/api/message/sms/send", 
+                                   headers={"Authorization": f"Bearer {token}"}, 
+                                   data={"mobile_phone": p, "message": clean_text, "from": "4546"})
+                if res.status_code == 200:
+                    print(f"[SMS_SUCCESS] To: {p}")
+                    return True
+                else:
+                    print(f"[SMS_ERROR] {res.text}")
+                    return False
+        except Exception as e:
+            print(f"[SMS_EXCEPTION] {e}")
+            return False
+            
+    print(f"[SMS_LOG] To: {phone} | Msg: {message} (No credentials)")
     return True
 
 # Curated Bot Menu
@@ -432,6 +461,16 @@ async def send_message(data: MessageRequest):
         results["sms"] = "skipped: No credentials"
         
     return results
+    
+class EskizSettingsRequest(BaseModel):
+    email: str
+    password: str
+
+@app.post("/save-eskiz-settings")
+async def save_eskiz_route(data: EskizSettingsRequest):
+    save_eskiz_settings(data.email, data.password)
+    return {"status": "ok", "message": "Eskiz settings saved successfully"}
+
 
 @app.get("/customers")
 async def get_customers():
@@ -440,29 +479,56 @@ async def get_customers():
 class BroadcastRequest(BaseModel):
     message: str
     bot_token: str
+    segment: str = 'all'
+    customer_phone: str = None
 
 @app.post("/broadcast")
 async def broadcast(data: BroadcastRequest):
     success = 0
     failed = 0
-    # Faqat unikal chat_id larga yuboramiz (bitta raqam bir nechta joyda bo'lishi mumkinligini hisobga olib set ishlatamiz)
-    unique_chats = set(phone_to_chat_id.values())
     
-    for chat_id in unique_chats:
+    # Determine recipients based on segment
+    phones_to_send = []
+    if data.segment == 'individual' and data.customer_phone:
+        phones_to_send = [data.customer_phone]
+    else:
+        # For segments like 'all', 'VIP', 'Sodiq', 'Yangi', if the backend doesn't know them, 
+        # we default to all known phone numbers in our mapping.
+        phones_to_send = list(phone_to_chat_id.keys())
+
+    for phone in phones_to_send:
         try:
-            url = f"https://api.telegram.org/bot{data.bot_token}/sendMessage"
-            payload = {
-                "chat_id": chat_id,
-                "text": data.message,
-                "parse_mode": "HTML"
-            }
-            res = requests.post(url, json=payload, timeout=10)
-            if res.status_code == 200:
+            p_norm = "".join(filter(str.isdigit, phone))
+            if len(p_norm) == 9:
+                p_norm = "998" + p_norm
+            
+            sent_status = False
+            
+            # 1. Telegram
+            chat_id = phone_to_chat_id.get(p_norm)
+            if chat_id:
+                url = f"https://api.telegram.org/bot{data.bot_token}/sendMessage"
+                payload = {
+                    "chat_id": chat_id,
+                    "text": data.message,
+                    "parse_mode": "HTML"
+                }
+                res_tg = requests.post(url, json=payload, timeout=10)
+                if res_tg.status_code == 200:
+                    sent_status = True
+            
+            # 2. SMS (Mandatory for marketing as requested)
+            sms_res = send_sms(p_norm, data.message)
+            if sms_res:
+                sent_status = True
+                
+            if sent_status:
                 success += 1
             else:
                 failed += 1
+                
         except Exception as e:
-            print(f"Broadcast error for {chat_id}: {e}")
+            print(f"Broadcast error for {phone}: {e}")
             failed += 1
             
     return {"success": success, "failed": failed}
