@@ -65,8 +65,38 @@ i18n
                                 "ing2": "Yangi Pishirilgan Bulka",
                                 "ing3": "Maxsus Siri-Sous",
                                 "ing4": "Qora bulka"
+                            },
+                            "slide2": {
+                                "subtitle": "MAZALI TANLOV",
+                                "title": "CHICKEN CHEESE BURGER",
+                                "desc": "Yumshoq tovuq go'shti, erigan pishloq va yangi sabzavotlar uyg'unligi.",
+                                "ing1": "Tovuq Go'shti",
+                                "ing2": "Pishloq",
+                                "ing3": "Pomidor",
+                                "ing4": "Maxsus Sous"
+                            },
+                            "slide3": {
+                                "subtitle": "ACHCHIQ TA'M",
+                                "title": "SPICY MEXICAN BURGER",
+                                "desc": "Achchiq qalampir va maxsus ziravorlar bilan tayyorlangan olovli burger.",
+                                "ing1": "Mol Go'shti",
+                                "ing2": "Xalapenyo",
+                                "ing3": "Achchiq Sous",
+                                "ing4": "Pishloq"
+                            },
+                            "slide4": {
+                                "subtitle": "KLASSIK SIFAT",
+                                "title": "DOUBLE BEEF BURGER",
+                                "desc": "Ikki barobar ko'p go'sht va ikki barobar ko'p lazzat.",
+                                "ing1": "2x Mol Go'shti",
+                                "ing2": "Klassik Bulka",
+                                "ing3": "Salat Bargi",
+                                "ing4": "Piyoz"
                             }
                         }
+                    },
+                    "home": {
+                        "store_closed": "Hozircha do'konimiz yopiq. Tez orada xizmatingizda bo'lamiz!"
                     },
                     "menu": {
                         "title": "BIZNING MAXSUS MENYU",
@@ -228,6 +258,53 @@ i18n
                         "about": "О НАС",
                         "logout": "Выйти"
                     },
+                    "hero": {
+                        "order_now": "ЗАКАЗАТЬ",
+                        "view_menu": "ПОСМОТРЕТЬ МЕНЮ",
+                        "out_of_stock": "НЕТ В НАЛИЧИИ",
+                        "buy_now": "Купить",
+                        "slides": {
+                            "slide1": {
+                                "subtitle": "ПРЕМИУМ КАЧЕСТВО",
+                                "title": "BLACK STAR СПЕЦИАЛ",
+                                "desc": "Настоящая 100% говядина, фирменная черная булка и наш секретный соус.",
+                                "ing1": "100% Халяльное Мясо",
+                                "ing2": "Свежая Булка",
+                                "ing3": "Секретный Соус",
+                                "ing4": "Черная булка"
+                            },
+                            "slide2": {
+                                "subtitle": "ВКУСНЫЙ ВЫБОР",
+                                "title": "ЧИКЕН ЧИЗ БУРГЕР",
+                                "desc": "Сочетание нежного куриного мяса, плавленого сыра и свежих овощей.",
+                                "ing1": "Куриное Мясо",
+                                "ing2": "Сыр",
+                                "ing3": "Помидор",
+                                "ing4": "Специальный Соус"
+                            },
+                            "slide3": {
+                                "subtitle": "ОСТРЫЙ ВКУС",
+                                "title": "МЕКСИКАНСКИЙ БУРГЕР",
+                                "desc": "Огненный бургер с острым перцем и специальными специями.",
+                                "ing1": "Говядина",
+                                "ing2": "Халапеньо",
+                                "ing3": "Острый Соус",
+                                "ing4": "Сыр"
+                            },
+                            "slide4": {
+                                "subtitle": "КЛАССИЧЕСКОЕ КАЧЕСТВО",
+                                "title": "ДАБЛ БИФ БУРГЕР",
+                                "desc": "В два раза больше мяса и в два раза больше вкуса.",
+                                "ing1": "2x Говядина",
+                                "ing2": "Классическая Булка",
+                                "ing3": "Листья Салата",
+                                "ing4": "Лук"
+                            }
+                        }
+                    },
+                    "home": {
+                        "store_closed": "В данный момент магазин закрыт. Мы скоро вернемся!"
+                    },
                     "loyalty_levels": {
                         "badge": "VIP ПРИВИЛЕГИИ",
                         "title": "ОПРЕДЕЛИТЕ ВАШ <span>УРОВЕНЬ</span>",
@@ -297,6 +374,53 @@ i18n
                         "menu": "MENU",
                         "about": "ABOUT US",
                         "logout": "Logout"
+                    },
+                    "hero": {
+                        "order_now": "ORDER NOW",
+                        "view_menu": "VIEW MENU",
+                        "out_of_stock": "OUT OF STOCK",
+                        "buy_now": "Buy Now",
+                        "slides": {
+                            "slide1": {
+                                "subtitle": "PREMIUM QUALITY",
+                                "title": "BLACK STAR SPECIAL",
+                                "desc": "Real 100% beef, special black bun and our secret sauce.",
+                                "ing1": "100% Halal Beef",
+                                "ing2": "Fresh Baked Bun",
+                                "ing3": "Special Secret Sauce",
+                                "ing4": "Black Bun"
+                            },
+                            "slide2": {
+                                "subtitle": "DELICIOUS CHOICE",
+                                "title": "CHICKEN CHEESE BURGER",
+                                "desc": "A perfect blend of tender chicken, melted cheese and fresh vegetables.",
+                                "ing1": "Chicken Meat",
+                                "ing2": "Cheese",
+                                "ing3": "Tomato",
+                                "ing4": "Special Sauce"
+                            },
+                            "slide3": {
+                                "subtitle": "SPICY TASTE",
+                                "title": "SPICY MEXICAN BURGER",
+                                "desc": "A fiery burger with chili peppers and special spices.",
+                                "ing1": "Beef",
+                                "ing2": "Jalapeño",
+                                "ing3": "Spicy Sauce",
+                                "ing4": "Cheese"
+                            },
+                            "slide4": {
+                                "subtitle": "CLASSIC QUALITY",
+                                "title": "DOUBLE BEEF BURGER",
+                                "desc": "Double the meat and double the flavor.",
+                                "ing1": "2x Beef",
+                                "ing2": "Classic Bun",
+                                "ing3": "Lettuce",
+                                "ing4": "Onions"
+                            }
+                        }
+                    },
+                    "home": {
+                        "store_closed": "The store is currently closed. We'll be back soon!"
                     },
                     "loyalty_levels": {
                         "badge": "VIP PRIVILEGES",
