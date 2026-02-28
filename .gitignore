@@ -27,3 +27,4 @@ backend/.env
 backend/*.json
 backend/*.sqlite3
 !backend/BOT_MENU.json
+!backend/phone_to_chat_id.json

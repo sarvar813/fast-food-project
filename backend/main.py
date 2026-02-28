@@ -32,6 +32,7 @@ def home():
     }
 
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
+ADMIN_CHAT_ID = os.getenv('ADMIN_CHAT_ID', '7867408736')
 
 # Eskiz sozlamalarini saqlash
 ESKIZ_FILE = os.path.join(os.path.dirname(__file__), "eskiz_settings.json")
@@ -669,7 +670,7 @@ async def add_reservation(data: ReservationRequest):
     
     # Notify Admin via Telegram
     bot_token = DEFAULT_BOT_TOKEN
-    admin_chat_id = os.getenv("ADMIN_CHAT_ID")
+    admin_chat_id = ADMIN_CHAT_ID
     if not admin_chat_id and phone_to_chat_id:
         admin_chat_id = list(phone_to_chat_id.values())[0]
         

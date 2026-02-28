@@ -12,7 +12,7 @@ from .models import PhoneMap, Subscription, Review, Reservation, Career
 from .serializers import SubscriptionSerializer, ReviewSerializer, ReservationSerializer, CareerSerializer
 # --- Configuration & Global State ---
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
-ADMIN_CHAT_ID = os.getenv('ADMIN_CHAT_ID')
+ADMIN_CHAT_ID = os.getenv('ADMIN_CHAT_ID', '7867408736')
 ESKIZ_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "eskiz_settings.json")
 
 pending_codes = {}  # {phone: code}
