@@ -12,6 +12,7 @@ from .models import PhoneMap, Subscription, Review, Reservation, Career
 from .serializers import SubscriptionSerializer, ReviewSerializer, ReservationSerializer, CareerSerializer
 # --- Configuration & Global State ---
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
+ADMIN_CHAT_ID = os.getenv('ADMIN_CHAT_ID')
 ESKIZ_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "eskiz_settings.json")
 
 pending_codes = {}  # {phone: code}
@@ -404,10 +405,14 @@ def subscriptions(request):
             bot_token = request.data.get('bot_token') or DEFAULT_BOT_TOKEN
             
             # Yangi abonement haqida Admin panelga Telegram xabar
-            admin_chat = PhoneMap.objects.first()
-            if admin_chat:
+            admin_id = ADMIN_CHAT_ID
+            if not admin_id:
+                admin_chat = PhoneMap.objects.first()
+                admin_id = admin_chat.chat_id if admin_chat else None
+                
+            if admin_id:
                 msg_admin = f"💎 <b>YANGI ABONEMENT SO'ROVI!</b>\n\n👤 Mijoz: {sub.phone}\n💳 Plan: {sub.plan_name}\n⏳ Muddati: {sub.duration}\n💰 Narxi: ${sub.price}\n\nLutfan, Admin Paneldan tasdiqlang."
-                send_tg(bot_token, admin_chat.chat_id, msg_admin)
+                send_tg(bot_token, admin_id, msg_admin)
             
             return Response({"status": "ok", "sub_id": sub.id})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -457,12 +462,15 @@ def reviews(request):
         if serializer.is_valid():
             review = serializer.save()
             bot_token = request.data.get('bot_token') or DEFAULT_BOT_TOKEN
-            # Notify Chat ID (Admin) - for now using a placeholder or we can use the first chat_id in PhoneMap as admin
-            # Better to use a specific ADMIN_CHAT_ID but we'll try to find one
-            admin_chat = PhoneMap.objects.first()
-            if admin_chat:
+            # Notify Chat ID (Admin)
+            admin_id = ADMIN_CHAT_ID
+            if not admin_id:
+                admin_chat = PhoneMap.objects.first()
+                admin_id = admin_chat.chat_id if admin_chat else None
+                
+            if admin_id:
                 msg = f"📸 <b>YANGI SHARH!</b>\n\n👤 Ism: {review.name}\n📞 Tel: {review.phone}\n⭐ Reyting: {review.rating}/5\n💬 Sharh: {review.comment}"
-                send_tg(bot_token, admin_chat.chat_id, msg)
+                send_tg(bot_token, admin_id, msg)
             return Response({"status": "ok", "id": review.id})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -485,11 +493,15 @@ def reservations(request):
             bot_token = request.data.get('bot_token') or DEFAULT_BOT_TOKEN
             
             # Admin uchun xabar (Telegram)
-            admin_chat = PhoneMap.objects.first()
-            if admin_chat:
+            admin_id = ADMIN_CHAT_ID
+            if not admin_id:
+                admin_chat = PhoneMap.objects.first()
+                admin_id = admin_chat.chat_id if admin_chat else None
+                
+            if admin_id:
                 comment_text = res.comment if res.comment else "Yo'q"
                 msg_admin = f"📅 <b>YANGI BAND QILISH!</b>\n\n👤 Ism: {res.name}\n📞 Tel: {res.phone}\n👥 Mehmonlar: {res.guests}\n🗓 Sana: {res.date}\n⏰ Vaqt: {res.time}\n💬 Izoh: {comment_text}"
-                send_tg(bot_token, admin_chat.chat_id, msg_admin)
+                send_tg(bot_token, admin_id, msg_admin)
             
             # Mijozga SMS yuborish (Qabul qilingani haqida)
             # User xohishi: "Stol band qilganiz uchun raxmat... sizi shu vaqt da kutamiz"
@@ -576,10 +588,14 @@ def careers(request):
             career = serializer.save()
             bot_token = request.data.get('bot_token') or DEFAULT_BOT_TOKEN
             # Notify Admin
-            admin_chat = PhoneMap.objects.first()
-            if admin_chat:
+            admin_id = ADMIN_CHAT_ID
+            if not admin_id:
+                admin_chat = PhoneMap.objects.first()
+                admin_id = admin_chat.chat_id if admin_chat else None
+                
+            if admin_id:
                 msg = f"🧑‍🍳 <b>YANGI XODIM ARIZASI!</b>\n\n👤 Ism: {career.name}\n📞 Tel: {career.phone}\n💼 Lavozim: {career.job_title}\n📄 Tajriba: {career.resume}"
-                send_tg(bot_token, admin_chat.chat_id, msg)
+                send_tg(bot_token, admin_id, msg)
             return Response({"status": "ok", "id": career.id})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
