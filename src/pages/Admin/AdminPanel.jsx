@@ -921,9 +921,9 @@ const AdminPanel = () => {
     }
 
     const statusConfig = {
-        pending: { label: 'Kutilmoqda', color: '#ffab00' },
-        preparing: { label: 'Tayyorlanmoqda', color: '#ff5722' },
-        shipping: { label: 'Yetkazilmoqda', color: '#2196f3' },
+        pending: { label: 'Tushdi', color: '#ffab00' },
+        preparing: { label: 'Pishmoqda', color: '#ff5722' },
+        shipping: { label: 'Yo\'lda', color: '#2196f3' },
         completed: { label: 'Bajarildi', color: '#4caf50' },
         cancelled: { label: 'Bekor qilindi', color: '#f44336' }
     };
@@ -939,20 +939,22 @@ const AdminPanel = () => {
     const handleStatusChange = (orderId, status) => {
         playUXSound('pop');
         updateOrderStatus(orderId, status);
-        addToast('BUYURTMA YANGILANDI!', `#${orderId} buyurtma holati '${status}' ga o'zgartirildi!`, <FaCheckCircle />);
+        addToast('BUYURTMA YANGILANDI!', `#${orderId} buyurtma holati '${statusConfig[status]?.label || status}' ga o'zgartirildi!`, <FaCheckCircle />);
         logAction('Admin', 'Order Status', `#${orderId} -> ${status}`);
 
-        // Customer notification when accepted
+        // Customer notification
+        let statusMsg = "";
         if (status === 'preparing') {
-            const order = orders.find(o => String(o.orderId) === String(orderId));
-            if (order) {
-                const statusMsg = `🛒 <b>BUYURTMANGIZ QABUL QILINDI!</b>\n\n🆔 ID: #${orderId}\n💰 Jami: $${order.total.toFixed(2)}\n\n👨‍🍳 Taomingiz tayyorlanishni boshladi. Yoqimli ishtaha!`;
-                sendCustomerNotification(order.phone, statusMsg);
-            }
+            statusMsg = `👨‍🍳 <b>TAOMINGIZ PISHMOQDA!</b>\n\n🆔 ID: #${orderId}\n\nShef-pazarlarimiz buyurtmangizni tayyorlashni boshlashdi. Tez orada kuryerga topshiramiz!`;
         } else if (status === 'shipping') {
+            statusMsg = `🛵 <b>BUYURTMANGIZ YO'LDA!</b>\n\n🆔 ID: #${orderId}\n\nKuryer issiqqina ovqatingizni olib yo'lga chiqdi. Iltimos, qo'ng'iroqni kuting!`;
+        } else if (status === 'completed') {
+            statusMsg = `✅ <b>BUYURTMA YETKAZIB BERILDI!</b>\n\n🆔 ID: #${orderId}\n\nYoqimli ishtaha! Bizni tanlaganingiz uchun rahmat. Iltimos, o'z fikr-mulohazalaringizni qoldiring. 😊`;
+        }
+
+        if (statusMsg) {
             const order = orders.find(o => String(o.orderId) === String(orderId));
             if (order) {
-                const statusMsg = `🛵 Buyurtmangiz #${orderId} yo'lga chiqdi! Kuryerni kuting.`;
                 sendCustomerNotification(order.phone, statusMsg);
             }
         }
@@ -1011,20 +1013,42 @@ const AdminPanel = () => {
                                                 {violationCount >= 2 ? '⚠️ AUTH_REQUIRED' : (statusConfig[order.status]?.label || order.status)}
                                             </span>
 
-                                            {order.status === 'pending' && violationCount < 2 && (
+                                            {violationCount < 2 && order.status !== 'completed' && order.status !== 'cancelled' && (
                                                 <div className="admin-order-actions">
-                                                    <button
-                                                        className="admin-confirm-btn"
-                                                        onClick={() => handleStatusChange(order.orderId, 'preparing')}
-                                                    >
-                                                        TO'LOV QABUL QILINDI
-                                                    </button>
-                                                    <button
-                                                        className="admin-cancel-btn"
-                                                        onClick={() => handleStatusChange(order.orderId, 'cancelled')}
-                                                    >
-                                                        YO'Q, BEKOR QILISH
-                                                    </button>
+                                                    {order.status === 'pending' && (
+                                                        <>
+                                                            <button
+                                                                className="admin-confirm-btn"
+                                                                onClick={() => handleStatusChange(order.orderId, 'preparing')}
+                                                            >
+                                                                TO'LOV QABUL QILINDI
+                                                            </button>
+                                                            <button
+                                                                className="admin-cancel-btn"
+                                                                onClick={() => handleStatusChange(order.orderId, 'cancelled')}
+                                                            >
+                                                                BEKOR QILISH
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {order.status === 'preparing' && (
+                                                        <button
+                                                            className="admin-shipping-btn"
+                                                            style={{ background: '#2196f3', color: 'white', padding: '5px 10px', borderRadius: '5px', fontSize: '11px', border: 'none', cursor: 'pointer' }}
+                                                            onClick={() => handleStatusChange(order.orderId, 'shipping')}
+                                                        >
+                                                            KURYERGA BERISH
+                                                        </button>
+                                                    )}
+                                                    {order.status === 'shipping' && (
+                                                        <button
+                                                            className="admin-complete-btn"
+                                                            style={{ background: '#4caf50', color: 'white', padding: '5px 10px', borderRadius: '5px', fontSize: '11px', border: 'none', cursor: 'pointer' }}
+                                                            onClick={() => handleStatusChange(order.orderId, 'completed')}
+                                                        >
+                                                            YETKAZILDI
+                                                        </button>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
