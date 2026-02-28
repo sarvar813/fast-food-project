@@ -22,4 +22,7 @@ urlpatterns = [
     path('careers/', views.careers, name='careers_list'),
     path('careers/action', views.career_action, name='career_action'),
     path('careers/action/', views.career_action, name='career_action_slash'),
+    path('orders', views.orders_view, name='orders'),
+    path('orders/', views.orders_view, name='orders_list'),
+    path('orders/update-status', views.update_order_status, name='update_order_status'),
 ]

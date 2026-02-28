@@ -14,6 +14,24 @@ from .serializers import SubscriptionSerializer, ReviewSerializer, ReservationSe
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 ADMIN_CHAT_ID = '7867408736'
 ESKIZ_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "eskiz_settings.json")
+ORDERS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "orders.json")
+
+def load_orders():
+    if os.path.exists(ORDERS_FILE):
+        try:
+            with open(ORDERS_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+def save_orders(orders):
+    try:
+        with open(ORDERS_FILE, "w") as f:
+            json.dump(orders, f, indent=4)
+        return True
+    except Exception:
+        return False
 
 pending_codes = {}  # {phone: code}
 user_sessions = {}
@@ -602,7 +620,8 @@ def career_action(request):
     career.save()
     
     p = "".join(filter(str.isdigit, career.phone))
-    if len(p) == 9: p = "998" + p
+    if len(p) == 9:
+        p = "998" + p
     pmap = PhoneMap.objects.filter(phone=p).first()
     
     if new_status == "accepted":
@@ -616,3 +635,47 @@ def career_action(request):
     send_sms(career.phone, msg.replace('<b>','').replace('</b>',''))
     
     return Response({"status": "ok"})
+
+@api_view(['GET', 'POST'])
+def orders_view(request):
+    if request.method == 'POST':
+        data = request.data
+        orders = load_orders()
+        new_order = data # Assuming data is passed correctly from frontend
+        orders.insert(0, new_order)
+        save_orders(orders)
+        
+        # Notify Admin via Telegram
+        bot_token = data.get('bot_token') or DEFAULT_BOT_TOKEN
+        admin_chat_id = ADMIN_CHAT_ID
+        
+        if bot_token and admin_chat_id:
+            try:
+                items_list = "\n".join([f"- {item.get('name')} x{item.get('quantity')}" for item in new_order.get('items', [])])
+                msg = f"🔔 <b>YANGI BUYURTMA!</b>\n\n🆔 ID: #{new_order.get('orderId')}\n👤 Mijoz: {new_order.get('customer')}\n📞 Tel: {new_order.get('phone')}\n📍 Manzil: {new_order.get('address')}\n\n📦 Mahsulotlar:\n{items_list}\n\n💰 Jam: <b>${new_order.get('total'):.2f}</b>"
+                send_tg(bot_token, admin_chat_id, msg)
+            except Exception as e:
+                print(f"Error sending admin notification: {e}")
+                
+        return Response({"status": "ok", "orderId": new_order.get("orderId")})
+    
+    return Response(load_orders())
+
+@api_view(['POST'])
+def update_order_status(request):
+    data = request.data
+    order_id = data.get('orderId')
+    new_status = data.get('status')
+    
+    orders = load_orders()
+    found = False
+    for o in orders:
+        if str(o.get("orderId")) == str(order_id):
+            o["status"] = new_status
+            found = True
+            break
+            
+    if found:
+        save_orders(orders)
+        return Response({"status": "ok"})
+    return Response({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
