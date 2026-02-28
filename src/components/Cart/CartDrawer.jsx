@@ -13,7 +13,7 @@ const CartDrawer = () => {
         clearCart, placeOrder, updateOrderStatus, discount, finalTotal, applyCoupon, appliedCoupon,
         sendVerificationCode, telegramSettings, bonuses, useBonuses, setUseBonuses, bonusToUse, discountAmount,
         userStats, addToCart, deliveryFee, setDeliveryFee, isSurgeActive, surgeMultiplier,
-        getRecommendedItems, finalDeliveryFee, claimLoyaltyReward, sendTelegramNotification
+        getRecommendedItems = () => [], finalDeliveryFee = 0, claimLoyaltyReward = () => { }, sendTelegramNotification = () => { }
     } = useCart();
 
     const getStatusInfo = (level) => {
@@ -269,14 +269,14 @@ const CartDrawer = () => {
                                             <div className="upsell-section">
                                                 <h4>{t('cart.upsell_title')}</h4>
                                                 <div className="upsell-items">
-                                                    {getRecommendedItems(cartItems).map(item => (
+                                                    {typeof getRecommendedItems === 'function' && getRecommendedItems(cartItems).map(item => (
                                                         <div key={item.id} className="upsell-item" onClick={() => addToCart(item)}>
                                                             <img src={item.image} alt={item.name} />
                                                             <span>{item.name}</span>
                                                         </div>
                                                     ))}
                                                     {/* Fallback if all categories present */}
-                                                    {getRecommendedItems(cartItems).length === 0 && (
+                                                    {typeof getRecommendedItems === 'function' && getRecommendedItems(cartItems).length === 0 && (
                                                         <>
                                                             <div className="upsell-item" onClick={() => addToCart({ id: 5, name: 'Onion Rings', price: '$5.50', image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?q=80&w=800&auto=format&fit=crop', category: 'SIDES' })}>
                                                                 <img src="https://images.unsplash.com/photo-1639024471283-03518883512d?q=80&w=800&auto=format&fit=crop" alt="Onion Rings" />
