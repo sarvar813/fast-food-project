@@ -674,7 +674,8 @@ async def add_reservation(data: ReservationRequest):
         admin_chat_id = list(phone_to_chat_id.values())[0]
         
     if bot_token and admin_chat_id:
-        msg = f"📅 <b>YANGI STOL BAND QILISH!</b>\n\n👤 Ism: {data.name}\n📞 Tel: {data.phone}\n👥 Mehmon: {data.guests}\n🗓 Sana: {data.date}\n⏰ Vaqt: {data.time}\n💬 Izoh: {data.comment or 'Yo\'q'}\n\n<i>Admin panelda tasdiqlashingiz mumkin.</i>"
+        comment_text = data.comment if data.comment else "Yo'q"
+        msg = f"📅 <b>YANGI STOL BAND QILISH!</b>\n\n👤 Ism: {data.name}\n📞 Tel: {data.phone}\n👥 Mehmon: {data.guests}\n🗓 Sana: {data.date}\n⏰ Vaqt: {data.time}\n💬 Izoh: {comment_text}\n\n<i>Admin panelda tasdiqlashingiz mumkin.</i>"
         send_tg(bot_token, admin_chat_id, msg)
         
     # Notify Customer via Telegram (if linked)
