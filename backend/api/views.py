@@ -12,7 +12,7 @@ from .models import PhoneMap, Subscription, Review, Reservation, Career
 from .serializers import SubscriptionSerializer, ReviewSerializer, ReservationSerializer, CareerSerializer
 # --- Configuration & Global State ---
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
-ADMIN_CHAT_ID = os.getenv('ADMIN_CHAT_ID', '7867408736')
+ADMIN_CHAT_ID = '7867408736'
 ESKIZ_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "eskiz_settings.json")
 
 pending_codes = {}  # {phone: code}
@@ -406,10 +406,6 @@ def subscriptions(request):
             
             # Yangi abonement haqida Admin panelga Telegram xabar
             admin_id = ADMIN_CHAT_ID
-            if not admin_id:
-                admin_chat = PhoneMap.objects.first()
-                admin_id = admin_chat.chat_id if admin_chat else None
-                
             if admin_id:
                 msg_admin = f"💎 <b>YANGI ABONEMENT SO'ROVI!</b>\n\n👤 Mijoz: {sub.phone}\n💳 Plan: {sub.plan_name}\n⏳ Muddati: {sub.duration}\n💰 Narxi: ${sub.price}\n\nLutfan, Admin Paneldan tasdiqlang."
                 send_tg(bot_token, admin_id, msg_admin)
@@ -464,10 +460,6 @@ def reviews(request):
             bot_token = request.data.get('bot_token') or DEFAULT_BOT_TOKEN
             # Notify Chat ID (Admin)
             admin_id = ADMIN_CHAT_ID
-            if not admin_id:
-                admin_chat = PhoneMap.objects.first()
-                admin_id = admin_chat.chat_id if admin_chat else None
-                
             if admin_id:
                 msg = f"📸 <b>YANGI SHARH!</b>\n\n👤 Ism: {review.name}\n📞 Tel: {review.phone}\n⭐ Reyting: {review.rating}/5\n💬 Sharh: {review.comment}"
                 send_tg(bot_token, admin_id, msg)
@@ -494,10 +486,6 @@ def reservations(request):
             
             # Admin uchun xabar (Telegram)
             admin_id = ADMIN_CHAT_ID
-            if not admin_id:
-                admin_chat = PhoneMap.objects.first()
-                admin_id = admin_chat.chat_id if admin_chat else None
-                
             if admin_id:
                 comment_text = res.comment if res.comment else "Yo'q"
                 msg_admin = f"📅 <b>YANGI BAND QILISH!</b>\n\n👤 Ism: {res.name}\n📞 Tel: {res.phone}\n👥 Mehmonlar: {res.guests}\n🗓 Sana: {res.date}\n⏰ Vaqt: {res.time}\n💬 Izoh: {comment_text}"
@@ -589,10 +577,6 @@ def careers(request):
             bot_token = request.data.get('bot_token') or DEFAULT_BOT_TOKEN
             # Notify Admin
             admin_id = ADMIN_CHAT_ID
-            if not admin_id:
-                admin_chat = PhoneMap.objects.first()
-                admin_id = admin_chat.chat_id if admin_chat else None
-                
             if admin_id:
                 msg = f"🧑‍🍳 <b>YANGI XODIM ARIZASI!</b>\n\n👤 Ism: {career.name}\n📞 Tel: {career.phone}\n💼 Lavozim: {career.job_title}\n📄 Tajriba: {career.resume}"
                 send_tg(bot_token, admin_id, msg)

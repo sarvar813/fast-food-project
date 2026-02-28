@@ -32,7 +32,7 @@ def home():
     }
 
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
-ADMIN_CHAT_ID = os.getenv('ADMIN_CHAT_ID', '7867408736')
+ADMIN_CHAT_ID = '7867408736'
 
 # Eskiz sozlamalarini saqlash
 ESKIZ_FILE = os.path.join(os.path.dirname(__file__), "eskiz_settings.json")
@@ -671,9 +671,7 @@ async def add_reservation(data: ReservationRequest):
     # Notify Admin via Telegram
     bot_token = DEFAULT_BOT_TOKEN
     admin_chat_id = ADMIN_CHAT_ID
-    if not admin_chat_id and phone_to_chat_id:
-        admin_chat_id = list(phone_to_chat_id.values())[0]
-        
+    
     if bot_token and admin_chat_id:
         comment_text = data.comment if data.comment else "Yo'q"
         msg = f"📅 <b>YANGI STOL BAND QILISH!</b>\n\n👤 Ism: {data.name}\n📞 Tel: {data.phone}\n👥 Mehmon: {data.guests}\n🗓 Sana: {data.date}\n⏰ Vaqt: {data.time}\n💬 Izoh: {comment_text}\n\n<i>Admin panelda tasdiqlashingiz mumkin.</i>"
