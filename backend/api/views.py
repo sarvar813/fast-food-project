@@ -42,13 +42,48 @@ BOT_MENU = {
 # --- Helper Functions ---
 
 def load_eskiz_settings():
+    settings = {}
     if os.path.exists(ESKIZ_FILE):
         try:
             with open(ESKIZ_FILE, "r") as f:
-                return json.load(f)
+                settings = json.load(f)
         except Exception:
-            return {}
-    return {}
+            pass
+    
+    # Environment variables as fallback
+    if not settings.get('email'):
+        settings['email'] = os.getenv('ESKIZ_EMAIL')
+    if not settings.get('password'):
+        settings['password'] = os.getenv('ESKIZ_PASSWORD')
+        
+    return settings
+
+def send_sms(phone, message, email=None, password=None):
+    if not email or not password:
+        eskiz = load_eskiz_settings()
+        email = email or eskiz.get('email')
+        password = password or eskiz.get('password')
+        
+    if not email or not password:
+        return False
+        
+    token = get_eskiz_token(email, password)
+    if not token:
+        return False
+        
+    # Clean phone number
+    p = "".join(filter(str.isdigit, str(phone)))
+    if len(p) == 9: p = "998" + p
+    if p.startswith("8") and len(p) == 11: p = "998" + p[1:]
+    
+    try:
+        url = "https://notify.eskiz.uz/api/message/sms/send"
+        requests.post(url, 
+                     headers={"Authorization": f"Bearer {token}"}, 
+                     data={"mobile_phone": p, "message": message, "from": "4546"})
+        return True
+    except Exception:
+        return False
 
 def get_eskiz_token(email, password):
     global eskiz_token_cache
@@ -354,7 +389,8 @@ def broadcast(request):
 @api_view(['GET'])
 def check_phone(request, phone):
     p = "".join(filter(str.isdigit, phone))
-    if len(p) == 9: p = "998" + p
+    if len(p) == 9:
+        p = "998" + p
     exists = PhoneMap.objects.filter(phone=p).exists()
     return Response({"linked": exists, "phone": p})
 
@@ -363,8 +399,16 @@ def subscriptions(request):
     if request.method == 'POST':
         serializer = SubscriptionSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response({"status": "ok", "sub_id": serializer.data['id']})
+            sub = serializer.save()
+            bot_token = request.data.get('bot_token') or DEFAULT_BOT_TOKEN
+            
+            # Yangi abonement haqida Admin panelga Telegram xabar
+            admin_chat = PhoneMap.objects.first()
+            if admin_chat:
+                msg_admin = f"💎 <b>YANGI ABONEMENT SO'ROVI!</b>\n\n👤 Mijoz: {sub.phone}\n💳 Plan: {sub.plan_name}\n⏳ Muddati: {sub.duration}\n💰 Narxi: ${sub.price}\n\nLutfan, Admin Paneldan tasdiqlang."
+                send_tg(bot_token, admin_chat.chat_id, msg_admin)
+            
+            return Response({"status": "ok", "sub_id": sub.id})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     subs = Subscription.objects.all().order_by('-created_at')
@@ -385,6 +429,15 @@ def sub_action(request):
     sub.status = new_status
     sub.save()
     
+    # Mijozga SMS xabarnoma yuborish
+    if new_status == "confirmed":
+        sms_msg = "Abonementingiz muvaffaqiyatli qabul qilindi! Black Star Burger bilan bo'lganingiz uchun rahmat. 😊"
+    else:
+        sms_msg = "Abonementingiz qabul qilinmadi. Qo'shimcha ma'lumot uchun biz bilan bog'laning. Black Star Burger"
+    
+    send_sms(sub.phone, sms_msg)
+    
+    # Mijozga Telegram xabarnoma (agar boti bo'lsa)
     if new_status == "confirmed":
         p = "".join(filter(str.isdigit, sub.phone))
         if len(p) == 9:
@@ -419,15 +472,45 @@ def reviews(request):
 @api_view(['GET', 'POST'])
 def reservations(request):
     if request.method == 'POST':
+        # Check if table already booked for this time/date
+        date = request.data.get('date')
+        time = request.data.get('time')
+        if Reservation.objects.filter(date=date, time=time, status='confirmed').exists():
+            return Response({"error": "Kechirasiz, ushbu vaqtda barcha stollar band. Iltimos, boshqa vaqtni tanlang."}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = ReservationSerializer(data=request.data)
         if serializer.is_valid():
             res = serializer.save()
             bot_token = request.data.get('bot_token') or DEFAULT_BOT_TOKEN
+            
+            # Admin uchun xabar (Telegram)
             admin_chat = PhoneMap.objects.first()
             if admin_chat:
                 comment_text = res.comment if res.comment else "Yo'q"
-                msg = f"📅 <b>YANGI BAND QILISH!</b>\n\n👤 Ism: {res.name}\n📞 Tel: {res.phone}\n👥 Mehmonlar: {res.guests}\n🗓 Sana: {res.date}\n⏰ Vaqt: {res.time}\n💬 Izoh: {comment_text}"
-                send_tg(bot_token, admin_chat.chat_id, msg)
+                msg_admin = f"📅 <b>YANGI BAND QILISH!</b>\n\n👤 Ism: {res.name}\n📞 Tel: {res.phone}\n👥 Mehmonlar: {res.guests}\n🗓 Sana: {res.date}\n⏰ Vaqt: {res.time}\n💬 Izoh: {comment_text}"
+                send_tg(bot_token, admin_chat.chat_id, msg_admin)
+            
+            # Mijozga SMS yuborish (Qabul qilingani haqida)
+            # User xohishi: "Stol band qilganiz uchun raxmat... sizi shu vaqt da kutamiz"
+            # Bu xabarni buyurtma confirmed bo'lganda ham yuborsa bo'ladi, 
+            # lekin user hozir yuborilishini xohlayotgan bo'lishi mumkin.
+            
+            p = "".join(filter(str.isdigit, res.phone))
+            if len(p) == 9:
+                p = "998" + p
+            if p.startswith("8") and len(p) == 11:
+                p = "998" + p[1:]
+            
+            msg_customer = f"Stolingiz band qilingani uchun rahmat! {res.date} kuni soat {res.time} da sizni kutamiz. 😊\nBlack Star Burger"
+            
+            # SMS yuborish
+            send_sms(res.phone, msg_customer)
+            
+            # Telegram orqali ham yuboramiz (agar boti bo'lsa)
+            pmap = PhoneMap.objects.filter(phone=p).first()
+            if pmap:
+                send_tg(bot_token, pmap.chat_id, f"✅ <b>STOL BAND QILINDI!</b>\n\n🗓 Sana: {res.date}\n⏰ Vaqt: {res.time}\n\nSizni kutib qolamiz! 😊")
+
             return Response({"status": "ok", "id": res.id})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -447,18 +530,39 @@ def res_action(request):
     res.status = new_status
     res.save()
     
-    # Notify user if possible (requires PhoneMap)
+    # Notify user
     p = "".join(filter(str.isdigit, res.phone))
     if len(p) == 9:
         p = "998" + p
+    if p.startswith("8") and len(p) == 11:
+        p = "998" + p[1:]
+        
     pmap = PhoneMap.objects.filter(phone=p).first()
     
+    # SMS xabari matni
+    if new_status == "confirmed":
+        sms_msg = f"Tabriklaymiz! Stol band qilish tasdiqlandi. {res.date} kuni soat {res.time} da sizni kutamiz. 😊\nBlack Star Burger"
+        tg_msg = f"✅ <b>STOL BAND QILISH TASDIQLANDI!</b>\n\n👤 Ism: {res.name}\n🗓 Sana: {res.date}\n⏰ Vaqt: {res.time}\n👥 Mehmonlar: {res.guests}\n\nSizni kutib qolamiz! 😊"
+    elif new_status == "cancelled":
+        sms_msg = f"Uzr so'raymiz, {res.date} kuni soat {res.time} dagi band qilish bekor qilindi. Boshqa vaqtni tanlashingiz mumkin.\nBlack Star Burger"
+        tg_msg = "❌ <b>STOL BAND QILISH BEKOR QILINDI</b>\n\nUzr so'raymiz, ko'rsatilgan vaqtda joylarimiz band ekan. Boshqa vaqtni tanlab ko'rishingizni iltimos qilamiz."
+    else:
+        return Response({"status": "ok"})
+
+    # 1. Telegram orqali yuborish
     if pmap:
-        if new_status == "confirmed":
-            msg = f"✅ <b>STOL BAND QILISH TASDIQLANDI!</b>\n\n👤 Ism: {res.name}\n🗓 Sana: {res.date}\n⏰ Vaqt: {res.time}\n👥 Mehmonlar: {res.guests}\n\nSizni kutib qolamiz! 😊"
-        elif new_status == "cancelled":
-            msg = "❌ <b>STOL BAND QILISH BEKOR QILINDI</b>\n\nUzr so'raymiz, ko'rsatilgan vaqtda joylarimiz band ekan. Boshqa vaqtni tanlab ko'rishingizni iltimos qilamiz."
-        
-        send_tg(bot_token, pmap.chat_id, msg)
+        send_tg(bot_token, pmap.chat_id, tg_msg)
+    
+    # 2. SMS orqali yuborish (Xohish bo'yicha)
+    eskiz = load_eskiz_settings()
+    email = request.data.get('email') or eskiz.get('email')
+    password = request.data.get('password') or eskiz.get('password')
+    
+    if email and password:
+        token = get_eskiz_token(email, password)
+        if token:
+            requests.post("https://notify.eskiz.uz/api/message/sms/send", 
+                         headers={"Authorization": f"Bearer {token}"}, 
+                         data={"mobile_phone": p, "message": sms_msg, "from": "4546"})
             
     return Response({"status": "ok"})

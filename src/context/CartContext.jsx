@@ -14,6 +14,7 @@ export const CartProvider = ({ children }) => {
         const savedOrders = localStorage.getItem('bsb_orders');
         return savedOrders ? JSON.parse(savedOrders) : [];
     });
+    const [careerApplications, setCareerApplications] = useState([]);
     const [isStoreOpen, setIsStoreOpen] = useState(() => {
         const saved = localStorage.getItem('bsb_store_status');
         return saved !== null ? JSON.parse(saved) : true;
@@ -61,10 +62,6 @@ export const CartProvider = ({ children }) => {
         };
     });
 
-    const [careerApplications, setCareerApplications] = useState(() => {
-        const saved = localStorage.getItem('bsb_career_apps');
-        return saved ? JSON.parse(saved) : [];
-    });
 
     const [staff, setStaff] = useState(() => {
         const saved = localStorage.getItem('bsb_staff');
@@ -144,60 +141,69 @@ export const CartProvider = ({ children }) => {
         toast.error("Sovg'a olib tashlandi.");
     };
 
-    const submitCareerApplication = (appData) => {
-        const newApp = { ...appData, id: Date.now(), status: 'pending', date: new Date().toLocaleString() };
-        setCareerApplications(prev => [newApp, ...prev]);
-
-        // Send Telegram Notification
-        const { botToken, chatId } = telegramSettings;
-        if (botToken && chatId) {
-            const msg = `🧑‍🍳 <b>YANGI XODIM ARIZASI!</b>\n\n👤 Ism: ${appData.name}\n📞 Tel: ${appData.phone}\n💼 Lavozim: ${appData.jobTitle}\n📄 Tajriba: ${appData.resume}\n\n<i>Admin panelda ko'rib chiqishingiz mumkin.</i>`;
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const submitCareerApplication = async (appData) => {
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${apiUrl}/careers`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'HTML' })
+                body: JSON.stringify(appData)
             });
+            if (res.ok) {
+                fetchCareers();
+                toast.success("Arizangiz muvaffaqiyatli yuborildi!");
+            }
+        } catch (e) {
+            console.error("Career submit error:", e);
+            // Fallback for offline/local only
+            const newApp = { ...appData, id: Date.now(), status: 'pending', date: new Date().toLocaleString() };
+            setCareerApplications(prev => [newApp, ...prev]);
         }
     };
 
-    const handleCareerAction = (id, action) => {
-        const app = careerApplications.find(a => a.id === id);
+    const fetchCareers = async () => {
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${apiUrl}/careers`);
+            if (res.ok) {
+                const data = await res.json();
+                setCareerApplications(data);
+            }
+        } catch (e) {
+            console.error("Careers fetch error:", e);
+        }
+    };
 
+    const handleCareerAction = async (id, action) => {
         if (action === 'delete') {
-            setCareerApplications(prev => {
-                const updated = prev.filter(a => String(a.id) !== String(id));
-                localStorage.setItem('bsb_career_apps', JSON.stringify(updated));
-                return updated;
-            });
+            setCareerApplications(prev => prev.filter(a => String(a.id) !== String(id)));
             return;
         }
 
-        // Send Notification to Admin/User via Telegram
-        const { botToken, chatId } = telegramSettings;
-        if (botToken && chatId && app) {
-            let msg = '';
-            if (action === 'accepted') {
-                msg = `✅ <b>TABRIKLAYMIZ!</b>\n\n👤 Nomzod: ${app.name}\n📞 Tel: ${app.phone}\n💼 Lavozim: ${app.jobTitle}\n\n📢 <b>Xabar:</b> Sizning arizangiz qabul qilindi! Yaqin orada ish boshlashingiz mumkin.`;
-            } else if (action === 'rejected') {
-                msg = `❌ <b>MA'LUMOT</b>\n\n👤 Nomzod: ${app.name}\n📞 Tel: ${app.phone}\n\n📢 <b>Xabar:</b> Afsuski, hozirgi vaqtda sizning nomzodingiz bizga ma'qul kelmadi. Kelajakda omad tilaymiz!`;
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${apiUrl}/careers/action`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: parseInt(id),
+                    status: action,
+                    bot_token: telegramSettings.botToken
+                })
+            });
+            if (res.ok) {
+                fetchCareers();
             }
-
-            if (msg) {
-                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'HTML' })
-                });
-            }
+        } catch (e) {
+            console.error("Career action error:", e);
         }
-
-        // Action bajarilgach ro'yxatdan o'chirish (Toza saqlash uchun)
-        setCareerApplications(prev => {
-            const updated = prev.filter(a => String(a.id) !== String(id));
-            localStorage.setItem('bsb_career_apps', JSON.stringify(updated));
-            return updated;
-        });
     };
+
+    useEffect(() => {
+        fetchCareers();
+        const interval = setInterval(fetchCareers, 10000); // 10s
+        return () => clearInterval(interval);
+    }, []);
 
     const logAction = (admin, action, details) => {
         const newLog = {
@@ -576,10 +582,12 @@ export const CartProvider = ({ children }) => {
             userStats, deliveryFee, setDeliveryFee, surgeMultiplier, isSurgeActive,
             getRecommendedItems, finalDeliveryFee,
             auditLogs, setAuditLogs, logAction, siteSettings, setSiteSettings,
-            claimLoyaltyReward, careerApplications, submitCareerApplication, handleCareerAction,
+            claimLoyaltyReward,
             staff, addStaff, deleteStaff, updateStaff, setStaff,
-            coupons, addCoupon, deleteCoupon, setCoupons,
-            rewards, addReward, deleteReward, setRewards, playUXSound
+            coupons, addCoupon, deleteCoupon,
+            rewards, addReward, deleteReward,
+            submitCareerApplication, careerApplications, handleCareerAction, fetchCareers,
+            playUXSound
         }}>
             {children}
         </CartContext.Provider>

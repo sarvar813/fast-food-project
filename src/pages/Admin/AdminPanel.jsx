@@ -36,7 +36,7 @@ const AdminPanel = () => {
         orders, updateOrderStatus, updateOrderDetails, isStoreOpen, setIsStoreOpen,
         telegramSettings, setTelegramSettings, sendTelegramNotification, sendCustomerNotification,
         auditLogs, setAuditLogs, logAction, siteSettings, setSiteSettings,
-        careerApplications, handleCareerAction,
+        careerApplications, handleCareerAction, fetchCareers,
         staff, addStaff, deleteStaff, updateStaff,
         coupons, addCoupon, deleteCoupon,
         rewards, addReward, deleteReward, playUXSound
@@ -690,9 +690,9 @@ const AdminPanel = () => {
 
     const fetchSubscriptions = async (silent = false) => {
         if (!silent) setIsFetchingSubs(true);
-        console.log('--- FETCH START ---');
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         try {
-            const res = await fetch('http://127.0.0.1:8000/subscriptions', {
+            const res = await fetch(`${apiUrl}/subscriptions`, {
                 cache: 'no-store'
             });
             console.log('Backend response status:', res.status);
@@ -723,8 +723,9 @@ const AdminPanel = () => {
 
     const fetchReservations = async (silent = false) => {
         if (!silent) setIsFetchingReservations(true);
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         try {
-            const res = await fetch('http://127.0.0.1:8000/reservations');
+            const res = await fetch(`${apiUrl}/reservations`);
             if (res.ok) {
                 const data = await res.json();
                 setReservations(data);
@@ -756,8 +757,9 @@ const AdminPanel = () => {
     }, [isLoggedIn, activeTab]);
 
     const handleReservationAction = async (id, status) => {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         try {
-            const res = await fetch('http://127.0.0.1:8000/reservations/action', {
+            const res = await fetch(`${apiUrl}/reservations/action`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, status })
@@ -825,8 +827,9 @@ const AdminPanel = () => {
     }, [isLoggedIn, activeTab]);
 
     const handleSubAction = async (id, status) => {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         try {
-            const res = await fetch('http://127.0.0.1:8000/subscriptions/action', {
+            const res = await fetch(`${apiUrl}/subscriptions/action`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -2650,6 +2653,7 @@ const AdminPanel = () => {
                     <div className="admin-careers-manage">
                         <div className="admin-actions">
                             <h2>👨‍💼 Ishga qabul qilish (Arizalar)</h2>
+                            <button className="refresh-btn" onClick={() => fetchCareers()}>Yangilash</button>
                         </div>
                         <div className="career-apps-list">
                             {careerApplications.length > 0 ? (

@@ -12,11 +12,13 @@ const Reservation = () => {
         time: '',
         comment: ''
     });
+    const [errorMessage, setErrorMessage] = useState('');
     const [status, setStatus] = useState('idle'); // idle, loading, success, error
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setStatus('loading');
+        setErrorMessage('');
 
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
@@ -33,10 +35,13 @@ const Reservation = () => {
                 setFormData({ name: '', phone: '+998', guests: 2, date: '', time: '', comment: '' });
                 setTimeout(() => setStatus('idle'), 5000);
             } else {
+                const errorData = await response.json();
+                setErrorMessage(errorData.error || errorData.detail || 'Xatolik yuz berdi. Qayta urinib ko\'ring.');
                 setStatus('error');
             }
         } catch (error) {
             console.error('Reservation error:', error);
+            setErrorMessage('Server bilan bog\'lanishda xatolik yuz berdi.');
             setStatus('error');
         }
     };
@@ -151,7 +156,7 @@ const Reservation = () => {
                             <button type="submit" className="reservation-btn" disabled={status === 'loading'}>
                                 {status === 'loading' ? 'YUBORILMOQDA...' : 'BAND QILISHNI TASDIQLASH'}
                             </button>
-                            {status === 'error' && <p className="res-error-text">Xatolik yuz berdi. Qayta urinib ko'ring.</p>}
+                            {status === 'error' && <p className="res-error-text">{errorMessage}</p>}
                         </form>
                     )}
                 </motion.div>

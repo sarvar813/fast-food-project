@@ -40,14 +40,25 @@ def save_eskiz_settings(email, password):
         json.dump({"email": email, "password": password}, f)
 
 def load_eskiz_settings():
+    settings = {}
     if os.path.exists(ESKIZ_FILE):
         try:
             with open(ESKIZ_FILE, "r") as f:
-                return json.load(f)
-        except Exception as e:
-            print(f"Error loading eskiz settings: {e}")
-            return {}
-    return {}
+                settings = json.load(f)
+        except Exception:
+            pass
+            
+    # Fallback to env
+    if not settings.get("email"):
+        settings["email"] = os.getenv("ESKIZ_EMAIL")
+    if not settings.get("password"):
+        settings["password"] = os.getenv("ESKIZ_PASSWORD")
+    return settings
+
+def send_sms(phone, message, email=None, password=None):
+    # Eskiz.uz deactivated as requested
+    print(f"[SMS_LOG] To: {phone} | Msg: {message}")
+    return True
 
 # Curated Bot Menu
 BOT_MENU = {
@@ -132,6 +143,15 @@ def save_subs(subs):
     global subscriptions_memory
     subscriptions_memory = subs
 
+# Career Storage
+careers_memory = []
+
+# Reservation Storage
+reservations_memory = []
+
+# Review Storage
+reviews_memory = []
+
 class SubRequest(BaseModel):
     phone: str
     plan_name: str
@@ -143,6 +163,37 @@ class SubAction(BaseModel):
     id: int
     status: str # 'confirmed' or 'rejected'
     bot_token: str
+
+class CareerRequest(BaseModel):
+    name: str
+    phone: str
+    jobTitle: str
+    resume: str
+
+class CareerAction(BaseModel):
+    id: int
+    status: str # 'accepted' or 'rejected'
+    bot_token: str
+
+class ReservationRequest(BaseModel):
+    name: str
+    phone: str
+    guests: int
+    date: str
+    time: str
+    comment: str = None
+
+class ReservationAction(BaseModel):
+    id: int
+    status: str # 'confirmed' or 'cancelled'
+    bot_token: str = None
+
+class ReviewRequest(BaseModel):
+    name: str
+    phone: str
+    rating: int
+    comment: str
+    image: str = None
 
 def send_tg(bot_token, chat_id, text, reply_markup=None):
     if not bot_token or not chat_id:
@@ -502,6 +553,18 @@ async def add_subscription(data: SubRequest):
     }
     subscriptions_memory.append(new_sub)
     print(f"[SUBSCRIPTION] Xotiraga saqlandi. Jami: {len(subscriptions_memory)}")
+    
+    # Notify Admin via Telegram
+    bot_token = DEFAULT_BOT_TOKEN
+    # Find any mapped chat_id to notify admin (or use env)
+    admin_chat_id = os.getenv("ADMIN_CHAT_ID")
+    if not admin_chat_id and phone_to_chat_id:
+        admin_chat_id = list(phone_to_chat_id.values())[0] if phone_to_chat_id else None
+        
+    if bot_token and admin_chat_id:
+        msg = f"💎 <b>YANGI ABONEMENT SO'ROVI!</b>\n\n👤 Mijoz: {data.phone}\n💳 Plan: {data.plan_name}\n⏳ Muddati: {data.duration}\n💰 Narxi: ${data.price}\n\nLutfan, Admin Paneldan tasdiqlang."
+        send_tg(bot_token, admin_chat_id, msg)
+        
     return {"status": "ok", "sub_id": new_sub["id"]}
 
 @app.get("/subscriptions")
@@ -517,20 +580,181 @@ async def sub_action(data: SubAction):
     for s in subs:
         if s["id"] == data.id:
             s["status"] = data.status
+            # SMS xabarnoma mijozga
+            if data.status == 'confirmed':
+                msg = "✅ Abonementingiz muvaffaqiyatli qabul qilindi! Black Star Burger bilan bo'lganingiz uchun rahmat. 😊"
+            else:
+                msg = "❌ Abonementingiz qabul qilinmadi. Qo'shimcha ma'lumot uchun biz bilan bog'laning. Black Star Burger"
+            
+            # Try Telegram first
+            p_norm = "".join(filter(str.isdigit, s["phone"]))
+            if len(p_norm) == 9: p_norm = "998" + p_norm
+            if p_norm in phone_to_chat_id:
+                send_tg(data.bot_token, phone_to_chat_id[p_norm], msg)
+            
+            send_sms(s["phone"], msg)
             found = True
-            # If confirmed, notify user via TG
-            if data.status == "confirmed":
-                p = "".join(filter(str.isdigit, s["phone"]))
-                p = "998" + p if len(p) == 9 else p
-                if p in phone_to_chat_id:
-                    msg = f"✅ <b>TABRIKLAYMIZ!</b>\n\nSizning <b>{s['plan_name']}</b> ({s['duration']}) abonementingiz tasdiqlandi!\n🎁 Sovg'angiz: <b>{s['gift']}</b>\n\nEнди har bir buyurtmada imtiyozlaringizdan foydalanishingiz mumkin."
-                    send_tg(data.bot_token, phone_to_chat_id[p], msg)
             break
-    
     if found:
-        save_subs(subs)
         return {"status": "ok"}
     raise HTTPException(status_code=404, detail="Subscription not found")
+
+@app.post("/careers")
+@app.post("/careers/")
+async def add_career(data: CareerRequest):
+    new_app = {
+        "id": int(time.time() * 1000),
+        "name": data.name,
+        "phone": data.phone,
+        "jobTitle": data.jobTitle,
+        "resume": data.resume,
+        "status": "pending",
+        "date": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    careers_memory.append(new_app)
+    
+    # Notify Admin via Telegram
+    bot_token = DEFAULT_BOT_TOKEN
+    admin_chat_id = os.getenv("ADMIN_CHAT_ID")
+    if not admin_chat_id and phone_to_chat_id:
+        admin_chat_id = list(phone_to_chat_id.values())[0]
+        
+    if bot_token and admin_chat_id:
+        msg = f"🧑‍🍳 <b>YANGI XODIM ARIZASI!</b>\n\n👤 Ism: {data.name}\n📞 Tel: {data.phone}\n💼 Lavozim: {data.jobTitle}\n📄 Tajriba: {data.resume}\n\n<i>Admin panelda ko'rib chiqishingiz mumkin.</i>"
+        send_tg(bot_token, admin_chat_id, msg)
+        
+    return {"status": "ok", "app_id": new_app["id"]}
+
+@app.get("/careers")
+@app.get("/careers/")
+async def get_careers():
+    return careers_memory
+
+@app.post("/careers/action")
+async def career_action(data: CareerAction):
+    found = False
+    for app in careers_memory:
+        if app["id"] == data.id:
+            app["status"] = data.status
+            # SMS xabarnoma mijozga (ixtiyoriy)
+            msg = ""
+            if data.status == 'accepted':
+                msg = f"Assalomu alaykum {app['name']}, xush kelibsiz! Arizangiz ma'qullandi, biz sizni jamoamizda kutamiz. 🍔"
+            else:
+                msg = "Arizangiz ko'rib chiqildi, afsuski bu safar rad etildi. Keyingi safar omad tilaymiz! Black Star Burger."
+            
+            send_sms(app["phone"], msg)
+            found = True
+            break
+            
+    if found:
+        return {"status": "ok"}
+    raise HTTPException(status_code=404, detail="Application not found")
+
+@app.post("/reservations")
+@app.post("/reservations/")
+async def add_reservation(data: ReservationRequest):
+    new_res = {
+        "id": int(time.time() * 1000),
+        "name": data.name,
+        "phone": data.phone,
+        "guests": data.guests,
+        "date": data.date,
+        "time": data.time,
+        "comment": data.comment or "",
+        "status": "pending",
+        "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    reservations_memory.append(new_res)
+    
+    # Notify Admin via Telegram
+    bot_token = DEFAULT_BOT_TOKEN
+    admin_chat_id = os.getenv("ADMIN_CHAT_ID")
+    if not admin_chat_id and phone_to_chat_id:
+        admin_chat_id = list(phone_to_chat_id.values())[0]
+        
+    if bot_token and admin_chat_id:
+        msg = f"📅 <b>YANGI STOL BAND QILISH!</b>\n\n👤 Ism: {data.name}\n📞 Tel: {data.phone}\n👥 Mehmon: {data.guests}\n🗓 Sana: {data.date}\n⏰ Vaqt: {data.time}\n💬 Izoh: {data.comment or 'Yo\'q'}\n\n<i>Admin panelda tasdiqlashingiz mumkin.</i>"
+        send_tg(bot_token, admin_chat_id, msg)
+        
+    # Notify Customer via Telegram (if linked)
+    p_norm = "".join(filter(str.isdigit, data.phone))
+    if len(p_norm) == 9: p_norm = "998" + p_norm
+    if p_norm in phone_to_chat_id:
+        chat_id = phone_to_chat_id[p_norm]
+        msg_customer = f"✅ <b>STOL BAND QILINDI!</b>\n\n🗓 Sana: <b>{data.date}</b>\n⏰ Vaqt: <b>{data.time}</b>\n\nStolingiz band qilganiz uchun rahmat! Shu vaqtda sizi kutib qolamiz. 😊"
+        send_tg(bot_token, chat_id, msg_customer)
+    
+    # SMS Log only (Eskiz disabled)
+    msg_sms = f"Stolingiz band qilganiz uchun rahmat! {data.date} soat {data.time} da sizi shu vaqt da kutamiz. 😊"
+    send_sms(data.phone, msg_sms)
+    
+    return {"status": "ok", "id": new_res["id"]}
+
+@app.get("/reservations")
+@app.get("/reservations/")
+async def get_reservations():
+    return reservations_memory
+
+@app.post("/reservations/action")
+async def reservation_action(data: ReservationAction):
+    found = False
+    for res in reservations_memory:
+        if res["id"] == data.id:
+            res["status"] = data.status
+            
+            # Notify Customer via Telegram (if linked)
+            p_norm = "".join(filter(str.isdigit, res["phone"]))
+            if len(p_norm) == 9: p_norm = "998" + p_norm
+            
+            msg = ""
+            if data.status == 'confirmed':
+                msg = f"✅ <b>STOL BAND QILISH TASDIQLANDI!</b>\n\n🗓 Sana: <b>{res['date']}</b>\n⏰ Vaqt: <b>{res['time']}</b>\n\nSizni kutamiz! 🍔"
+            else:
+                msg = f"❌ <b>STOL BAND QILISH RAD ETILDI</b>\n\nAfsuski, {res['date']} soat {res['time']} dagi band qilish bekor qilindi. Black Star Burger."
+            
+            if p_norm in phone_to_chat_id:
+                send_tg(DEFAULT_BOT_TOKEN, phone_to_chat_id[p_norm], msg)
+            
+            send_sms(res["phone"], msg)
+            found = True
+            break
+            
+    if found:
+        return {"status": "ok"}
+    raise HTTPException(status_code=404, detail="Reservation not found")
+
+@app.post("/reviews")
+@app.post("/reviews/")
+async def add_review(data: ReviewRequest):
+    new_review = {
+        "id": int(time.time() * 1000),
+        "name": data.name,
+        "phone": data.phone,
+        "rating": data.rating,
+        "comment": data.comment,
+        "image": data.image,
+        "status": "approved", # Auto-approve for now
+        "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    reviews_memory.append(new_review)
+    
+    # Notify Admin via Telegram
+    bot_token = DEFAULT_BOT_TOKEN
+    admin_chat_id = os.getenv("ADMIN_CHAT_ID")
+    if not admin_chat_id and phone_to_chat_id:
+        admin_chat_id = list(phone_to_chat_id.values())[0]
+        
+    if bot_token and admin_chat_id:
+        msg = f"🌟 <b>YANGI SHARH!</b>\n\n👤 Ism: {data.name}\n📞 Tel: {data.phone}\n⭐ Reyting: {data.rating}/5\n💬 Sharh: {data.comment}"
+        send_tg(bot_token, admin_chat_id, msg)
+        
+    return {"status": "ok", "id": new_review["id"]}
+
+@app.get("/reviews")
+@app.get("/reviews/")
+async def get_reviews():
+    return reviews_memory
 
 def start_bot():
     if DEFAULT_BOT_TOKEN:
@@ -545,8 +769,8 @@ def keep_alive():
             # Lekin eng yaxshisi tashqi pinger (cron-job.org) ishlatish
             requests.get("http://127.0.0.1:8000/", timeout=10)
             print("[KEEP-ALIVE] Ping yuborildi.")
-        except:
-            pass
+        except Exception as e:
+            print(f"Keep-Alive Error: {e}")
         time.sleep(600) # Har 10 daqiqada
 
 @app.on_event("startup")

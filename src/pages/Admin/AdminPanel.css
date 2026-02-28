@@ -7368,3 +7368,54 @@ input:checked+.slider:before {
         justify-content: space-between;
     }
 }
+
+/* ----- Subscriptions Management ----- */
+.admin-subscriptions-manage {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-badge.pending {
+    background: #fff7ed;
+    color: #f97316;
+}
+
+.status-badge.confirmed {
+    background: #f0fdf4;
+    color: #22c55e;
+}
+
+.status-badge.rejected {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.confirm-btn-small {
+    background: #22c55e !important;
+    color: #fff !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    margin-right: 5px;
+    font-weight: 700 !important;
+}
+
+.reject-btn-small {
+    background: #ef4444 !important;
+    color: #fff !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+}
+
+.confirm-btn-small:hover,
+.reject-btn-small:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
