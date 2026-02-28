@@ -3210,6 +3210,30 @@ const AdminPanel = () => {
                             <span>{isDataMasked ? 'DATA MASKED' : 'DATA UNMASKED'}</span>
                         </button>
 
+                        <div
+                            className={`store-header-status-pill ${isStoreOpen ? 'open' : 'closed'}`}
+                            onClick={() => {
+                                const newStatus = !isStoreOpen;
+                                setIsStoreOpen(newStatus);
+                                addToast(
+                                    newStatus ? 'STORE_OPEN' : 'STORE_CLOSED',
+                                    newStatus ? 'Do\'kon ochildi! ✅' : 'Do\'kon yopildi! 🛑',
+                                    <FaDoorOpen />
+                                );
+                                logAction('Admin', 'Store', `Store status set to ${newStatus ? 'OPEN' : 'CLOSED'}`);
+                                playUXSound('pop');
+                            }}
+                            title={isStoreOpen ? "Do'konni yopish" : "Do'konni ochish"}
+                        >
+                            <div className="status-icon-glow">
+                                <FaDoorOpen />
+                            </div>
+                            <div className="status-info">
+                                <span className="label">{t('admin.dashboard.store_status')}</span>
+                                <span className="value">{isStoreOpen ? t('admin.dashboard.store_open') : t('admin.dashboard.store_closed')}</span>
+                            </div>
+                        </div>
+
                         {activeTab === 'menu' && (
                             <div className="search-bar">
                                 <FaSearch />

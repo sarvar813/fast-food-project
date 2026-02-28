@@ -182,7 +182,18 @@ i18n
                     },
                     "admin": {
                         "access_denied": "Kirishga ruxsat yo'q",
-                        "dashboard": { "daily_goal": "KUNLIK SAVDO MAQSADI" },
+                        "dashboard": {
+                            "daily_goal": "KUNLIK SAVDO MAQSADI",
+                            "store_status": "Do'kon holati",
+                            "store_open": "Ochiq",
+                            "store_closed": "Yopiq",
+                            "store_open_desc": "Hozirda do'kon ochiq va buyurtmalar qabul qilinmoqda.",
+                            "store_closed_desc": "Hozirda do'kon yopiq va buyurtmalar qabul qilinmaydi.",
+                            "quick_actions": "Tezkor amallar",
+                            "new_product": "Yangi mahsulot",
+                            "sort_orders": "Buyurtmalar",
+                            "print_report": "Chop etish"
+                        },
                         "menu": { "title": "Menyuni boshqarish" }
                     },
                     "footer": {
@@ -251,6 +262,13 @@ i18n
                         "placeholder": "Напишите сообщение...",
                         "auto_reply": "Ваше сообщение отправлено админу. Скоро ответим! 😊"
                     },
+                    "admin": {
+                        "dashboard": {
+                            "store_status": "Статус магазина",
+                            "store_open": "Открыто",
+                            "store_closed": "Закрыто"
+                        }
+                    },
                     "courier": {
                         "title": "Панель Курьера",
                         "my_orders": "Мои заказы",
@@ -313,6 +331,13 @@ i18n
                         "trigger": "Contact Admin",
                         "placeholder": "Type a message...",
                         "auto_reply": "Message sent to admin. We'll reply soon! 😊"
+                    },
+                    "admin": {
+                        "dashboard": {
+                            "store_status": "Store Status",
+                            "store_open": "Open",
+                            "store_closed": "Closed"
+                        }
                     },
                     "courier": {
                         "title": "Courier Panel",
