@@ -690,7 +690,7 @@ const AdminPanel = () => {
 
     const fetchSubscriptions = async (silent = false) => {
         if (!silent) setIsFetchingSubs(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
         try {
             const res = await fetch(`${apiUrl}/subscriptions`, {
                 cache: 'no-store'
@@ -723,7 +723,7 @@ const AdminPanel = () => {
 
     const fetchReservations = async (silent = false) => {
         if (!silent) setIsFetchingReservations(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
         try {
             const res = await fetch(`${apiUrl}/reservations`);
             if (res.ok) {
@@ -740,7 +740,7 @@ const AdminPanel = () => {
     const fetchReviews = async () => {
         playUXSound('pop');
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
             const res = await fetch(`${apiUrl}/reviews`);
             if (res.ok) {
                 const data = await res.json();
@@ -757,7 +757,7 @@ const AdminPanel = () => {
     }, [isLoggedIn, activeTab]);
 
     const handleReservationAction = async (id, status) => {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
         try {
             const res = await fetch(`${apiUrl}/reservations/action`, {
                 method: 'POST',
@@ -827,7 +827,7 @@ const AdminPanel = () => {
     }, [isLoggedIn, activeTab]);
 
     const handleSubAction = async (id, status) => {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
         try {
             const res = await fetch(`${apiUrl}/subscriptions/action`, {
                 method: 'POST',
@@ -1528,7 +1528,7 @@ const AdminPanel = () => {
                                             if (!window.confirm(confirmText)) return;
                                             setIsBroadcasting(true);
                                             try {
-                                                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+                                                const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
                                                 const res = await fetch(`${apiUrl}/broadcast`, {
                                                     method: 'POST',
                                                     headers: { 'Content-Type': 'application/json' },

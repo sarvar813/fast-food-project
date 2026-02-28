@@ -143,7 +143,7 @@ export const CartProvider = ({ children }) => {
 
     const submitCareerApplication = async (appData) => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
             const res = await fetch(`${apiUrl}/careers`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -163,7 +163,7 @@ export const CartProvider = ({ children }) => {
 
     const fetchCareers = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
             const res = await fetch(`${apiUrl}/careers`);
             if (res.ok) {
                 const data = await res.json();
@@ -181,7 +181,7 @@ export const CartProvider = ({ children }) => {
         }
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
             const res = await fetch(`${apiUrl}/careers/action`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -349,7 +349,7 @@ export const CartProvider = ({ children }) => {
         };
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
             const response = await fetch(`${apiUrl}/send-verification`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -381,7 +381,7 @@ export const CartProvider = ({ children }) => {
         const { botToken } = telegramSettings;
         const eskizSettings = JSON.parse(localStorage.getItem('bsb_eskiz_settings') || '{}');
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
             await fetch(`${apiUrl}/send-message`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
