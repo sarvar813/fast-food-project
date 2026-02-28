@@ -370,7 +370,7 @@ const AdminPanel = () => {
             const start = performance.now();
             setBackendStatus('checking');
             try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+                const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
                 await fetch(`${apiUrl}/`, { method: 'GET' });
                 const duration = Math.round(performance.now() - start);
                 setLatency(duration);
