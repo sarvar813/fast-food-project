@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { FaChevronLeft, FaChevronRight, FaTimes, FaShoppingCart } from 'react-icons/fa';
@@ -15,7 +15,7 @@ const Hero = () => {
     const { addToCart, setIsCartOpen, isStoreOpen } = useCart();
     const { products } = useProducts();
 
-    const slides = React.useMemo(() => [
+    const slides = useMemo(() => [
         {
             productId: 1,
             image: 'https://images.unsplash.com/photo-1610440042657-612c34d95e9f?q=80&w=1000&auto=format&fit=crop',

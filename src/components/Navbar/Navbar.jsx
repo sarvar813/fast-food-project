@@ -194,7 +194,7 @@ const Navbar = () => {
                             <li><Link to="/blog" className={location.pathname === '/blog' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.blog')}</Link></li>
                             <li><Link to="/about" className={location.pathname === '/about' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.about')}</Link></li>
                             <li><Link to="/gallery" className={location.pathname === '/gallery' ? 'active' : ''} onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.gallery')}</Link></li>
-                            <li><Link to="/build-burger" className={location.pathname === '/build-burger' ? 'active' : ''} style={{ fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>🍔 {t('navbar.constructor')}</Link></li>
+                            <li><Link to="/build-burger" className={location.pathname === '/build-burger' ? 'active' : ''} style={{ fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>constructor 🍔 {t('navbar.constructor')}</Link></li>
                         </ul>
                     </div>
 
