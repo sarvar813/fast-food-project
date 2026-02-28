@@ -502,7 +502,7 @@ def reservations(request):
             if p.startswith("8") and len(p) == 11:
                 p = "998" + p[1:]
             
-            msg_customer = f"Stolingiz band qilingani uchun rahmat! {res.date} kuni soat {res.time} da sizni kutamiz. 😊\nBlack Star Burger"
+            msg_customer = f"Joyingiz band qilindi! {res.date} kuni soat {res.time} da sizni kutib qolamiz. 😊\nBlack Star Burger"
             
             # SMS yuborish
             send_sms(res.phone, msg_customer)
@@ -510,7 +510,7 @@ def reservations(request):
             # Telegram orqali ham yuboramiz (agar boti bo'lsa)
             pmap = PhoneMap.objects.filter(phone=p).first()
             if pmap:
-                send_tg(bot_token, pmap.chat_id, f"✅ <b>STOL BAND QILINDI!</b>\n\n🗓 Sana: {res.date}\n⏰ Vaqt: {res.time}\n\nSizni kutib qolamiz! 😊")
+                send_tg(bot_token, pmap.chat_id, f"✅ <b>JOYINGIZ BAND QILINDI!</b>\n\n🗓 Sana: <b>{res.date}</b>\n⏰ Vaqt: <b>{res.time}</b>\n\nSizni intizorlik bilan kutib qolamiz! 😊")
 
             return Response({"status": "ok", "id": res.id})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -683,11 +683,11 @@ async def add_reservation(data: ReservationRequest):
     if len(p_norm) == 9: p_norm = "998" + p_norm
     if p_norm in phone_to_chat_id:
         chat_id = phone_to_chat_id[p_norm]
-        msg_customer = f"✅ <b>STOL BAND QILINDI!</b>\n\n🗓 Sana: <b>{data.date}</b>\n⏰ Vaqt: <b>{data.time}</b>\n\nStolingiz band qilganiz uchun rahmat! Shu vaqtda sizi kutib qolamiz. 😊"
+        msg_customer = f"✅ <b>JOYINGIZ BAND QILINDI!</b>\n\n🗓 Sana: <b>{data.date}</b>\n⏰ Vaqt: <b>{data.time}</b>\n\nJoyingiz band qilingani uchun rahmat! Shu vaqtda sizni intizorlik bilan kutib qolamiz. 😊"
         send_tg(bot_token, chat_id, msg_customer)
     
     # SMS Log only (Eskiz disabled)
-    msg_sms = f"Stolingiz band qilganiz uchun rahmat! {data.date} soat {data.time} da sizi shu vaqt da kutamiz. 😊"
+    msg_sms = f"Joyingiz band qilindi! {data.date} soat {data.time} da sizni kutib qolamiz. 😊"
     send_sms(data.phone, msg_sms)
     
     return {"status": "ok", "id": new_res["id"]}

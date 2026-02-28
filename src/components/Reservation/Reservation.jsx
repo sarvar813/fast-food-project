@@ -21,7 +21,7 @@ const Reservation = () => {
         setErrorMessage('');
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
             const response = await fetch(`${apiUrl}/reservations/`, {
                 method: 'POST',
                 headers: {
