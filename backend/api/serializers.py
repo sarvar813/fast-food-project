@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import PhoneMap, Subscription, Review, Reservation
+from .models import PhoneMap, Subscription, Review, Reservation, Career
 
 class PhoneMapSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,4 +19,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 class ReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reservation
+        fields = '__all__'
+
+class CareerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Career
         fields = '__all__'

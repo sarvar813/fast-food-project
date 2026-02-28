@@ -8,8 +8,8 @@ import os
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import PhoneMap, Subscription, Review, Reservation
-from .serializers import SubscriptionSerializer, ReviewSerializer, ReservationSerializer
+from .models import PhoneMap, Subscription, Review, Reservation, Career
+from .serializers import SubscriptionSerializer, ReviewSerializer, ReservationSerializer, CareerSerializer
 
 # --- Configuration & Global State ---
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
@@ -73,8 +73,10 @@ def send_sms(phone, message, email=None, password=None):
         
     # Clean phone number
     p = "".join(filter(str.isdigit, str(phone)))
-    if len(p) == 9: p = "998" + p
-    if p.startswith("8") and len(p) == 11: p = "998" + p[1:]
+    if len(p) == 9:
+        p = "998" + p
+    if p.startswith("8") and len(p) == 11:
+        p = "998" + p[1:]
     
     try:
         url = "https://notify.eskiz.uz/api/message/sms/send"
@@ -565,4 +567,53 @@ def res_action(request):
                          headers={"Authorization": f"Bearer {token}"}, 
                          data={"mobile_phone": p, "message": sms_msg, "from": "4546"})
             
+    return Response({"status": "ok"})
+
+@api_view(['GET', 'POST'])
+def careers(request):
+    if request.method == 'POST':
+        serializer = CareerSerializer(data=request.data)
+        if serializer.is_valid():
+            career = serializer.save()
+            bot_token = request.data.get('bot_token') or DEFAULT_BOT_TOKEN
+            # Notify Admin
+            admin_chat = PhoneMap.objects.first()
+            if admin_chat:
+                msg = f"🧑‍🍳 <b>YANGI XODIM ARIZASI!</b>\n\n👤 Ism: {career.name}\n📞 Tel: {career.phone}\n💼 Lavozim: {career.job_title}\n📄 Tajriba: {career.resume}"
+                send_tg(bot_token, admin_chat.chat_id, msg)
+            return Response({"status": "ok", "id": career.id})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    apps = Career.objects.all().order_by('-created_at')
+    serializer = CareerSerializer(apps, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def career_action(request):
+    data = request.data
+    app_id = data.get('id')
+    new_status = data.get('status')
+    bot_token = data.get('bot_token') or DEFAULT_BOT_TOKEN
+    
+    career = Career.objects.filter(id=app_id).first()
+    if not career:
+        return Response({"error": "Not found"}, status=404)
+        
+    career.status = new_status
+    career.save()
+    
+    p = "".join(filter(str.isdigit, career.phone))
+    if len(p) == 9: p = "998" + p
+    pmap = PhoneMap.objects.filter(phone=p).first()
+    
+    if new_status == "accepted":
+        msg = f"✅ <b>TABRIKLAYMIZ!</b>\n\nAssalomu alaykum {career.name}, sizning arizangiz ma'qullandi! Biz sizni jamoamizda kutamiz. 🍔"
+    else:
+        msg = "❌ <b>ARIZA RAD ETILDI</b>\n\nSizning arizangiz ko'rib chiqildi va hozircha rad etildi. Keyingi safar omad tilaymiz!"
+        
+    if pmap:
+        send_tg(bot_token, pmap.chat_id, msg)
+        
+    send_sms(career.phone, msg.replace('<b>','').replace('</b>',''))
+    
     return Response({"status": "ok"})
