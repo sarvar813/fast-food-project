@@ -15,7 +15,7 @@ const Hero = () => {
     const { addToCart, setIsCartOpen, isStoreOpen } = useCart();
     const { products } = useProducts();
 
-    const slides = useMemo(() => [
+    const slides = [
         {
             productId: 1,
             image: 'https://images.unsplash.com/photo-1610440042657-612c34d95e9f?q=80&w=1000&auto=format&fit=crop',
@@ -74,7 +74,7 @@ const Hero = () => {
                 t('hero.slides.slide4.ing4')
             ]
         }
-    ], [t]);
+    ];
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -91,10 +91,22 @@ const Hero = () => {
     const handleOrderClick = () => {
         if (!isStoreOpen) return;
         const slide = slides[currentSlide];
+        if (!slide) return;
+
+        // Ensure products exists and is an array
+        if (!products || !Array.isArray(products)) {
+            navigate('/menu');
+            return;
+        }
+
         const product = products.find(p => p.id === slide.productId);
         if (product) {
-            addToCart(product);
-            setIsCartOpen(true);
+            if (typeof addToCart === 'function') {
+                addToCart(product);
+            }
+            if (typeof setIsCartOpen === 'function') {
+                setIsCartOpen(true);
+            }
         } else {
             navigate('/menu');
         }

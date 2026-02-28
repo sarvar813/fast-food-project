@@ -434,9 +434,11 @@ export const CartProvider = ({ children }) => {
         setOrders(prev => prev.map(o => o.orderId === orderId ? { ...o, ...updatedData } : o));
     };
 
+    const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
     return (
         <CartContext.Provider value={{
-            cartItems, addToCart, removeFromCart, updateQuantity,
+            cartItems, cartCount, addToCart, removeFromCart, updateQuantity,
             isCartOpen, setIsCartOpen, getCartTotal, placeOrder,
             orders, updateOrderStatus, updateOrderDetails,
             isStoreOpen, setIsStoreOpen, bonuses, setBonuses,
