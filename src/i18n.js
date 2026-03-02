@@ -287,6 +287,31 @@ i18n
                         "no_available_orders": "Hozircha yangi buyurtmalar mavjud emas.",
                         "delivered_success": "Buyurtma muvaffaqiyatli yetkazildi! ✅",
                         "delivered_btn": "YETKAZDIM"
+                    },
+                    "profile": {
+                        "welcome": "Xush kelibsiz!",
+                        "bonus_balance": "Bonus balansi",
+                        "save_btn": "SAQLASH",
+                        "save_success": "Raqamingiz muvaffaqiyatli saqlandi! ✅",
+                        "status": "STATUS",
+                        "level_progress": "Daraja ko'rsatkichi",
+                        "next_level_hint": "Yana {{count}} ta buyurtma keyingi daraja uchun",
+                        "tg_linked": "Telegram Ulangan",
+                        "tg_bot": "Telegram Bot",
+                        "tg_success": "Sizning hisobingiz Telegram botimiz bilan muvaffaqiyatli bog'langan! ✅",
+                        "tg_hint": "Buyurtma holatini kuzatish uchun botimizni ulashni unutmang!",
+                        "linked": "ULANGAN",
+                        "order_history": "Buyurtmalar tarixi",
+                        "reorder_btn": "Qayta buyurtma"
+                    },
+                    "order_status": {
+                        "total": "Jami",
+                        "steps": {
+                            "accepted": "Tushdi",
+                            "preparing": "Pishmoqda",
+                            "shipping": "Yo'lda",
+                            "delivered": "Bajarildi"
+                        }
                     }
                 }
             },
@@ -468,6 +493,31 @@ i18n
                         "no_available_orders": "Новых заказов пока нет.",
                         "delivered_success": "Заказ успешно доставлен! ✅",
                         "delivered_btn": "ДОСТАВЛЕНО"
+                    },
+                    "profile": {
+                        "welcome": "Добро пожаловать!",
+                        "bonus_balance": "Бонусный баланс",
+                        "save_btn": "СОХРАНИТЬ",
+                        "save_success": "Номер успешно сохранен! ✅",
+                        "status": "СТАТУС",
+                        "level_progress": "Прогресс уровня",
+                        "next_level_hint": "Еще {{count}} заказов до следующего уровня",
+                        "tg_linked": "Telegram подключен",
+                        "tg_bot": "Telegram Бот",
+                        "tg_success": "Ваш аккаунт успешно связан с нашим Telegram ботом! ✅",
+                        "tg_hint": "Не забудьте подключить бота, чтобы следить за заказом!",
+                        "linked": "ПОДКЛЮЧЕНО",
+                        "order_history": "История заказов",
+                        "reorder_btn": "Повторить заказ"
+                    },
+                    "order_status": {
+                        "total": "Итого",
+                        "steps": {
+                            "accepted": "Принят",
+                            "preparing": "Готовится",
+                            "shipping": "В пути",
+                            "delivered": "Доставлен"
+                        }
                     }
                 }
             },
@@ -639,6 +689,31 @@ i18n
                             "delivery": "Delivery",
                             "free": "Free",
                             "total": "Total"
+                        }
+                    },
+                    "profile": {
+                        "welcome": "Welcome!",
+                        "bonus_balance": "Bonus balance",
+                        "save_btn": "SAVE",
+                        "save_success": "Number saved successfully! ✅",
+                        "status": "STATUS",
+                        "level_progress": "Level progress",
+                        "next_level_hint": "{{count}} more orders for next level",
+                        "tg_linked": "Telegram Linked",
+                        "tg_bot": "Telegram Bot",
+                        "tg_success": "Your account has been successfully linked with our Telegram bot! ✅",
+                        "tg_hint": "Don't forget to link the bot to track your order status!",
+                        "linked": "LINKED",
+                        "order_history": "Order history",
+                        "reorder_btn": "Reorder"
+                    },
+                    "order_status": {
+                        "total": "Total",
+                        "steps": {
+                            "accepted": "Accepted",
+                            "preparing": "Preparing",
+                            "shipping": "Shipping",
+                            "delivered": "Delivered"
                         }
                     }
                 }
