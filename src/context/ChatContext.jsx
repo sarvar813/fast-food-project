@@ -1,55 +1,59 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
-    const [chats, setChats] = useState(() => {
-        const saved = localStorage.getItem('bsb_chats');
-        return saved ? JSON.parse(saved) : {};
-    });
+    const [chats, setChats] = useState({});
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+
+    const fetchChats = useCallback(async () => {
+        try {
+            const res = await fetch(`${apiUrl}/get-chats`);
+            const data = await res.json();
+            setChats(data);
+        } catch (e) {
+            console.error("Error fetching chats:", e);
+        }
+    }, [apiUrl]);
 
     useEffect(() => {
-        localStorage.setItem('bsb_chats', JSON.stringify(chats));
-    }, [chats]);
+        fetchChats();
+        const interval = setInterval(fetchChats, 5000); // Poll every 5 seconds
+        return () => clearInterval(interval);
+    }, [fetchChats]);
 
-    const sendMessage = (userId, message, sender = 'user') => {
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const newMessage = {
-            id: Date.now(),
-            text: message,
-            sender,
-            time
-        };
+    const sendMessage = async (userId, message, sender = 'user', userName = null) => {
+        try {
+            const res = await fetch(`${apiUrl}/send-chat-message`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, message, sender, userName: userName || userId })
+            });
+            const data = await res.json();
 
-        setChats(prev => {
-            const userChat = prev[userId] || { messages: [], lastMessage: '', unread: 0, userName: userId };
-            return {
-                ...prev,
-                [userId]: {
-                    ...userChat,
-                    messages: [...userChat.messages, newMessage],
-                    lastMessage: message,
-                    unread: sender === 'user' ? userChat.unread + 1 : userChat.unread,
-                    userName: userId // In a real app, this would be the customer name
-                }
-            };
-        });
+            // Re-fetch to sync
+            fetchChats();
+            return data.message;
+        } catch (e) {
+            console.error("Error sending message:", e);
+        }
     };
 
-    const markAsRead = (userId) => {
-        setChats(prev => {
-            if (!prev[userId]) return prev;
-            return {
-                ...prev,
-                [userId]: {
-                    ...prev[userId],
-                    unread: 0
-                }
-            };
-        });
+    const markAsRead = async (userId) => {
+        try {
+            await fetch(`${apiUrl}/mark-chat-read`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+            fetchChats();
+        } catch (e) {
+            console.error("Error marking as read:", e);
+        }
     };
 
     const deleteChat = (userId) => {
+        // Backend deletion not implemented yet, just local for now or we could add endpoint
         setChats(prev => {
             const newChats = { ...prev };
             delete newChats[userId];
@@ -58,7 +62,7 @@ export const ChatProvider = ({ children }) => {
     };
 
     return (
-        <ChatContext.Provider value={{ chats, sendMessage, markAsRead, deleteChat }}>
+        <ChatContext.Provider value={{ chats, sendMessage, markAsRead, deleteChat, fetchChats }}>
             {children}
         </ChatContext.Provider>
     );

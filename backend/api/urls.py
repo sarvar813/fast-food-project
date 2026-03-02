@@ -25,4 +25,7 @@ urlpatterns = [
     path('orders', views.orders_view, name='orders'),
     path('orders/', views.orders_view, name='orders_list'),
     path('orders/update-status', views.update_order_status, name='update_order_status'),
+    path('get-chats', views.get_chats, name='get_chats'),
+    path('send-chat-message', views.send_chat_message, name='send_chat_message'),
+    path('mark-chat-read', views.mark_chat_read, name='mark_chat_read'),
 ]

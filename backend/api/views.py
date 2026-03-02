@@ -15,6 +15,24 @@ DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 ADMIN_CHAT_ID = '7867408736'
 ESKIZ_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "eskiz_settings.json")
 ORDERS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "orders.json")
+CHATS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "chats.json")
+
+def load_chats():
+    if os.path.exists(CHATS_FILE):
+        try:
+            with open(CHATS_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+def save_chats(chats):
+    try:
+        with open(CHATS_FILE, "w") as f:
+            json.dump(chats, f, indent=4)
+        return True
+    except Exception:
+        return False
 
 def load_orders():
     if os.path.exists(ORDERS_FILE):
@@ -683,3 +701,56 @@ def update_order_status(request):
         save_orders(orders)
         return Response({"status": "ok"})
     return Response({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def get_chats(request):
+    return Response(load_chats())
+
+@api_view(['POST'])
+def send_chat_message(request):
+    data = request.data
+    user_id = data.get('userId')
+    message = data.get('message')
+    sender = data.get('sender', 'user')
+    user_name = data.get('userName', user_id)
+    
+    if not user_id or not message:
+        return Response({"detail": "Missing data"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    chats = load_chats()
+    
+    if user_id not in chats:
+        chats[user_id] = {
+            "messages": [],
+            "lastMessage": "",
+            "unread": 0,
+            "userName": user_name
+        }
+        
+    new_msg = {
+        "id": int(time.time() * 1000),
+        "text": message,
+        "sender": sender,
+        "time": time.strftime("%H:%M")
+    }
+    
+    chats[user_id]["messages"].append(new_msg)
+    chats[user_id]["lastMessage"] = message
+    if sender == 'user':
+        chats[user_id]["unread"] += 1
+    
+    save_chats(chats)
+    return Response({"status": "ok", "message": new_msg})
+
+@api_view(['POST'])
+def mark_chat_read(request):
+    user_id = request.data.get('userId')
+    if not user_id:
+        return Response({"detail": "Missing userId"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    chats = load_chats()
+    if user_id in chats:
+        chats[user_id]["unread"] = 0
+        save_chats(chats)
+        
+    return Response({"status": "ok"})
