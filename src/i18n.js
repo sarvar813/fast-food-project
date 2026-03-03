@@ -312,6 +312,32 @@ i18n
                             "shipping": "Yo'lda",
                             "delivered": "Bajarildi"
                         }
+                    },
+                    "specials": {
+                        "title": "MAXSUS TAKLIFLAR",
+                        "subtitle": "ENG MAZALI KOMBOLAR",
+                        "items": {
+                            "c1": {
+                                "title": "Family Pizza Combo",
+                                "desc": "Katta pitssa, 4ta kola va fri. Butun oila uchun ajoyib tanlov.",
+                                "ing1": "Katta Pitssa", "ing2": "4x Coca-Cola", "ing3": "Katta Fri", "ing4": "Souslar"
+                            },
+                            "c2": {
+                                "title": "Double Cheese Combo",
+                                "desc": "Ikki barobar pishloqli burger, fri va salqin ichimlik.",
+                                "ing1": "Cheese Burger", "ing2": "O'rta Fri", "ing3": "Coca-Cola", "ing4": "Pishloqli Sous"
+                            },
+                            "c3": {
+                                "title": "Black Star Mega",
+                                "desc": "Eng mashhur burgerimiz kombo ko'rinishida. 30% chegirma bilan!",
+                                "ing1": "Black Star Special", "ing2": "Qishloqcha Fri", "ing3": "Milkshake", "ing4": "Piyozli xalqalar"
+                            },
+                            "c4": {
+                                "title": "Classic Burger Set",
+                                "desc": "An'anaviy ta'm sevuvchilar uchun klassik burger va yon taomlar.",
+                                "ing1": "Beef Burger", "ing2": "Fri", "ing3": "Fanta", "ing4": "Ketçup"
+                            }
+                        }
                     }
                 }
             },
@@ -518,6 +544,32 @@ i18n
                             "shipping": "В пути",
                             "delivered": "Доставлен"
                         }
+                    },
+                    "specials": {
+                        "title": "СПЕЦИАЛЬНЫЕ ПРЕДЛОЖЕНИЯ",
+                        "subtitle": "САМЫЕ ВКУСНЫЕ КОМБО",
+                        "items": {
+                            "c1": {
+                                "title": "Family Pizza Combo",
+                                "desc": "Большая пицца, 4 колы и фри. Отличный выбор для всей семьи.",
+                                "ing1": "Большая Пицца", "ing2": "4x Coca-Cola", "ing3": "Большой Фри", "ing4": "Соусы"
+                            },
+                            "c2": {
+                                "title": "Double Cheese Combo",
+                                "desc": "Бургер с двойным сыром, картофель фри и прохладительный напиток.",
+                                "ing1": "Чизбургер", "ing2": "Средний Фри", "ing3": "Coca-Cola", "ing4": "Сырный Соус"
+                            },
+                            "c3": {
+                                "title": "Black Star Mega",
+                                "desc": "Наш самый популярный бургер в виде комбо. Со скидкой 30%!",
+                                "ing1": "Black Star Special", "ing2": "Картофель по-деревенски", "ing3": "Милкшейк", "ing4": "Луковые кольца"
+                            },
+                            "c4": {
+                                "title": "Classic Burger Set",
+                                "desc": "Классический бургер и гарниры для любителей традиционного вкуса.",
+                                "ing1": "Beef Burger", "ing2": "Картофель Фри", "ing3": "Fanta", "ing4": "Кетчуп"
+                            }
+                        }
                     }
                 }
             },
@@ -714,6 +766,32 @@ i18n
                             "preparing": "Preparing",
                             "shipping": "Shipping",
                             "delivered": "Delivered"
+                        }
+                    },
+                    "specials": {
+                        "title": "SPECIAL OFFERS",
+                        "subtitle": "BEST COMBO DEALS",
+                        "items": {
+                            "c1": {
+                                "title": "Family Pizza Combo",
+                                "desc": "Large pizza, 4 colas, and fries. A great choice for the whole family.",
+                                "ing1": "Large Pizza", "ing2": "4x Coca-Cola", "ing3": "Large Fries", "ing4": "Sauces"
+                            },
+                            "c2": {
+                                "title": "Double Cheese Combo",
+                                "desc": "Double cheese burger, medium fries, and a refreshing drink.",
+                                "ing1": "Cheese Burger", "ing2": "Medium Fries", "ing3": "Coca-Cola", "ing4": "Cheese Sauce"
+                            },
+                            "c3": {
+                                "title": "Black Star Mega",
+                                "desc": "Our most popular burger in a combo set. Now with 30% off!",
+                                "ing1": "Black Star Special", "ing2": "Potato Wedges", "ing3": "Milkshake", "ing4": "Onion Rings"
+                            },
+                            "c4": {
+                                "title": "Classic Burger Set",
+                                "desc": "Classic burger and sides for lovers of traditional taste.",
+                                "ing1": "Beef Burger", "ing2": "French Fries", "ing3": "Fanta", "ing4": "Ketchup"
+                            }
                         }
                     }
                 }
