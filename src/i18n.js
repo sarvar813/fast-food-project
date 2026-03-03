@@ -307,10 +307,10 @@ i18n
                     "order_status": {
                         "total": "Jami",
                         "steps": {
-                            "accepted": "Tushdi",
-                            "preparing": "Pishmoqda",
-                            "shipping": "Yo'lda",
-                            "delivered": "Bajarildi"
+                            "accepted": "TUSHDI",
+                            "preparing": "PISHMOQDA",
+                            "shipping": "YO'LDA",
+                            "delivered": "BAJARILDI"
                         }
                     },
                     "specials": {
@@ -539,10 +539,10 @@ i18n
                     "order_status": {
                         "total": "Итого",
                         "steps": {
-                            "accepted": "Принят",
-                            "preparing": "Готовится",
-                            "shipping": "В пути",
-                            "delivered": "Доставлен"
+                            "accepted": "ПРИНЯТ",
+                            "preparing": "ГОТОВИТСЯ",
+                            "shipping": "В ПУТИ",
+                            "delivered": "ДОСТАВЛЕН"
                         }
                     },
                     "specials": {
@@ -762,10 +762,10 @@ i18n
                     "order_status": {
                         "total": "Total",
                         "steps": {
-                            "accepted": "Accepted",
-                            "preparing": "Preparing",
-                            "shipping": "Shipping",
-                            "delivered": "Delivered"
+                            "accepted": "ACCEPTED",
+                            "preparing": "PREPARING",
+                            "shipping": "SHIPPING",
+                            "delivered": "DELIVERED"
                         }
                     },
                     "specials": {
