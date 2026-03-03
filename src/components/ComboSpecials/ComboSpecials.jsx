@@ -8,7 +8,7 @@ const comboData = [
     {
         id: 'cb1',
         image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?q=80&w=1000&auto=format&fit=crop',
-        title: 'BURGER + FRIES AND SODA',
+        name: 'BURGER + FRIES AND SODA',
         price: '$54.00',
         rating: 5,
         description: 'Bizning eng mashhur combo to\'plamimiz: klassik burger, qarsildoq kartoshka va yaxna ichimlik.',
@@ -17,7 +17,7 @@ const comboData = [
     {
         id: 'cb2',
         image: 'https://images.unsplash.com/photo-1512152272829-e3139592d56f?q=80&w=800&auto=format&fit=crop',
-        title: 'THE MEGABURGER SPECIALTY',
+        name: 'THE MEGABURGER SPECIALTY',
         price: '$51.00',
         rating: 5,
         description: 'Haqiqiy gigantlar uchun! Ikki karra go\'sht va ko\'proq pishloq bilan tayyorlangan megaburger.',
@@ -26,7 +26,7 @@ const comboData = [
     {
         id: 'cb3',
         image: 'https://images.unsplash.com/photo-1521305916504-4a1121188589?q=80&w=800&auto=format&fit=crop',
-        title: 'TWO BURGERS SUPER OFFER',
+        name: 'TWO BURGERS SUPER OFFER',
         price: '$37.50',
         originalPrice: '$51.00',
         rating: 5,
@@ -57,7 +57,7 @@ const ComboSpecials = () => {
                             <div className="combo-image-wrapper">
                                 <img src={item.image} alt={item.title} />
                             </div>
-                            <h4 className="combo-item-title">{item.title}</h4>
+                            <h4 className="combo-item-title">{item.name}</h4>
                             <div className="combo-card-footer">
                                 <span className="combo-card-price">{item.price}</span>
                                 <button
@@ -81,7 +81,7 @@ const ComboSpecials = () => {
                         <button className="combo-modal-close" onClick={closeModal}><FaTimes /></button>
                         <div className="combo-modal-body">
                             <div className="combo-modal-image">
-                                <img src={selectedItem.image} alt={selectedItem.title} />
+                                <img src={selectedItem.image} alt={selectedItem.name} />
                             </div>
                             <div className="combo-modal-info">
                                 <h3 className="combo-modal-subtitle-premium">COMBO DEAL</h3>

@@ -20,11 +20,10 @@ const AdminPanel = () => {
     const [isScanning, setIsScanning] = useState(false);
     const [securityScore, setSecurityScore] = useState(99.8);
     const [violationCount, setViolationCount] = useState(0);
-    const [isDataMasked, setIsDataMasked] = useState(true);
+    const [isDataMasked, setIsDataMasked] = useState(false);
     const [threatsPrevented, setThreatsPrevented] = useState(124);
     const [isPermanentLock, setIsPermanentLock] = useState(false);
     const [activeTab, setActiveTab] = useState(() => localStorage.getItem('isAdminActiveTab') || 'dashboard');
-    const [backendStatus, setBackendStatus] = useState('checking');
     const [latency, setLatency] = useState(0);
     const [isAddingProduct, setIsAddingProduct] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
@@ -35,13 +34,13 @@ const AdminPanel = () => {
     const shadowRef = React.useRef({ auth: false, role: null, integrity: 'STABLE' });
 
     const {
-        orders, updateOrderStatus, updateOrderDetails, isStoreOpen, setIsStoreOpen,
+        orders, ordersLoading, backendStatus, setBackendStatus, updateOrderStatus, updateOrderDetails, isStoreOpen, setIsStoreOpen,
         telegramSettings, setTelegramSettings, sendTelegramNotification, sendCustomerNotification,
         auditLogs, setAuditLogs, logAction, siteSettings, setSiteSettings,
         careerApplications, handleCareerAction, fetchCareers,
         staff, addStaff, deleteStaff, updateStaff,
         coupons, addCoupon, deleteCoupon,
-        rewards, addReward, deleteReward, playUXSound
+        rewards, addReward, deleteReward, playUXSound, getApiUrl
     } = useCart();
 
     const { products, addProduct, updateProduct, deleteProduct } = useProducts();
@@ -360,35 +359,7 @@ const AdminPanel = () => {
         localStorage.setItem('isAdminActiveTab', activeTab);
     }, [activeTab]);
 
-    useEffect(() => {
-        let offlineTimer;
-        const checkHealth = async () => {
-            const start = performance.now();
-            setBackendStatus('checking');
-            try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
-                await fetch(`${apiUrl}/`, { method: 'GET' });
-                const duration = Math.round(performance.now() - start);
-                setLatency(duration);
-                setBackendStatus(duration > 500 ? 'warning' : 'online');
-                clearTimeout(offlineTimer);
-            } catch (e) {
-                setBackendStatus('offline');
-                if (isLoggedIn && !offlineTimer) {
-                    offlineTimer = setTimeout(() => {
-                        logAction('Security', 'Network', 'Persistent disconnection. Emergency logout.');
-                        logout();
-                    }, 60000); // 1 minute offline = logout
-                }
-            }
-        };
-        checkHealth();
-        const interval = setInterval(checkHealth, 15000);
-        return () => {
-            clearInterval(interval);
-            clearTimeout(offlineTimer);
-        };
-    }, [isLoggedIn]);
+    // Redundant health check removed (handled by CartContext)
 
     const handleLogin = (role) => {
         const authStatus = role !== null;
@@ -687,7 +658,7 @@ const AdminPanel = () => {
 
     const fetchSubscriptions = async (silent = false) => {
         if (!silent) setIsFetchingSubs(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+        const apiUrl = getApiUrl();
         try {
             const res = await fetch(`${apiUrl}/subscriptions`, {
                 cache: 'no-store'
@@ -720,7 +691,7 @@ const AdminPanel = () => {
 
     const fetchReservations = async (silent = false) => {
         if (!silent) setIsFetchingReservations(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+        const apiUrl = getApiUrl();
         try {
             const res = await fetch(`${apiUrl}/reservations`);
             if (res.ok) {
@@ -737,7 +708,7 @@ const AdminPanel = () => {
     const fetchReviews = async () => {
         playUXSound('pop');
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const apiUrl = getApiUrl();
             const res = await fetch(`${apiUrl}/reviews`);
             if (res.ok) {
                 const data = await res.json();
@@ -754,7 +725,7 @@ const AdminPanel = () => {
     }, [isLoggedIn, activeTab]);
 
     const handleReservationAction = async (id, status) => {
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+        const apiUrl = getApiUrl();
         try {
             const res = await fetch(`${apiUrl}/reservations/action`, {
                 method: 'POST',
@@ -824,7 +795,7 @@ const AdminPanel = () => {
     }, [isLoggedIn, activeTab]);
 
     const handleSubAction = async (id, status) => {
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+        const apiUrl = getApiUrl();
         try {
             const res = await fetch(`${apiUrl}/subscriptions/action`, {
                 method: 'POST',
@@ -921,10 +892,10 @@ const AdminPanel = () => {
     }
 
     const statusConfig = {
-        pending: { label: 'Tushdi', color: '#ffab00' },
+        pending: { label: 'Tasdiqlash', color: '#ffab00' },
         preparing: { label: 'Pishmoqda', color: '#ff5722' },
-        shipping: { label: 'Yo\'lda', color: '#2196f3' },
-        completed: { label: 'Bajarildi', color: '#4caf50' },
+        shipping: { label: 'Yetkazilmoqda', color: '#2196f3' },
+        completed: { label: 'Yetib bordi', color: '#4caf50' },
         cancelled: { label: 'Bekor qilindi', color: '#f44336' }
     };
 
@@ -991,7 +962,14 @@ const AdminPanel = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {displayOrders.length > 0 ? (
+                        {ordersLoading ? (
+                            <tr>
+                                <td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>
+                                    <div className="admin-loading-spinner"></div>
+                                    <p style={{ marginTop: '10px', color: '#64748b' }}>Ma'lumotlar yuklanmoqda...</p>
+                                </td>
+                            </tr>
+                        ) : displayOrders.length > 0 ? (
                             displayOrders.map((order) => (
                                 <tr key={order.orderId}>
                                     <td>#{order.orderId}</td>
@@ -1002,8 +980,10 @@ const AdminPanel = () => {
                                         </div>
                                     </td>
                                     <td>
-                                        <div className="item-preview">
-                                            {order.items.length} ta mahsulot
+                                        <div className="item-preview" style={{ fontSize: '0.85em', color: '#475569' }}>
+                                            {order.items.slice(0, 2).map(i => i.name || i.title || "Mahsulot").join(', ')}
+                                            {order.items.length > 2 && ' ...'}
+                                            <div style={{ fontSize: '0.8em', color: '#94a3b8' }}>{order.items.length} ta mahsulot</div>
                                         </div>
                                     </td>
                                     <td>${order.total.toFixed(2)}</td>
@@ -1321,7 +1301,7 @@ const AdminPanel = () => {
                                             <div className="m-bar-bg"><motion.div animate={{ width: ['5%', '12%', '7%'] }} transition={{ duration: 3, repeat: Infinity }} className="m-fill-pro green"></motion.div></div>
                                         </div>
                                     </div>
-                                    <small style={{ display: 'block', marginTop: '15px', color: '#94a3b8', fontSize: '11px' }}>Node: 127.0.0.1:8000 (Python FastAPI)</small>
+                                    <small style={{ display: 'block', marginTop: '15px', color: '#94a3b8', fontSize: '11px' }}>Node: 127.0.0.1:8000 (Django)</small>
                                 </div>
                             </div>
                         </div>
@@ -1549,7 +1529,7 @@ const AdminPanel = () => {
                                             if (!window.confirm(confirmText)) return;
                                             setIsBroadcasting(true);
                                             try {
-                                                const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+                                                const apiUrl = getApiUrl();
                                                 const res = await fetch(`${apiUrl}/broadcast`, {
                                                     method: 'POST',
                                                     headers: { 'Content-Type': 'application/json' },
@@ -1964,7 +1944,7 @@ const AdminPanel = () => {
                                     const password = document.getElementById('eskiz_pass').value;
 
                                     try {
-                                        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+                                        const apiUrl = getApiUrl();
                                         await fetch(`${apiUrl}/save-eskiz-settings`, {
                                             method: 'POST',
                                             headers: { 'Content-Type': 'application/json' },
@@ -3172,8 +3152,8 @@ const AdminPanel = () => {
                 </div>
                 <div className="security-intelligence">
                     <div className="intelligence-label">IDS ACTIVE</div>
-                    <div className="threats-counter">
-                        <FaShieldAlt /> <span>{threatsPrevented} Threats Blocked</span>
+                    <div className="system-health-lite">
+                        <small style={{ color: '#64748b' }}>Django: 127.0.0.1:8000</small>
                     </div>
                 </div>
             </aside>
@@ -3188,7 +3168,7 @@ const AdminPanel = () => {
                                 <FaCogs />
                             </div>
                             <div className="status-info">
-                                <div className="status-title">PYTHON SERVER STATUS</div>
+                                <div className="status-title">BACKEND SERVER STATUS</div>
                                 <div className="status-state">
                                     <span className={`pulse-dot ${backendStatus === 'online' ? 'green' : backendStatus === 'warning' ? 'yellow' : 'red'}`}></span>
                                     {backendStatus === 'online' ? 'LIVE & STABLE' :
@@ -3401,7 +3381,7 @@ const AdminPanel = () => {
                                 <div className="order-items-list">
                                     {selectedOrder.items.map((item, id) => (
                                         <div key={id} className="order-item-row">
-                                            <span>{item.name} x{item.quantity}</span>
+                                            <span>{item.name || item.title || "Noma'lum mahsulot"} x{item.quantity}</span>
                                             <span>{item.price}</span>
                                         </div>
                                     ))}

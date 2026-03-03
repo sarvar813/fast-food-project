@@ -9,7 +9,7 @@ const DessertGrid = () => {
         {
             id: 'dg1',
             type: 'text',
-            title: 'CHOCO LAVA',
+            name: 'CHOCO LAVA',
             subtitle: 'Sweet Moment',
             price: '$6.50',
             image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?q=80&w=800&auto=format&fit=crop'
@@ -21,7 +21,7 @@ const DessertGrid = () => {
         {
             id: 'dg2',
             type: 'text',
-            title: 'STRAWBERRY CAKE',
+            name: 'STRAWBERRY CAKE',
             subtitle: 'Sweet Moment',
             price: '$7.00',
             image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=800&auto=format&fit=crop'
@@ -37,7 +37,7 @@ const DessertGrid = () => {
         {
             id: 'dg3',
             type: 'text',
-            title: 'BROWNIE DELIGHT',
+            name: 'BROWNIE DELIGHT',
             subtitle: 'Sweet Moment',
             price: '$6.00',
             image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?q=80&w=800&auto=format&fit=crop'
@@ -49,7 +49,7 @@ const DessertGrid = () => {
         {
             id: 'dg4',
             type: 'text',
-            title: 'BELGIAN WAFFLES',
+            name: 'BELGIAN WAFFLES',
             subtitle: 'Sweet Moment',
             price: '$8.00',
             image: 'https://www.shokoladki.ru/upload/resize_cache/iblock/2e6/860_496_1/2e65df7794a26f2ffea1705f3629d321.jpg'
@@ -58,12 +58,7 @@ const DessertGrid = () => {
 
     const handleAddToCart = (item) => {
         if (isStoreOpen) {
-            addToCart({
-                id: item.id,
-                title: item.title,
-                price: item.price,
-                image: item.image
-            });
+            addToCart(item);
         }
     };
 
@@ -75,7 +70,7 @@ const DessertGrid = () => {
                         {item.type === 'text' ? (
                             <div className="d-text-content">
                                 <h4 className="d-subtitle">{item.subtitle}</h4>
-                                <h2 className="d-title">{item.title}</h2>
+                                <h2 className="d-title">{item.name}</h2>
                                 <button
                                     className="d-add-btn"
                                     onClick={() => handleAddToCart(item)}
@@ -85,7 +80,7 @@ const DessertGrid = () => {
                                 </button>
                             </div>
                         ) : (
-                            <img src={item.url} alt="Dessert feature" className="d-image" />
+                            <img src={item.url} alt={item.name || "Dessert"} className="d-image" />
                         )}
                     </div>
                 ))}

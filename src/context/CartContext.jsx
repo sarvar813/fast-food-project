@@ -13,6 +13,8 @@ export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [orders, setOrders] = useState([]);
+    const [ordersLoading, setOrdersLoading] = useState(true);
+    const [backendStatus, setBackendStatus] = useState('checking');
     const [careerApplications, setCareerApplications] = useState([]);
     const [isStoreOpen, setIsStoreOpen] = useState(() => {
         const saved = localStorage.getItem('bsb_store_status');
@@ -142,7 +144,7 @@ export const CartProvider = ({ children }) => {
 
     const submitCareerApplication = async (appData) => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const apiUrl = getApiUrl();
             const res = await fetch(`${apiUrl}/careers`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -162,7 +164,7 @@ export const CartProvider = ({ children }) => {
 
     const fetchCareers = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const apiUrl = getApiUrl();
             const res = await fetch(`${apiUrl}/careers`);
             if (res.ok) {
                 const data = await res.json();
@@ -180,7 +182,7 @@ export const CartProvider = ({ children }) => {
         }
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const apiUrl = getApiUrl();
             const res = await fetch(`${apiUrl}/careers/action`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -233,31 +235,99 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('bsb_store_status', JSON.stringify(isStoreOpen));
     }, [isStoreOpen]);
 
+    const getApiUrl = () => {
+        // Auto-detect local vs production
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'http://localhost:8000';
+        }
+
+        const envUrl = import.meta.env.VITE_API_URL;
+        if (envUrl) return envUrl;
+
+        return 'https://fast-food-final.onrender.com';
+    };
+
     const fetchOrders = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const apiUrl = getApiUrl();
             const res = await fetch(`${apiUrl}/orders`);
+
             if (res.ok) {
                 const contentType = res.headers.get("content-type");
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     const data = await res.json();
-                    setOrders(data);
-                    localStorage.setItem('bsb_orders', JSON.stringify(data));
+
+                    // If we have orders from server, use them
+                    if (Array.isArray(data)) {
+                        setOrders(data);
+                        localStorage.setItem('bsb_orders', JSON.stringify(data));
+                        setBackendStatus('online');
+                    }
                 } else {
-                    console.error("API returned non-JSON response. Check your VITE_API_URL in .env");
+                    console.warn("API returned non-JSON response.");
+                    setBackendStatus('warning');
+                    loadLocalOrders();
                 }
+            } else {
+                setBackendStatus('offline');
+                loadLocalOrders();
             }
         } catch (e) {
             console.error("Orders fetch error:", e);
-            // Fallback load from localStorage if offline
-            const saved = localStorage.getItem('bsb_orders');
-            if (saved) setOrders(JSON.parse(saved));
+            setBackendStatus('offline');
+            loadLocalOrders();
+        } finally {
+            setOrdersLoading(false);
+        }
+    };
+
+    const loadLocalOrders = () => {
+        const saved = localStorage.getItem('bsb_orders');
+        if (saved) {
+            try {
+                const localOrders = JSON.parse(saved);
+                setOrders(localOrders);
+            } catch (e) {
+                console.error("Local orders parse error:", e);
+            }
         }
     };
 
     useEffect(() => {
         fetchOrders();
         const interval = setInterval(fetchOrders, 5000); // 5s refresh
+        return () => clearInterval(interval);
+    }, []);
+
+    // Automatic Order Status Transition (Real-Time Simulation)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setOrders(prevOrders => {
+                let changed = false;
+                const nextOrders = prevOrders.map(order => {
+                    // Progression: pending -> preparing -> shipping -> completed
+                    let nextStatus = null;
+                    if (order.status === 'pending') nextStatus = 'preparing';
+                    else if (order.status === 'preparing') nextStatus = 'shipping';
+                    else if (order.status === 'shipping') nextStatus = 'completed';
+
+                    if (nextStatus) {
+                        changed = true;
+                        // We update the local state immediately for smoothness
+                        // The backend will be updated by the next manual refresh or via the updateOrderStatus call if needed
+                        // But for a pure visual "every 5 seconds" experience, local state is enough
+                        return { ...order, status: nextStatus };
+                    }
+                    return order;
+                });
+
+                if (changed) {
+                    localStorage.setItem('bsb_orders', JSON.stringify(nextOrders));
+                }
+                return nextOrders;
+            });
+        }, 5000); // Transition every 5 seconds
+
         return () => clearInterval(interval);
     }, []);
 
@@ -276,13 +346,14 @@ export const CartProvider = ({ children }) => {
     }, [telegramSettings]);
 
     const sendTelegramNotification = async (order) => {
+        const itemsText = (order.items || []).map(i => `• ${i.name || i.title || "Noma'lum mahsulot"} x${i.quantity || 1}`).join('\n');
         const text = `🚀 *YANGI BUYURTMA!* #${order.orderId}\n` +
             `👤 Mijoz: ${order.customer || order.customerName || "Noma'lum"}\n` +
             `📞 Tel: ${order.phone || order.customerPhone || "Noma'lum"}\n` +
             `🏠 Manzil: ${order.address || order.customerAddress || "Aniq emas"}\n` +
             `💰 Summa: $${order.total}\n` +
             `-------------------\n` +
-            (order.items || []).map(i => `• ${i.name} x${i.quantity}`).join('\n');
+            itemsText;
 
         try {
             await fetch(`https://api.telegram.org/bot${telegramSettings.botToken}/sendMessage`, {
@@ -298,7 +369,7 @@ export const CartProvider = ({ children }) => {
     };
 
     const sendCustomerNotification = async (phone, text) => {
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+        const apiUrl = getApiUrl();
         try {
             await fetch(`${apiUrl}/send-message`, {
                 method: 'POST',
@@ -355,18 +426,22 @@ export const CartProvider = ({ children }) => {
     };
 
     const placeOrder = async (orderDetails) => {
-        const orderId = Math.floor(100000 + Math.random() * 900000);
+        // Use items and total from orderDetails if provided to avoid race conditions with cart clearing
+        const itemsToSave = orderDetails.items || [...cartItems];
+        const totalToSave = orderDetails.total || (getCartTotal() + (isSurgeActive ? deliveryFee * surgeMultiplier : deliveryFee));
+
+        const orderId = orderDetails.orderId || Math.floor(100000 + Math.random() * 900000);
         const newOrder = {
             ...orderDetails,
             orderId,
-            items: cartItems,
-            total: getCartTotal() + (isSurgeActive ? deliveryFee * surgeMultiplier : deliveryFee),
-            status: 'pending',
-            date: new Date().toLocaleString()
+            items: itemsToSave,
+            total: totalToSave,
+            status: orderDetails.status || 'pending',
+            date: orderDetails.date || new Date().toLocaleString()
         };
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const apiUrl = getApiUrl();
             const res = await fetch(`${apiUrl}/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -377,10 +452,11 @@ export const CartProvider = ({ children }) => {
                 const contentType = res.headers.get("content-type");
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     const result = await res.json();
-                    setOrders(prev => [result, ...prev]);
-                    setCartItems([]);
-                    launchConfetti();
-                    playUXSound('success');
+                    setOrders(prev => {
+                        const exists = prev.find(o => o.orderId === result.orderId);
+                        if (exists) return prev;
+                        return [result, ...prev];
+                    });
 
                     // Update user stats
                     const newStats = {
@@ -395,6 +471,12 @@ export const CartProvider = ({ children }) => {
                     setBonuses(prev => prev + bonusEarned);
 
                     sendTelegramNotification(result);
+
+                    // Success UI actions
+                    setCartItems([]);
+                    launchConfetti();
+                    playUXSound('success');
+
                     return result;
                 }
             }
@@ -402,10 +484,14 @@ export const CartProvider = ({ children }) => {
             // Fallback: Save locally if API fails or returns HTML
             console.warn("Saving order locally as fallback...");
             setOrders(prev => [newOrder, ...prev]);
-            localStorage.setItem('bsb_orders', JSON.stringify([newOrder, ...orders]));
+            const currentSaved = JSON.parse(localStorage.getItem('bsb_orders') || '[]');
+            localStorage.setItem('bsb_orders', JSON.stringify([newOrder, ...currentSaved]));
+
+            // Success UI actions (even if local)
             setCartItems([]);
             launchConfetti();
             playUXSound('success');
+
             sendTelegramNotification(newOrder);
             return newOrder;
 
@@ -413,10 +499,13 @@ export const CartProvider = ({ children }) => {
             console.error("Order placement failed, fallback to local:", e);
             // Fallback
             setOrders(prev => [newOrder, ...prev]);
-            localStorage.setItem('bsb_orders', JSON.stringify([newOrder, ...orders]));
+            const currentSaved = JSON.parse(localStorage.getItem('bsb_orders') || '[]');
+            localStorage.setItem('bsb_orders', JSON.stringify([newOrder, ...currentSaved]));
+
             setCartItems([]);
             launchConfetti();
             playUXSound('success');
+
             sendTelegramNotification(newOrder);
             return newOrder;
         }
@@ -424,7 +513,7 @@ export const CartProvider = ({ children }) => {
 
     const updateOrderStatus = async (orderId, newStatus) => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
+            const apiUrl = getApiUrl();
             const res = await fetch(`${apiUrl}/orders/update-status`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -546,7 +635,7 @@ export const CartProvider = ({ children }) => {
         <CartContext.Provider value={{
             cartItems, cartCount, addToCart, removeFromCart, updateQuantity,
             isCartOpen, setIsCartOpen, getCartTotal, cartTotal, placeOrder,
-            orders, updateOrderStatus, updateOrderDetails,
+            orders, ordersLoading, backendStatus, setBackendStatus, updateOrderStatus, updateOrderDetails,
             isStoreOpen, setIsStoreOpen, bonuses, setBonuses,
             userStats, playUXSound,
             telegramSettings, setTelegramSettings,
