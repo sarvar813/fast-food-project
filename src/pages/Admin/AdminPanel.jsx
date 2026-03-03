@@ -892,11 +892,11 @@ const AdminPanel = () => {
     }
 
     const statusConfig = {
-        pending: { label: 'Tasdiqlash', color: '#ffab00' },
-        preparing: { label: 'Pishmoqda', color: '#ff5722' },
-        shipping: { label: 'Yetkazilmoqda', color: '#2196f3' },
-        completed: { label: 'Yetib bordi', color: '#4caf50' },
-        cancelled: { label: 'Bekor qilindi', color: '#f44336' }
+        pending: { label: 'TUSHDI', color: '#ff1744' }, // Red like in the image
+        preparing: { label: 'PISHMOQDA', color: '#ffab00' },
+        shipping: { label: 'YO\'LDA', color: '#2196f3' },
+        completed: { label: 'BAJARILDI', color: '#4caf50' },
+        cancelled: { label: 'BEKOR QILINDI', color: '#f44336' }
     };
 
     const stats = [

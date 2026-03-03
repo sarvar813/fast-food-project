@@ -44,11 +44,11 @@ i18n
                         "my_profile": "Mening profilim",
                         "toggle_theme": "Mavzuni o'zgartirish",
                         "statuses": {
-                            "pending": "Kutilmoqda",
-                            "preparing": "Tayyorlanmoqda",
-                            "shipping": "Yo'lda",
-                            "completed": "Bajarildi",
-                            "cancelled": "Bekor qilindi"
+                            "pending": "TUSHDI",
+                            "preparing": "PISHMOQDA",
+                            "shipping": "YO'LDA",
+                            "completed": "BAJARILDI",
+                            "cancelled": "BEKOR QILINDI"
                         }
                     },
                     "hero": {
