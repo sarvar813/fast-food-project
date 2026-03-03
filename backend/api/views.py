@@ -693,7 +693,7 @@ def orders_view(request):
         ser = OrderSerializer(o).data
         try:
             ser['items'] = json.loads(o.items)
-        except:
+        except Exception:
             ser['items'] = []
         data.append(ser)
     return Response(data)
