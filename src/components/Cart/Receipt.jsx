@@ -51,28 +51,28 @@ const Receipt = ({ items, total, orderId, date, customer, onClose, deliveryFee }
 
     const statusConfig = {
         pending: {
-            label: 'Kutilmoqda',
+            label: 'TUSHDI',
             icon: <FaClock />,
-            color: '#ffab00',
+            color: '#ff1744', // Red like in image
             step: 1,
             kitchenMsg: 'Buyurtmangiz navbatda turibdi... 🧾'
         },
         preparing: {
-            label: 'Tayyorlanmoqda',
+            label: 'PISHMOQDA',
             icon: <FaUtensils />,
-            color: '#ff5722',
+            color: '#ffab00',
             step: 2,
             kitchenMsg: 'Shef-pazarlar go\'shtni olovda pishirishmoqda! 🔥🥩'
         },
         shipping: {
-            label: 'Yetkazilmoqda',
+            label: 'YO\'LDA',
             icon: <FaShippingFast />,
             color: '#2196f3',
             step: 3,
             kitchenMsg: 'Kuryer issiqqina ovqatingizni olib yo\'lga chiqdi! 🛵💨'
         },
         completed: {
-            label: 'Bajarildi',
+            label: 'BAJARILDI',
             icon: <FaCheckDouble />,
             color: '#4caf50',
             step: 4,
