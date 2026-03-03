@@ -425,10 +425,13 @@ export const CartProvider = ({ children }) => {
     const updateOrderStatus = async (orderId, newStatus) => {
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'https://fast-food-final.onrender.com';
-            const res = await fetch(`${apiUrl}/orders/${orderId}/status`, {
-                method: 'PUT',
+            const res = await fetch(`${apiUrl}/orders/update-status`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus })
+                body: JSON.stringify({
+                    orderId: orderId,
+                    status: newStatus
+                })
             });
 
             if (res.ok) {

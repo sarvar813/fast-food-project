@@ -8,8 +8,8 @@ import os
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import PhoneMap, Subscription, Review, Reservation, Career
-from .serializers import SubscriptionSerializer, ReviewSerializer, ReservationSerializer, CareerSerializer
+from .models import PhoneMap, Subscription, Review, Reservation, Career, Order
+from .serializers import SubscriptionSerializer, ReviewSerializer, ReservationSerializer, CareerSerializer, OrderSerializer
 # --- Configuration & Global State ---
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 ADMIN_CHAT_ID = '7867408736'
@@ -35,21 +35,12 @@ def save_chats(chats):
         return False
 
 def load_orders():
-    if os.path.exists(ORDERS_FILE):
-        try:
-            with open(ORDERS_FILE, "r") as f:
-                return json.load(f)
-        except Exception:
-            return []
+    # Legacy - using Model now
     return []
 
 def save_orders(orders):
-    try:
-        with open(ORDERS_FILE, "w") as f:
-            json.dump(orders, f, indent=4)
-        return True
-    except Exception:
-        return False
+    # Legacy - using Model now
+    return True
 
 pending_codes = {}  # {phone: code}
 user_sessions = {}
@@ -662,45 +653,67 @@ def career_action(request):
 def orders_view(request):
     if request.method == 'POST':
         data = request.data
-        orders = load_orders()
-        new_order = data # Assuming data is passed correctly from frontend
-        orders.insert(0, new_order)
-        save_orders(orders)
         
-        # Notify Admin via Telegram
-        bot_token = data.get('bot_token') or DEFAULT_BOT_TOKEN
-        admin_chat_id = ADMIN_CHAT_ID
-        
-        if bot_token and admin_chat_id:
-            try:
-                items_list = "\n".join([f"- {item.get('name')} x{item.get('quantity')}" for item in new_order.get('items', [])])
-                msg = f"🔔 <b>YANGI BUYURTMA!</b>\n\n🆔 ID: #{new_order.get('orderId')}\n👤 Mijoz: {new_order.get('customer')}\n📞 Tel: {new_order.get('phone')}\n📍 Manzil: {new_order.get('address')}\n\n📦 Mahsulotlar:\n{items_list}\n\n💰 Jam: <b>${new_order.get('total'):.2f}</b>"
-                send_tg(bot_token, admin_chat_id, msg)
-            except Exception as e:
-                print(f"Error sending admin notification: {e}")
-                
-        return Response({"status": "ok", "orderId": new_order.get("orderId")})
+        # Save to DB
+        try:
+            order = Order.objects.create(
+                orderId=data.get('orderId'),
+                customer=data.get('customer') or data.get('customerName', 'Mehmon'),
+                phone=data.get('phone') or data.get('customerPhone', ''),
+                address=data.get('address') or data.get('customerAddress', ''),
+                items=json.dumps(data.get('items', [])),
+                total=float(data.get('total', 0)),
+                status=data.get('status', 'pending'),
+                date=data.get('date', time.strftime("%d.%m.%Y, %H:%M:%S"))
+            )
+            
+            # Notify Admin via Telegram
+            bot_token = data.get('bot_token') or DEFAULT_BOT_TOKEN
+            admin_chat_id = ADMIN_CHAT_ID
+            
+            if bot_token and admin_chat_id:
+                try:
+                    items_list = "\n".join([f"- {item.get('name')} x{item.get('quantity')}" for item in data.get('items', [])])
+                    msg = f"🔔 <b>YANGI BUYURTMA!</b>\n\n🆔 ID: #{order.orderId}\n👤 Mijoz: {order.customer}\n📞 Tel: {order.phone}\n📍 Manzil: {order.address}\n\n📦 Mahsulotlar:\n{items_list}\n\n💰 Jam: <b>${order.total:.2f}</b>"
+                    send_tg(bot_token, admin_chat_id, msg)
+                except Exception as e:
+                    print(f"Error sending admin notification: {e}")
+            
+            serializer = OrderSerializer(order)
+            resp_data = serializer.data
+            resp_data['items'] = json.loads(order.items)
+            return Response(resp_data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            print(f"Order creation error: {e}")
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-    return Response(load_orders())
+    orders = Order.objects.all().order_by('-created_at')
+    data = []
+    for o in orders:
+        ser = OrderSerializer(o).data
+        try:
+            ser['items'] = json.loads(o.items)
+        except:
+            ser['items'] = []
+        data.append(ser)
+    return Response(data)
 
-@api_view(['POST'])
+@api_view(['POST', 'PUT'])
 def update_order_status(request):
     data = request.data
     order_id = data.get('orderId')
     new_status = data.get('status')
     
-    orders = load_orders()
-    found = False
-    for o in orders:
-        if str(o.get("orderId")) == str(order_id):
-            o["status"] = new_status
-            found = True
-            break
-            
-    if found:
-        save_orders(orders)
-        return Response({"status": "ok"})
-    return Response({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+    try:
+        order = Order.objects.get(orderId=order_id)
+        order.status = new_status
+        order.save()
+        
+        ser = OrderSerializer(order).data
+        ser['items'] = json.loads(order.items)
+        return Response(ser)
+    except Order.DoesNotExist:
+        return Response({"detail": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def get_chats(request):

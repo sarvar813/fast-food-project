@@ -45,3 +45,17 @@ class Career(models.Model):
     resume = models.TextField()
     status = models.CharField(max_length=20, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+
+class Order(models.Model):
+    orderId = models.CharField(max_length=20, unique=True)
+    customer = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20)
+    address = models.TextField()
+    items = models.TextField() # Will store JSON string
+    total = models.FloatField()
+    status = models.CharField(max_length=20, default='pending')
+    date = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order {self.orderId} - {self.customer}"
