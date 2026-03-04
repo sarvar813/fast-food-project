@@ -98,6 +98,12 @@ BOT_MENU = {
         {"id": 3, "name": "Bacon Burger", "price": 8.50},
         {"id": 31, "name": "Mexican Spicy", "price": 9.99},
     ],
+    "PIZZA": [
+        {"id": 21, "name": "Margarita", "price": 10.00},
+        {"id": 22, "name": "Pepperoni", "price": 12.50},
+        {"id": 23, "name": "Mushroom Pizza", "price": 11.00},
+        {"id": 24, "name": "Cheese Pizza", "price": 10.50},
+    ],
     "SIDES": [
         {"id": 4, "name": "French Fries", "price": 4.00},
         {"id": 5, "name": "Onion Rings", "price": 5.50},
@@ -341,8 +347,30 @@ def bot_polling(bot_token):
                         elif data == "checkout":
                             user_sessions[chat_id]["step"] = "wait_address"
                             send_tg(bot_token, chat_id, "📍 Yetkazib berish manzilini yuboring:")
+                        elif data == "leave_review":
+                            user_sessions[chat_id]["step"] = "wait_review"
+                            send_tg(bot_token, chat_id, "✍️ Marhamat, sharhingizni yozing:")
+                        elif data == "view_jobs":
+                            jobs = ["Shef-povar", "Kuryer", "Menejer"]
+                            kb = {"inline_keyboard": [[{"text": f"✅ Ariza topshirish: {j}", "callback_data": f"apply_job_{j}"}] for j in jobs]}
+                            send_tg(bot_token, chat_id, "💼 <b>Bo'sh ish o'rinlari:</b>\n\nQaysi lavozimga qiziqyapsiz?", kb)
+                        elif data.startswith("apply_job_"):
+                            job = data.split("_")[-1]
+                            p = next((p for p, c in phone_to_chat_id.items() if str(c) == str(chat_id)), "Noma'lum")
+                            send_tg(bot_token, chat_id, f"✅ Sizning raqamingiz (+{p}) orqali <b>{job}</b> lavozimi uchun arizangiz qabul qilindi. Tez orada bog'lanamiz!")
+                        elif data == "view_subs":
+                            plans = [
+                                {"n": "Silver", "p": "10.00"},
+                                {"n": "Gold", "p": "25.00"},
+                                {"n": "Platinum", "p": "50.00"}
+                            ]
+                            kb = {"inline_keyboard": [[{"text": f"💎 {p['n']} - ${p['p']}", "callback_data": f"buy_sub_{p['n']}"}] for p in plans]}
+                            send_tg(bot_token, chat_id, "💎 <b>Abonement tanlang:</b>\n\nMaxsus imtiyozlar va keshbeklarga ega bo'ling!", kb)
+                        elif data.startswith("buy_sub_"):
+                            plan = data.split("_")[-1]
+                            send_tg(bot_token, chat_id, f"💎 Siz <b>{plan}</b> abonementini tanladingiz. To'lov tafsilotlari uchun operator bog'lanadi.")
                         elif data == "order_start":
-                            kb = {"inline_keyboard": [[{"text": f"🍔 {cat}", "callback_data": f"cat_{cat}"}] for cat in BOT_MENU]}
+                            kb = {"inline_keyboard": [[{"text": f"{'🍔' if cat=='BURGERS' else '🍕' if cat=='PIZZA' else '🍟' if cat=='SIDES' else '🥤'} {cat}", "callback_data": f"cat_{cat}"}] for cat in BOT_MENU]}
                             send_tg(bot_token, chat_id, "<b>MENYU</b>\nBo'limni tanlang:", kb)
                         requests.post(f"https://api.telegram.org/bot{bot_token}/answerCallbackQuery", json={"callback_query_id": cb["id"]})
                         continue
@@ -378,6 +406,29 @@ def bot_polling(bot_token):
                         items_str = "\n".join([f"- {i['name']}" for i in cart])
                         send_tg(bot_token, chat_id, f"🏁 <b>Buyurtma tayyor!</b>\n\n📦 Tarkibi:\n{items_str}\n💰 Jami: <b>${total:.2f}</b>\n📍 Manzil: {text}")
                         user_sessions[chat_id] = {"cart": [], "step": "start"}
+                        continue
+
+                    if user_sessions[chat_id].get("step") == "wait_review":
+                        user_sessions[chat_id]["step"] = "start"
+                        p = next((p for p, c in phone_to_chat_id.items() if str(c) == str(chat_id)), "Noma'lum")
+                        
+                        # Save review
+                        new_review = {
+                            "id": int(time.time() * 1000),
+                            "name": f"Bot User ({p})",
+                            "phone": p,
+                            "rating": 5,
+                            "comment": text,
+                            "status": "approved",
+                            "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        reviews_memory.append(new_review)
+                        
+                        # Notify Admin
+                        admin_msg = f"🌟 <b>BOTDAN YANGI SHARH!</b>\n\n👤 Mijoz: {p}\n💬 Sharh: {text}"
+                        send_tg(bot_token, ADMIN_CHAT_ID, admin_msg)
+                        
+                        send_tg(bot_token, chat_id, "✅ Samimiy sharhingiz uchun rahmat! Sharhingiz saytimizda e'lon qilindi.")
                         continue
 
                     if text.startswith("/start"):
@@ -441,11 +492,34 @@ def bot_polling(bot_token):
 
                     if text == "🛍 Buyurtma":
                         send_tg(bot_token, chat_id, "Tanlang:", {"inline_keyboard": [[{"text": "🍔 Menyu", "callback_data": "order_start"}]]})
+                    elif text == "📦 Buyurtmalarim":
+                        p = next((p for p, c in phone_to_chat_id.items() if str(c) == str(chat_id)), None)
+                        if not p:
+                            send_tg(bot_token, chat_id, "⚠️ Buyurtmalaringizni ko'rish uchun avval raqamingizni tasdiqlang!")
+                            continue
+                        
+                        orders = load_orders()
+                        my_orders = [o for o in orders if "".join(filter(str.isdigit, str(o.get('phone', ''))))[-9:] == "".join(filter(str.isdigit, str(p)))[-9:]]
+                        
+                        if not my_orders:
+                            send_tg(bot_token, chat_id, "📭 Sizda hali buyurtmalar yo'q.")
+                        else:
+                            txt = "📦 <b>Oxirgi buyurtmalaringiz:</b>\n\n"
+                            for o in my_orders[:5]:
+                                items_summary = ", ".join([i['name'] for i in o.get('items', [])[:2]])
+                                txt += f"🔹 ID: <code>#{o['orderId']}</code>\n💰 Summa: ${o['total']}\n📊 Holat: {o['status'].upper()}\n🍕: {items_summary}...\n\n"
+                            send_tg(bot_token, chat_id, txt)
+                            
                     elif text == "ℹ️ Ma'lumot":
-                        send_tg(bot_token, chat_id, "📍 Manzil: Toshkent\n📞 Tel: +998 71 200 00 00")
+                        send_tg(bot_token, chat_id, "📍 <b>Manzil:</b> Toshkent, Black Star Burger\n📞 <b>Tel:</b> +998 71 200 00 00\n🌐 <b>Sayt:</b> <a href='https://fast-food-final.onrender.com/'>fast-food-final.onrender.com</a>")
                     elif text == "⚙️ Sozlamalar":
                         p = next((p for p, c in phone_to_chat_id.items() if str(c) == str(chat_id)), "Yo'q")
-                        send_tg(bot_token, chat_id, f"⚙️ Sozlamalar\nRaqamingiz: +{p}\nHolat: Tasdiqlangan ✅")
+                        kb = {"inline_keyboard": [[{"text": "✍️ Sharh qoldirish", "callback_data": "leave_review"}], [{"text": "💼 Vakansiyalar", "callback_data": "view_jobs"}], [{"text": "💎 Abonementlar", "callback_data": "view_subs"}]]}
+                        send_tg(bot_token, chat_id, f"⚙️ <b>Sozlamalar</b>\n\n📞 Raqamingiz: <b>+{p}</b>\n✅ Holat: <b>Tasdiqlangan</b>", kb)
+                    
+                    # Callback handlers for new features (integrated into text flow for simplicity or as actual cb)
+                    if "callback_query" in update: # Redundant check but for logic flow
+                        pass 
 
             elif res.status_code == 409:
                 time.sleep(5)
@@ -729,7 +803,8 @@ async def sub_action(data: SubAction):
             
             # Try Telegram first
             p_norm = "".join(filter(str.isdigit, s["phone"]))
-            if len(p_norm) == 9: p_norm = "998" + p_norm
+            if len(p_norm) == 9:
+                p_norm = "998" + p_norm
             if p_norm in phone_to_chat_id:
                 send_tg(data.bot_token, phone_to_chat_id[p_norm], msg)
             
@@ -819,7 +894,8 @@ async def add_reservation(data: ReservationRequest):
         
     # Notify Customer via Telegram (if linked)
     p_norm = "".join(filter(str.isdigit, data.phone))
-    if len(p_norm) == 9: p_norm = "998" + p_norm
+    if len(p_norm) == 9:
+        p_norm = "998" + p_norm
     if p_norm in phone_to_chat_id:
         chat_id = phone_to_chat_id[p_norm]
         msg_customer = f"✅ <b>JOYINGIZ BAND QILINDI!</b>\n\n🗓 Sana: <b>{data.date}</b>\n⏰ Vaqt: <b>{data.time}</b>\n\nJoyingiz band qilingani uchun rahmat! Shu vaqtda sizni intizorlik bilan kutib qolamiz. 😊"
