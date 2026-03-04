@@ -287,6 +287,18 @@ def send_tg(bot_token, chat_id, text, reply_markup=None):
         print(f"[EXCEPTION] send_tg: {e}")
         return False
 
+def send_location_tg(bot_token, chat_id, lat, lon):
+    if not bot_token or not chat_id:
+        return False
+    payload = {"chat_id": str(chat_id), "latitude": lat, "longitude": lon}
+    try:
+        url = f"https://api.telegram.org/bot{bot_token}/sendLocation"
+        res = requests.post(url, json=payload, timeout=10)
+        return res.status_code == 200
+    except Exception as e:
+        print(f"[EXCEPTION] send_location_tg: {e}")
+        return False
+
 bot_threads = set()
 
 def bot_polling(bot_token):
@@ -533,6 +545,7 @@ def bot_polling(bot_token):
                             
                     elif text == "ℹ️ Ma'lumot":
                         send_tg(bot_token, chat_id, "📍 <b>Manzil:</b> Toshkent, Black Star Burger\n📞 <b>Tel:</b> +998 71 200 00 00\n🌐 <b>Sayt:</b> <a href='https://fast-food-final.onrender.com/'>fast-food-final.onrender.com</a>")
+                        send_location_tg(bot_token, chat_id, 41.3262, 69.2285) # Tinchlik metro area
                     elif text == "⚙️ Sozlamalar":
                         p = next((p for p, c in phone_to_chat_id.items() if str(c) == str(chat_id)), "Yo'q")
                         kb = {"inline_keyboard": [[{"text": "✍️ Sharh qoldirish", "callback_data": "leave_review"}], [{"text": "💼 Vakansiyalar", "callback_data": "view_jobs"}], [{"text": "💎 Abonementlar", "callback_data": "view_subs"}]]}
