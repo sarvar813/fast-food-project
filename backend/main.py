@@ -346,7 +346,12 @@ def bot_polling(bot_token):
                             send_tg(bot_token, chat_id, "Savatcha tozalandi!", {"inline_keyboard": [[{"text": "🛍 Menyu", "callback_data": "order_start"}]]})
                         elif data == "checkout":
                             user_sessions[chat_id]["step"] = "wait_address"
-                            send_tg(bot_token, chat_id, "📍 Yetkazib berish manzilini yuboring:")
+                            kb = {
+                                "keyboard": [[{"text": "📍 Lokatsiyani yuborish", "request_location": True}]],
+                                "resize_keyboard": True,
+                                "one_time_keyboard": True
+                            }
+                            send_tg(bot_token, chat_id, "📍 Buyurtmani yetkazib berish uchun lokatsiyangizni yuboring (pastdagi tugmani bosing) yoki manzilni matn sifatida yozing:", kb)
                         elif data == "leave_review":
                             user_sessions[chat_id]["step"] = "wait_review"
                             send_tg(bot_token, chat_id, "✍️ Marhamat, sharhingizni yozing:")
@@ -382,7 +387,8 @@ def bot_polling(bot_token):
                     if chat_id not in user_sessions:
                         user_sessions[chat_id] = {"cart": [], "step": "start"}
                     text = msg.get("text", "")
-                    print(f"[BOT] Message from {chat_id}: text='{text}', has_contact={'contact' in msg}")
+                    location = msg.get("location")
+                    print(f"[BOT] Message from {chat_id}: text='{text}', has_contact={'contact' in msg}, has_location={location is not None}")
 
                     if user_sessions[chat_id].get("step") == "wait_verification":
                         print(f"[BOT] User {chat_id} is in wait_verification step")
@@ -399,12 +405,27 @@ def bot_polling(bot_token):
                         continue
 
                     if user_sessions[chat_id].get("step") == "wait_address":
-                        user_sessions[chat_id]["address"] = text
+                        address_str = text
+                        if location:
+                            lat = location.get("latitude")
+                            lon = location.get("longitude")
+                            address_str = f"https://www.google.com/maps?q={lat},{lon}"
+                        
+                        user_sessions[chat_id]["address"] = address_str
                         user_sessions[chat_id]["step"] = "done"
                         cart = user_sessions[chat_id]["cart"]
                         total = sum(i["price"] for i in cart)
                         items_str = "\n".join([f"- {i['name']}" for i in cart])
-                        send_tg(bot_token, chat_id, f"🏁 <b>Buyurtma tayyor!</b>\n\n📦 Tarkibi:\n{items_str}\n💰 Jami: <b>${total:.2f}</b>\n📍 Manzil: {text}")
+                        
+                        # Main menu keyboard
+                        kb_main = {"keyboard": [[{"text": "🛍 Saytdan buyurtma", "web_app": {"url": "https://fast-food-final.onrender.com/"}}], [{"text": "🛍 Buyurtma"}, {"text": "📦 Buyurtmalarim"}], [{"text": "ℹ️ Ma'lumot"}, {"text": "⚙️ Sozlamalar"}]], "resize_keyboard": True}
+                        
+                        send_tg(bot_token, chat_id, f"🏁 <b>Buyurtma muvaffaqiyatli qabul qilindi!</b>\n\n📦 Tarkibi:\n{items_str}\n💰 Jami: <b>${total:.2f}</b>\n📍 Manzil: {address_str}\n\nTez orada kuryerimiz bog'lanadi. 😊", kb_main)
+                        
+                        # Notify Admin
+                        admin_msg = f"🔔 <b>YANGI BOT BUYURTMA!</b>\n👤 Mijoz ID: {chat_id}\n📍 Manzil: {address_str}\n💰 Jami: ${total:.2f}\n📦 Mahsulotlar:\n{items_str}"
+                        send_tg(bot_token, ADMIN_CHAT_ID, admin_msg)
+                        
                         user_sessions[chat_id] = {"cart": [], "step": "start"}
                         continue
 
