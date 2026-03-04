@@ -423,19 +423,39 @@ def bot_polling(bot_token):
                             lon = location.get("longitude")
                             address_str = f"https://www.google.com/maps?q={lat},{lon}"
                         
+                        phone = user_sessions[chat_id].get("phone")
+                        if not phone:
+                            phone = next((p for p, cid in phone_to_chat_id.items() if str(cid) == str(chat_id)), "Noma'lum")
+                            
                         user_sessions[chat_id]["address"] = address_str
                         user_sessions[chat_id]["step"] = "done"
                         cart = user_sessions[chat_id]["cart"]
                         total = sum(i["price"] for i in cart)
                         items_str = "\n".join([f"- {i['name']}" for i in cart])
                         
+                        # Save Order to DB
+                        orders = load_orders()
+                        new_order_id = str(random.randint(100000, 999999))
+                        new_order = {
+                            "orderId": new_order_id,
+                            "customer": f"Bot User ({chat_id})",
+                            "phone": phone,
+                            "address": address_str,
+                            "items": [{"id": i["id"], "name": i["name"], "price": i["price"], "quantity": 1} for i in cart],
+                            "total": float(total),
+                            "status": "pending",
+                            "date": time.strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        orders.insert(0, new_order)
+                        save_orders(orders)
+                        
                         # Main menu keyboard
                         kb_main = {"keyboard": [[{"text": "🛍 Saytdan buyurtma", "web_app": {"url": "https://fast-food-final.onrender.com/"}}], [{"text": "🛍 Buyurtma"}, {"text": "📦 Buyurtmalarim"}], [{"text": "ℹ️ Ma'lumot"}, {"text": "⚙️ Sozlamalar"}]], "resize_keyboard": True}
                         
-                        send_tg(bot_token, chat_id, f"🏁 <b>Buyurtma muvaffaqiyatli qabul qilindi!</b>\n\n📦 Tarkibi:\n{items_str}\n💰 Jami: <b>${total:.2f}</b>\n📍 Manzil: {address_str}\n\nTez orada kuryerimiz bog'lanadi. 😊", kb_main)
+                        send_tg(bot_token, chat_id, f"🏁 <b>Buyurtma muvaffaqiyatli qabul qilindi!</b>\n\n🆔 Buyurtma ID: <b>#{new_order_id}</b>\n📦 Tarkibi:\n{items_str}\n💰 Jami: <b>${total:.2f}</b>\n📍 Manzil: {address_str}\n\nTez orada kuryerimiz bog'lanadi. 😊", kb_main)
                         
                         # Notify Admin
-                        admin_msg = f"🔔 <b>YANGI BOT BUYURTMA!</b>\n👤 Mijoz ID: {chat_id}\n📍 Manzil: {address_str}\n💰 Jami: ${total:.2f}\n📦 Mahsulotlar:\n{items_str}"
+                        admin_msg = f"🔔 <b>YANGI BOT BUYURTMA!</b>\n🆔 ID: #{new_order_id}\n👤 Mijoz ID: {chat_id}\n📞 Tel: {phone}\n📍 Manzil: {address_str}\n💰 Jami: ${total:.2f}\n📦 Mahsulotlar:\n{items_str}"
                         send_tg(bot_token, ADMIN_CHAT_ID, admin_msg)
                         
                         user_sessions[chat_id] = {"cart": [], "step": "start"}
