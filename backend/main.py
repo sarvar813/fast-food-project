@@ -32,6 +32,7 @@ def home():
     }
 
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '8177839279:AAFJp_FHnzHjmy0MNwmgEDkL4BCfZEt73G8')
+ADMIN_BOT_TOKEN = '8367088442:AAHEPjnycd5c15ZdsTMoW7vMP5KYmnNfdKw' # Yangi Admin Bot
 ADMIN_CHAT_ID = '7867408736'
 
 # Eskiz sozlamalarini saqlash
@@ -454,9 +455,9 @@ def bot_polling(bot_token):
                         
                         send_tg(bot_token, chat_id, f"🏁 <b>Buyurtma muvaffaqiyatli qabul qilindi!</b>\n\n🆔 Buyurtma ID: <b>#{new_order_id}</b>\n📦 Tarkibi:\n{items_str}\n💰 Jami: <b>${total:.2f}</b>\n📍 Manzil: {address_str}\n\nTez orada kuryerimiz bog'lanadi. 😊", kb_main)
                         
-                        # Notify Admin
+                        # Notify Admin via Admin Bot
                         admin_msg = f"🔔 <b>YANGI BOT BUYURTMA!</b>\n🆔 ID: #{new_order_id}\n👤 Mijoz ID: {chat_id}\n📞 Tel: {phone}\n📍 Manzil: {address_str}\n💰 Jami: ${total:.2f}\n📦 Mahsulotlar:\n{items_str}"
-                        send_tg(bot_token, ADMIN_CHAT_ID, admin_msg)
+                        send_tg(ADMIN_BOT_TOKEN, ADMIN_CHAT_ID, admin_msg)
                         
                         user_sessions[chat_id] = {"cart": [], "step": "start"}
                         continue
@@ -477,9 +478,9 @@ def bot_polling(bot_token):
                         }
                         reviews_memory.append(new_review)
                         
-                        # Notify Admin
+                        # Notify Admin via Admin Bot
                         admin_msg = f"🌟 <b>BOTDAN YANGI SHARH!</b>\n\n👤 Mijoz: {p}\n💬 Sharh: {text}"
-                        send_tg(bot_token, ADMIN_CHAT_ID, admin_msg)
+                        send_tg(ADMIN_BOT_TOKEN, ADMIN_CHAT_ID, admin_msg)
                         
                         send_tg(bot_token, chat_id, "✅ Samimiy sharhingiz uchun rahmat! Sharhingiz saytimizda e'lon qilindi.")
                         continue
@@ -709,14 +710,10 @@ async def place_order_route(data: OrderRequest):
     orders.insert(0, new_order)
     save_orders(orders)
     
-    # Notify Admin via Telegram
-    bot_token = DEFAULT_BOT_TOKEN
-    admin_chat_id = ADMIN_CHAT_ID
-    
-    if bot_token and admin_chat_id:
+    if ADMIN_BOT_TOKEN and ADMIN_CHAT_ID:
         items_list = "\n".join([f"- {item['name']} x{item['quantity']}" for item in new_order['items']])
-        msg = f"🔔 <b>YANGI BUYURTMA!</b>\n\n🆔 ID: #{new_order['orderId']}\n👤 Mijoz: {new_order['customer']}\n📞 Tel: {new_order['phone']}\n📍 Manzil: {new_order['address']}\n\n📦 Mahsulotlar:\n{items_list}\n\n💰 Jam: <b>${new_order['total']:.2f}</b>"
-        send_tg(bot_token, admin_chat_id, msg)
+        msg = f"🔔 <b>YANGI SAYT BUYURTMASI!</b>\n\n🆔 ID: #{new_order['orderId']}\n👤 Mijoz: {new_order['customer']}\n📞 Tel: {new_order['phone']}\n📍 Manzil: {new_order['address']}\n\n📦 Mahsulotlar:\n{items_list}\n\n💰 Jam: <b>${new_order['total']:.2f}</b>"
+        send_tg(ADMIN_BOT_TOKEN, ADMIN_CHAT_ID, msg)
         
     return {"status": "ok", "orderId": new_order["orderId"]}
 
@@ -824,15 +821,9 @@ async def add_subscription(data: SubRequest):
     print(f"[SUBSCRIPTION] Xotiraga saqlandi. Jami: {len(subscriptions_memory)}")
     
     # Notify Admin via Telegram
-    bot_token = DEFAULT_BOT_TOKEN
-    # Find any mapped chat_id to notify admin (or use env)
-    admin_chat_id = os.getenv("ADMIN_CHAT_ID")
-    if not admin_chat_id and phone_to_chat_id:
-        admin_chat_id = list(phone_to_chat_id.values())[0] if phone_to_chat_id else None
-        
-    if bot_token and admin_chat_id:
-        msg = f"💎 <b>YANGI ABONEMENT SO'ROVI!</b>\n\n👤 Mijoz: {data.phone}\n💳 Plan: {data.plan_name}\n⏳ Muddati: {data.duration}\n💰 Narxi: ${data.price}\n\nLutfan, Admin Paneldan tasdiqlang."
-        send_tg(bot_token, admin_chat_id, msg)
+    if ADMIN_BOT_TOKEN and ADMIN_CHAT_ID:
+        msg = f"💎 <b>YANGI ABONEMENT SO'ROVI!</b>\n\n👤 Tel: {data.phone}\n📦 Plan: {data.plan_name}\n⏳ Muddat: {data.duration}\n💰 Narx: ${data.price}\n🎁 Sovg'a: {data.gift}"
+        send_tg(ADMIN_BOT_TOKEN, ADMIN_CHAT_ID, msg)
         
     return {"status": "ok", "sub_id": new_sub["id"]}
 
@@ -883,15 +874,10 @@ async def add_career(data: CareerRequest):
     }
     careers_memory.append(new_app)
     
-    # Notify Admin via Telegram
-    bot_token = DEFAULT_BOT_TOKEN
-    admin_chat_id = os.getenv("ADMIN_CHAT_ID")
-    if not admin_chat_id and phone_to_chat_id:
-        admin_chat_id = list(phone_to_chat_id.values())[0]
-        
-    if bot_token and admin_chat_id:
+    # Notify Admin via Admin Bot
+    if ADMIN_BOT_TOKEN and ADMIN_CHAT_ID:
         msg = f"🧑‍🍳 <b>YANGI XODIM ARIZASI!</b>\n\n👤 Ism: {data.name}\n📞 Tel: {data.phone}\n💼 Lavozim: {data.jobTitle}\n📄 Tajriba: {data.resume}\n\n<i>Admin panelda ko'rib chiqishingiz mumkin.</i>"
-        send_tg(bot_token, admin_chat_id, msg)
+        send_tg(ADMIN_BOT_TOKEN, ADMIN_CHAT_ID, msg)
         
     return {"status": "ok", "app_id": new_app["id"]}
 
@@ -937,14 +923,11 @@ async def add_reservation(data: ReservationRequest):
     }
     reservations_memory.append(new_res)
     
-    # Notify Admin via Telegram
-    bot_token = DEFAULT_BOT_TOKEN
-    admin_chat_id = ADMIN_CHAT_ID
-    
-    if bot_token and admin_chat_id:
+    # Notify Admin via Admin Bot
+    if ADMIN_BOT_TOKEN and ADMIN_CHAT_ID:
         comment_text = data.comment if data.comment else "Yo'q"
         msg = f"📅 <b>YANGI STOL BAND QILISH!</b>\n\n👤 Ism: {data.name}\n📞 Tel: {data.phone}\n👥 Mehmon: {data.guests}\n🗓 Sana: {data.date}\n⏰ Vaqt: {data.time}\n💬 Izoh: {comment_text}\n\n<i>Admin panelda tasdiqlashingiz mumkin.</i>"
-        send_tg(bot_token, admin_chat_id, msg)
+        send_tg(ADMIN_BOT_TOKEN, ADMIN_CHAT_ID, msg)
         
     # Notify Customer via Telegram (if linked)
     p_norm = "".join(filter(str.isdigit, data.phone))
@@ -953,7 +936,7 @@ async def add_reservation(data: ReservationRequest):
     if p_norm in phone_to_chat_id:
         chat_id = phone_to_chat_id[p_norm]
         msg_customer = f"✅ <b>JOYINGIZ BAND QILINDI!</b>\n\n🗓 Sana: <b>{data.date}</b>\n⏰ Vaqt: <b>{data.time}</b>\n\nJoyingiz band qilingani uchun rahmat! Shu vaqtda sizni intizorlik bilan kutib qolamiz. 😊"
-        send_tg(bot_token, chat_id, msg_customer)
+        send_tg(DEFAULT_BOT_TOKEN, chat_id, msg_customer)
     
     # SMS Log only (Eskiz disabled)
     msg_sms = f"Joyingiz band qilindi! {data.date} soat {data.time} da sizni kutib qolamiz. 😊"
@@ -1010,15 +993,10 @@ async def add_review(data: ReviewRequest):
     }
     reviews_memory.append(new_review)
     
-    # Notify Admin via Telegram
-    bot_token = DEFAULT_BOT_TOKEN
-    admin_chat_id = os.getenv("ADMIN_CHAT_ID")
-    if not admin_chat_id and phone_to_chat_id:
-        admin_chat_id = list(phone_to_chat_id.values())[0]
-        
-    if bot_token and admin_chat_id:
-        msg = f"🌟 <b>YANGI SHARH!</b>\n\n👤 Ism: {data.name}\n📞 Tel: {data.phone}\n⭐ Reyting: {data.rating}/5\n💬 Sharh: {data.comment}"
-        send_tg(bot_token, admin_chat_id, msg)
+    # Notify Admin via Admin Bot
+    if ADMIN_BOT_TOKEN and ADMIN_CHAT_ID:
+        msg = f"🌟 <b>YANGI SAYT SHARHI!</b>\n\n👤 Ism: {data.name}\n📞 Tel: {data.phone}\n⭐ Reyting: {data.rating}/5\n💬 Sharh: {data.comment}"
+        send_tg(ADMIN_BOT_TOKEN, ADMIN_CHAT_ID, msg)
         
     return {"status": "ok", "id": new_review["id"]}
 
