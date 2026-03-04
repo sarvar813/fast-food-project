@@ -31,7 +31,7 @@ def home():
         "heartbeat": time.strftime("%Y-%m-%d %H:%M:%S")
     }
 
-DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
+DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '8177839279:AAFJp_FHnzHjmy0MNwmgEDkL4BCfZEt73G8')
 ADMIN_CHAT_ID = '7867408736'
 
 # Eskiz sozlamalarini saqlash
@@ -921,7 +921,8 @@ async def reservation_action(data: ReservationAction):
             
             # Notify Customer via Telegram (if linked)
             p_norm = "".join(filter(str.isdigit, res["phone"]))
-            if len(p_norm) == 9: p_norm = "998" + p_norm
+            if len(p_norm) == 9:
+                p_norm = "998" + p_norm
             
             msg = ""
             if data.status == 'confirmed':
