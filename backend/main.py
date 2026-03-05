@@ -292,7 +292,7 @@ def send_tg(bot_token, chat_id, text, reply_markup=None):
             print(f"[SUCCESS] Message sent to {chat_id}")
             return True
         else:
-            print(f"[ERROR] TG API error: {res.status_code} - {res.text}")
+            print(f"[ERROR] TG API error: {res.status_code} - {res.text} | Token: {bot_token[:10]}... | ID: {chat_id}")
             return False
     except Exception as e:
         print(f"[EXCEPTION] send_tg: {e}")
