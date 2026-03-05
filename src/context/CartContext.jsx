@@ -299,37 +299,7 @@ export const CartProvider = ({ children }) => {
         return () => clearInterval(interval);
     }, []);
 
-    // Automatic Order Status Transition (Real-Time Simulation)
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setOrders(prevOrders => {
-                let changed = false;
-                const nextOrders = prevOrders.map(order => {
-                    // Progression: pending -> preparing -> shipping -> completed
-                    let nextStatus = null;
-                    if (order.status === 'pending') nextStatus = 'preparing';
-                    else if (order.status === 'preparing') nextStatus = 'shipping';
-                    else if (order.status === 'shipping') nextStatus = 'completed';
-
-                    if (nextStatus) {
-                        changed = true;
-                        // We update the local state immediately for smoothness
-                        // The backend will be updated by the next manual refresh or via the updateOrderStatus call if needed
-                        // But for a pure visual "every 5 seconds" experience, local state is enough
-                        return { ...order, status: nextStatus };
-                    }
-                    return order;
-                });
-
-                if (changed) {
-                    localStorage.setItem('bsb_orders', JSON.stringify(nextOrders));
-                }
-                return nextOrders;
-            });
-        }, 5000); // Transition every 5 seconds
-
-        return () => clearInterval(interval);
-    }, []);
+    // Simulation removed: Backend now handles status progression automatically
 
     const [telegramSettings, setTelegramSettings] = useState(() => {
         const saved = localStorage.getItem('bsb_tg_settings');

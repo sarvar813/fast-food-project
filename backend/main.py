@@ -310,6 +310,48 @@ def send_location_tg(bot_token, chat_id, lat, lon):
         print(f"[EXCEPTION] send_location_tg: {e}")
         return False
 
+def simulate_order_progression():
+    """Har 10 soniyada buyurtma holatlarini avtomatik suradi (Demo uchun)"""
+    print("[SYSTEM] Buyurtma simulyatsiyasi ishga tushdi.")
+    while True:
+        try:
+            time.sleep(10) 
+            orders = load_orders()
+            changed = False
+            
+            for o in orders:
+                status = o.get("status", "pending")
+                next_status = None
+                
+                if status == "pending": next_status = "preparing"
+                elif status == "preparing": next_status = "shipping"
+                elif status == "shipping": next_status = "completed"
+                
+                if next_status:
+                    o["status"] = next_status
+                    changed = True
+                    
+                    # Mijozga botdan xabar yuborish
+                    p_norm = "".join(filter(str.isdigit, str(o.get('phone', ''))))
+                    if len(p_norm) == 9: p_norm = "998" + p_norm
+                    
+                    if p_norm in phone_to_chat_id:
+                        chat_id = phone_to_chat_id[p_norm]
+                        icons = {"preparing": "👨‍🍳", "shipping": "🛵", "completed": "✅"}
+                        msgs = {
+                            "preparing": "Buyurtmangiz tayyorlanmoqda! 🔥🥩",
+                            "shipping": "Buyurtmangiz yo'lga chiqdi! 🛵💨",
+                            "completed": "Buyurtmangiz yetkazib berildi! Yoqimli ishtaha! 😋🍔"
+                        }
+                        text = f"{icons.get(next_status, '🔔')} <b>Holat o'zgardi: {next_status.upper()}</b>\n\n🆔 ID: #{o['orderId']}\n{msgs.get(next_status, '')}"
+                        send_tg(DEFAULT_BOT_TOKEN, chat_id, text)
+            
+            if changed:
+                save_orders(orders)
+                
+        except Exception as e:
+            print(f"[ERROR] Simulation error: {e}")
+
 bot_threads = set()
 
 def bot_polling(bot_token):
@@ -1036,7 +1078,9 @@ def keep_alive():
 def startup_event():
     print("[SYSTEM] FastAPI server ishga tushdi.")
     start_bot()
-    # Self-ping threadini faqat productionda ishlatsa ham bo'ladi
+    # Simulyatsiyani boshlash
+    threading.Thread(target=simulate_order_progression, daemon=True).start()
+    # Self-ping
     threading.Thread(target=keep_alive, daemon=True).start()
 
 if __name__ == "__main__":
