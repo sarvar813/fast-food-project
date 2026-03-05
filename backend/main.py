@@ -31,6 +31,16 @@ def home():
         "heartbeat": time.strftime("%Y-%m-%d %H:%M:%S")
     }
 
+@app.get("/test-bots")
+async def test_bots():
+    res1 = send_tg(DEFAULT_BOT_TOKEN, ADMIN_CHAT_ID, "🧪 Mijozlar boti orqali test xabari!")
+    res2 = send_tg(ADMIN_BOT_TOKEN, ADMIN_CHAT_ID, "🧪 Admin boti orqali test xabari!")
+    return {
+        "customer_bot": "ok" if res1 else "fail",
+        "admin_bot": "ok" if res2 else "fail",
+        "admin_id": ADMIN_CHAT_ID
+    }
+
 DEFAULT_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '8177839279:AAFJp_FHnzHjmy0MNwmgEDkL4BCfZEt73G8')
 ADMIN_BOT_TOKEN = '8367088442:AAHEPjnycd5c15ZdsTMoW7vMP5KYmnNfdKw' # Yangi Admin Bot
 ADMIN_CHAT_ID = '7867408736'
