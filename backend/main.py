@@ -323,9 +323,12 @@ def simulate_order_progression():
                 status = o.get("status", "pending")
                 next_status = None
                 
-                if status == "pending": next_status = "preparing"
-                elif status == "preparing": next_status = "shipping"
-                elif status == "shipping": next_status = "completed"
+                if status == "pending":
+                    next_status = "preparing"
+                elif status == "preparing":
+                    next_status = "shipping"
+                elif status == "shipping":
+                    next_status = "completed"
                 
                 if next_status:
                     o["status"] = next_status
@@ -333,7 +336,8 @@ def simulate_order_progression():
                     
                     # Mijozga botdan xabar yuborish
                     p_norm = "".join(filter(str.isdigit, str(o.get('phone', ''))))
-                    if len(p_norm) == 9: p_norm = "998" + p_norm
+                    if len(p_norm) == 9:
+                        p_norm = "998" + p_norm
                     
                     if p_norm in phone_to_chat_id:
                         chat_id = phone_to_chat_id[p_norm]
