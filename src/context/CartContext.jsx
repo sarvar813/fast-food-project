@@ -259,8 +259,23 @@ export const CartProvider = ({ children }) => {
 
                     // If we have orders from server, use them
                     if (Array.isArray(data)) {
-                        setOrders(data);
-                        localStorage.setItem('bsb_orders', JSON.stringify(data));
+                        setOrders(prevOrders => {
+                            // Merge logic: prefer server data but keep local-only orders if server lost them
+                            const localOrders = JSON.parse(localStorage.getItem('bsb_orders') || '[]');
+                            const mergedMap = new Map();
+
+                            // 1. Start with local orders
+                            localOrders.forEach(o => mergedMap.set(String(o.orderId), o));
+
+                            // 2. Overwrite/add with server orders (server is source of truth for status)
+                            data.forEach(o => mergedMap.set(String(o.orderId), o));
+
+                            const mergedArray = Array.from(mergedMap.values())
+                                .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+                            localStorage.setItem('bsb_orders', JSON.stringify(mergedArray));
+                            return mergedArray;
+                        });
                         setBackendStatus('online');
                     }
                 } else {
@@ -422,32 +437,41 @@ export const CartProvider = ({ children }) => {
                 const contentType = res.headers.get("content-type");
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     const result = await res.json();
+
+                    const fullOrder = { ...newOrder, ...result, status: result.status === 'ok' ? newOrder.status : result.status };
+
                     setOrders(prev => {
-                        const exists = prev.find(o => o.orderId === result.orderId);
-                        if (exists) return prev;
-                        return [result, ...prev];
+                        const exists = prev.find(o => String(o.orderId) === String(fullOrder.orderId));
+                        let updated;
+                        if (exists) {
+                            updated = prev.map(o => String(o.orderId) === String(fullOrder.orderId) ? fullOrder : o);
+                        } else {
+                            updated = [fullOrder, ...prev];
+                        }
+                        localStorage.setItem('bsb_orders', JSON.stringify(updated));
+                        return updated;
                     });
 
                     // Update user stats
                     const newStats = {
-                        totalOrders: userStats.totalOrders + 1,
-                        level: userStats.totalOrders + 1 >= 15 ? 'GOLD' : (userStats.totalOrders + 1 >= 5 ? 'SILVER' : 'BRONZE')
+                        totalOrders: (userStats.totalOrders || 0) + 1,
+                        level: (userStats.totalOrders || 0) + 1 >= 15 ? 'GOLD' : ((userStats.totalOrders || 0) + 1 >= 5 ? 'SILVER' : 'BRONZE')
                     };
                     setUserStats(newStats);
                     localStorage.setItem('bsb_user_stats', JSON.stringify(newStats));
 
                     // Add bonuses (5% cashback)
-                    const bonusEarned = (newOrder.total || 0) * 0.05;
+                    const bonusEarned = (fullOrder.total || 0) * 0.05;
                     setBonuses(prev => prev + bonusEarned);
 
-                    sendTelegramNotification(result);
+                    sendTelegramNotification(fullOrder);
 
                     // Success UI actions
                     setCartItems([]);
                     launchConfetti();
                     playUXSound('success');
 
-                    return result;
+                    return fullOrder;
                 }
             }
 

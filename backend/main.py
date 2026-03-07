@@ -771,7 +771,7 @@ async def place_order_route(data: OrderRequest):
         msg = f"🔔 <b>YANGI SAYT BUYURTMASI!</b>\n\n🆔 ID: #{new_order['orderId']}\n👤 Mijoz: {new_order['customer']}\n📞 Tel: {new_order['phone']}\n📍 Manzil: {new_order['address']}\n\n📦 Mahsulotlar:\n{items_list}\n\n💰 Jam: <b>${new_order['total']:.2f}</b>"
         send_tg(ADMIN_BOT_TOKEN, ADMIN_CHAT_ID, msg)
         
-    return {"status": "ok", "orderId": new_order["orderId"]}
+    return {**new_order, "status": "ok"}
 
 @app.post("/orders/update-status")
 async def update_order_status_route(data: OrderStatusUpdate):
