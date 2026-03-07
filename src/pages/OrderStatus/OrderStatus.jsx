@@ -54,19 +54,31 @@ const OrderStatus = () => {
                         )}
                     </div>
 
-                    <div className="tracking-timeline" style={{ '--progress-width': `${(currentStepIndex / (steps.length - 1)) * 100}%` }}>
-                        {steps.map((step, index) => (
-                            <div
-                                key={step.id}
-                                className={`tracking-step ${index <= currentStepIndex ? 'active' : ''} ${index === currentStepIndex ? 'current' : ''}`}
-                            >
-                                <div className="step-icon">
-                                    {step.icon}
+                    <div className="tracking-timeline-wrapper">
+                        <div className="timeline-progress-bar">
+                            <motion.div
+                                className="progress-fill"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
+                                transition={{ duration: 1, ease: "easeOut" }}
+                            />
+                        </div>
+                        <div className="tracking-steps-container">
+                            {steps.map((step, index) => (
+                                <div
+                                    key={step.id}
+                                    className={`tracking-step ${index <= currentStepIndex ? 'active' : ''} ${index === currentStepIndex ? 'current' : ''}`}
+                                >
+                                    <div className="step-icon-wrapper">
+                                        <div className="step-icon">
+                                            {step.icon}
+                                        </div>
+                                        {index === currentStepIndex && <div className="icon-glow"></div>}
+                                    </div>
+                                    <div className="step-label">{step.label}</div>
                                 </div>
-                                <div className="step-label">{step.label}</div>
-                                {index < steps.length - 1 && <div className="step-line"></div>}
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
 
                     <div className="order-details-box">

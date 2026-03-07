@@ -315,7 +315,7 @@ def simulate_order_progression():
     print("[SYSTEM] Buyurtma simulyatsiyasi ishga tushdi.")
     while True:
         try:
-            time.sleep(10) 
+            time.sleep(5) 
             orders = load_orders()
             changed = False
             
